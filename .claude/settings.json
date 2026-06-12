@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$f='C:\\Users\\HomePC\\Documents\\SDA\\build.md'; $age=if(Test-Path $f){((Get-Date)-(Get-Item $f).LastWriteTime).TotalSeconds}else{999}; if($age -lt 120){exit 0}; $msg=@{continue=$true;hookSpecificOutput=@{hookEventName='Stop';additionalContext='REQUIRED before stopping: update build.md. (1) Overwrite the Current State block: Phase, Last completed section, Next section, Live URL, Known open issues, Last updated date. (2) Append a Build Log entry if any code was written this session: [YYYY-MM-DD] Section N - what shipped - decisions made - deviations - open issues. Do this now, then stop.'}};Write-Output ($msg|ConvertTo-Json -Compress -Depth 5)",
+            "statusMessage": "Checking build.md..."
+          }
+        ]
+      }
+    ]
+  }
+}
