@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn semantic tokens — Tailwind v3 format (HSL channel values) */
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 0 0% 13%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 13%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 13%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 64%;
+    --radius: 0rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* SDA brand tokens
+   Placed outside @layer so they win the cascade over the shadcn variables above.
+   --accent, --muted, --border here override shadcn's HSL versions. */
+:root {
+  --ink:     #0A0A0A;
+  --paper:   #FAFAF8;
+  --accent:  #1A3D2F;
+  --muted:   #6B6B6B;
+  --border:  #E5E4DF;
+  --surface: #F2F1EC;
+  --success: #2D6A4F;
+  --warning: #B45309;
+  --danger:  #991B1B;
+
+  --sr: var(--font-sora, 'Sora'), system-ui, sans-serif;
+  --in: var(--font-inter, 'Inter'), system-ui, sans-serif;
+}
+
+/* Light mode locked — no system preference, no .dark class ever */
+html {
+  color-scheme: light;
+  font-family: var(--in);
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--in);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--sr);
+}
+
+/* Sora has no true italic — enforced globally on heading emphasis */
+h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
+  font-style: normal;
+  font-weight: 300;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

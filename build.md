@@ -1,0 +1,1470 @@
+# SDA Platform — build.md
+
+> **This file is the living source of truth for the build.**
+> Claude Code MUST update the **Current State** block and append to the **Build Log**
+> at the end of every section, no exceptions.
+> If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
+
+---
+
+## Current State
+
+- **Phase:** NOT STARTED
+- **Last completed section:** —
+- **Next section:** Section 0 — Repo & Tooling
+- **Live URL:** — (target: sda.ng)
+- **Known open issues:** —
+- **Last updated:** —
+
+*(Claude Code: overwrite this entire block after every session. Never leave it stale.)*
+
+---
+
+## Project Snapshot
+
+**SDA** — micro angel investment platform (Nigeria).
+Repositioning sda.ng from personal finance coaching into a serious capital platform.
+Reference aesthetic: foundersfund.com — stark, editorial, minimal.
+
+### Three roles, one codebase, one database
+
+| Role | What they do |
+|---|---|
+| **Applicant** | Applies for funding, uploads documents, tracks status |
+| **Investor** | Browses deal summaries publicly; full details gated behind login; expresses interest |
+| **Admin** | Reviews/approves/rejects applications, blacklists users, promotes approved apps to live deals, manages content and users, sees metrics |
+
+### Stack (locked — do not change without flagging)
+
+- Next.js 14 (App Router) + TypeScript
+- Supabase — Postgres + Auth + Storage
+- Tailwind CSS + shadcn/ui
+- React Hook Form + Zod
+- ZeptoMail (transactional email only)
+- Vercel (hosting + edge functions)
+
+### Scope hard boundaries (V1)
+
+- **No payment processing.** "Accept investment" = recording an offline commitment. No Paystack, no Flutterwave, no escrow. If a payment requirement appears during the build, stop and flag it as V2.
+- **Out of V1:** payments/escrow, founder↔investor messaging, investor KYC verification, SMS, blog, multi-currency, native app.
+- Architecture must leave room for all of the above without rework.
+
+### Two client assumptions — confirm before Section 1
+
+1. "Accept investment" = recording an offline commitment, not money movement.
+2. Investor sees summary publicly; full details only after login.
+
+Get explicit written confirmation on both before the database schema is finalised.
+
+---
+
+## Brand Tokens
+
+```css
+--ink:     #0A0A0A   /* text, buttons */
+--paper:   #FAFAF8   /* page background */
+--accent:  #1A3D2F   /* deep forest green — CTAs, links, trust signals */
+--muted:   #6B6B6B   /* secondary text */
+--border:  #E5E4DF   /* dividers */
+--surface: #F2F1EC   /* cards, section fills */
+--success: #2D6A4F
+--warning: #B45309
+--danger:  #991B1B
+```
+
+**Fonts:**
+- **Sora** — all headings, nav logo, pull quotes, section eyebrows (weights 300, 400, 600)
+- **Inter** — all body copy, buttons, labels, captions (weights 400, 500)
+
+**Font CSS variables:**
+```css
+--sr: 'Sora', system-ui, sans-serif;
+--in: 'Inter', system-ui, sans-serif;
+```
+
+**Sora has no true italic.** Do not use `font-style: italic` on any Sora element.
+Emphasis within headings is achieved with `font-weight: 300` + `color: rgba(255,255,255,0.5)` on `<em>` spans — `font-style: normal` explicitly set.
+
+**Type scale:**
+| Element | Font | Size | Weight | Notes |
+|---|---|---|---|---|
+| Hero h1 | Sora | 58px | 300 | line-height 1.08, letter-spacing -0.02em |
+| Section h2 | Sora | 42px | 300 | line-height 1.12, letter-spacing -0.02em |
+| Small h2 | Sora | 32px | 300 | letter-spacing -0.01em |
+| Funding type label | Sora | 22px | 400 | — |
+| Nav logo | Sora | 20px | 400 | — |
+| Stats / pull quote | Sora | 36–48px | 300 | — |
+| Body copy | Inter | 15–16px | 400 | line-height 1.7 |
+| Buttons / nav links | Inter | 13px | 400–500 | letter-spacing 0.03–0.04em |
+| Section eyebrow | Inter | 11px | 400 | uppercase, letter-spacing 0.12em |
+
+*Weight-300 Sora reads very thin at small sizes. If any heading below 32px looks too light at browser rendering, bump to weight 400. That is a browser judgment call — do not pre-emptively change the spec.*
+
+*If a real brand logo or color arrives from the client, swap `--accent` only. Do not re-litigate the full palette mid-build.*
+
+---
+
+## Lessons From Past Builds (Kiima, Elroisè, Hadiel)
+
+These are real failure modes, not hypotheticals. Each has a guardrail.
+
+1. **Email variable syntax fails silently.**
+   Loops.so needed `{DATA_VARIABLE:varname}` — wrong syntax sends the email but renders nothing. ZeptoMail likely differs.
+   → Guardrail: Before writing any email template, confirm ZeptoMail's merge-tag syntax from their live docs. Send one real test email per template. Do not assume. (Section 7)
+
+2. **Auth + middleware caused repeated rework.**
+   Role-gating, session refresh, and protected-route redirects are where time disappears.
+   → Guardrail: Build and fully test the auth matrix (logged-out, applicant, investor, admin) in Section 2 before any feature is built behind it. (Section 2)
+
+3. **Supabase Storage + sensitive files.**
+   Financial records and bank statements are the opposite of public avatars.
+   → Guardrail: Private buckets only. Never a public URL. Only short-lived (10-min) signed URLs, generated server-side, admin-only. Verify in Section 8 that no document URL loads while logged out. (Sections 3, 4, 8)
+
+4. **Dark-mode hydration drift.**
+   System preference + RSC = mismatch on first render.
+   → Guardrail: Lock light mode globally in root layout from day one. No theme switcher in V1. (Section 0)
+
+5. **Client-side role checks are not security.**
+   → Guardrail: All writes go through server actions. Admin mutations use the service role. Never trust the client for permissions. (Sections 3–5)
+
+6. **Design system drift when built mid-project.**
+   → Guardrail: Tokens, fonts, and base shadcn primitives are completed in Section 0. Not touched again. (Section 0)
+
+7. **Stale docs cause re-explaining and drift.**
+   → Guardrail: build.md is updated after every session. A stale build.md is a bug.
+
+---
+
+## Working Contract (read before every session)
+
+- **Read first.** Before writing any code, read the relevant files.
+- **Propose, then wait.** For every non-trivial task, propose a plan and wait for approval before implementing.
+- **No destructive DB operations without showing the migration SQL first.**
+- **No hallucinated libraries, env vars, or API shapes.** If unsure of an external API (e.g. ZeptoMail syntax), say so and verify against current docs before coding.
+- **After every session:** update Current State, tick completed tasks, append a Build Log entry.
+- **If the plan is wrong, stop and flag it.** Do not silently improvise.
+- **No payments in V1.** If a payment requirement appears, stop and flag it.
+
+---
+
+# BUILD SECTIONS
+
+Run in order. Do not start a section until the previous section's Definition of Done is met.
+
+---
+
+## Section 0 — Repo & Tooling
+
+**Objective:** A working Next.js app with brand tokens, fonts, light mode locked, route groups scaffolded, CLAUDE.md written, build.md committed, and a green Vercel deploy.
+
+**Why this first:** Everything downstream depends on a stable design system and route structure. Fixing tokens or fonts mid-build is expensive.
+
+### Tasks
+
+- [ ] Scaffold Next.js 14 with App Router and TypeScript (`create-next-app`)
+- [ ] Install and configure Tailwind CSS
+- [ ] Install and configure shadcn/ui
+- [ ] Add brand tokens to `globals.css` and `tailwind.config.ts`
+- [ ] Wire Sora (headings) and Inter (body/UI) via `next/font/google`
+- [ ] Lock light mode in root layout — no `ThemeProvider`, no system preference, no dark mode classes
+- [ ] Create route groups: `(marketing)`, `(app)`, `(admin)` with placeholder `page.tsx` in each
+- [ ] Create `CLAUDE.md` in repo root (stack, tokens, route map, working contract)
+- [ ] Commit `build.md` to repo root
+- [ ] Connect Vercel project, push, confirm green deploy
+
+### Manual Prompt (you → Claude Code)
+
+```
+We are building SDA — a micro angel investment platform. 
+Stack: Next.js 14 App Router, TypeScript, Supabase, Tailwind, shadcn/ui, ZeptoMail, Vercel.
+
+Before writing any code, read build.md in the repo root. It is the source of truth.
+Follow the Working Contract in it.
+
+For Section 0, propose your plan first. Wait for my approval. Then:
+
+1. Scaffold Next.js 14 (App Router, TypeScript) + Tailwind + shadcn/ui.
+
+2. Add brand tokens exactly as listed in build.md (--ink, --paper, --accent, --muted, 
+   --border, --surface, --success, --warning, --danger) to globals.css and tailwind.config.ts.
+   Wire Sora via next/font/google for all headings (weights 300, 400, 600),
+   Inter for all body and UI (weights 400, 500).
+   Add CSS variables: --sr for Sora, --in for Inter.
+   
+   Critical: Sora has no true italic. Do not set font-style: italic anywhere on 
+   Sora text. Heading emphasis uses font-weight: 300 + reduced opacity instead.
+   Document this in CLAUDE.md so it is not forgotten mid-build.
+
+3. Lock light mode in the root layout. No ThemeProvider. No dark mode. No system preference.
+   We had hydration drift on a past build from exactly this — we're not repeating it.
+
+4. Create route groups (marketing), (app), (admin) — each with a bare placeholder page.tsx.
+
+5. Write CLAUDE.md: stack, brand tokens, route map, working contract (read first, 
+   propose and wait, no destructive DB ops without showing migration, no hallucinated APIs).
+   Include this explicitly in CLAUDE.md: "Sora has no true italic. Never use 
+   font-style: italic on any Sora element. Heading emphasis = font-weight: 300 + 
+   color: rgba(255,255,255,0.5) on <em> with font-style: normal."
+
+6. Confirm build.md is committed to repo root.
+
+7. Connect Vercel. Push. Show me the deploy URL.
+
+When done: update build.md Current State, tick Section 0 tasks, append Build Log entry.
+```
+
+### Definition of Done
+
+- `npm run build` passes with no errors
+- Vercel deploy is green and accessible
+- Brand tokens are visible on a placeholder page (spot-check in browser)
+- Sora weight-300 renders on an `<h1>`, Inter on body text — spot-check both in browser
+- No `font-style: italic` applied to any Sora element anywhere in the codebase
+- Three route groups resolve without 404
+- `CLAUDE.md` and `build.md` are in repo root
+- Light mode is locked — no flash, no dark-mode class anywhere
+
+### Self-update step
+
+After this section, Claude Code updates:
+- Current State → Phase: Foundation complete · Next: Section 1
+- Build Log entry: date, what shipped, any deviations, open issues
+
+---
+
+## Section 1 — Database Schema & RLS
+
+**Objective:** Full Postgres schema, enums, constraints, RLS policies, private storage buckets, and generated TypeScript types.
+
+**Why this before auth:** Auth depends on the `profiles` table. Get the schema right once.
+
+### Tasks
+
+- [ ] Show migration SQL before applying anything
+- [ ] Create enums: `user_role`, `funding_type`, `application_status`, `document_type`
+- [ ] Create all tables (see schema below)
+- [ ] Add `funding_amount` check constraint (≤ 5,000,000)
+- [ ] Add partial unique index: one active application per user
+- [ ] Write RLS policies per role
+- [ ] Create two private Storage buckets: `financial-records`, `bank-statements`
+- [ ] Generate TypeScript types (`supabase gen types typescript`)
+- [ ] Commit generated types to `lib/database.types.ts`
+
+### Schema
+
+**Enums**
+```sql
+user_role:          applicant | investor | admin
+funding_type:       equity | debt | asset | revenue_based
+application_status: draft | pending | under_review | approved | rejected
+document_type:      financials | bank_statement
+```
+
+**profiles** (extends `auth.users`)
+```
+id              uuid  PK  references auth.users
+role            user_role  not null
+full_name       text
+phone           text
+is_blacklisted  boolean  default false
+blacklist_reason text
+is_active       boolean  default true
+created_at      timestamptz  default now()
+```
+
+**applications**
+```
+id                  uuid  PK  default gen_random_uuid()
+user_id             uuid  references profiles(id)
+business_name       text  not null
+founder_name        text  not null
+contact_email       text  not null
+contact_phone       text
+business_description text  not null
+monthly_revenue     numeric
+funding_amount      numeric  check (funding_amount <= 5000000)
+funding_type        funding_type
+status              application_status  default 'draft'
+rejection_reason    text
+admin_notes         text
+submitted_at        timestamptz
+reviewed_at         timestamptz
+reviewed_by         uuid  references profiles(id)
+created_at          timestamptz  default now()
+```
+
+**application_documents**
+```
+id              uuid  PK  default gen_random_uuid()
+application_id  uuid  references applications(id)
+document_type   document_type
+file_path       text  not null  -- Storage path, never a public URL
+uploaded_at     timestamptz  default now()
+```
+
+**deals**
+```
+id                    uuid  PK  default gen_random_uuid()
+source_application_id uuid  references applications(id) nullable
+business_name         text  not null
+industry              text
+revenue_to_date       numeric
+funding_required      numeric
+summary_public        text  not null   -- shown to everyone
+details_gated         text             -- shown only to logged-in investors
+is_active             boolean  default true
+created_by            uuid  references profiles(id)
+created_at            timestamptz  default now()
+```
+
+**portfolio_companies**
+```
+id                   uuid  PK  default gen_random_uuid()
+name                 text  not null
+description          text
+logo_path            text
+display_order        integer  default 0
+is_published         boolean  default false
+detail_page_content  text
+created_at           timestamptz  default now()
+```
+
+**notifications**
+```
+id          uuid  PK  default gen_random_uuid()
+user_id     uuid  references profiles(id)
+type        text  not null
+message     text  not null
+read_at     timestamptz
+created_at  timestamptz  default now()
+```
+
+**audit_log**
+```
+id           uuid  PK  default gen_random_uuid()
+actor_id     uuid  references profiles(id)
+action       text  not null   -- vocabulary locked in Section 4
+target_type  text             -- 'application' | 'deal' | 'user'
+target_id    uuid
+metadata     jsonb
+created_at   timestamptz  default now()
+```
+
+### RLS Policy Rules
+
+| Table | Applicant | Investor | Admin |
+|---|---|---|---|
+| profiles | Own row only | Own row only | Service role (server action) |
+| applications | Own rows only | No access | Service role |
+| application_documents | Own rows (via application) | No access | Service role |
+| deals | No access | `is_active = true`; `details_gated` column excluded for logged-out | Service role |
+| portfolio_companies | Read `is_published = true` | Read `is_published = true` | Service role |
+| notifications | Own rows only | Own rows only | Service role |
+| audit_log | No access | No access | Service role |
+
+- Blacklisted users (`is_blacklisted = true`) cannot insert into `applications`
+- `details_gated` must not appear in any query available to logged-out users — enforce at the query level in server components, not just RLS (RLS is the backstop)
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 1: database schema. Read build.md before doing anything.
+Follow the Working Contract — show me the migration SQL before applying it.
+
+Build the schema exactly as listed in build.md Section 1. Do not add columns 
+or tables that aren't listed. Do not skip any.
+
+Migration must include:
+- All enums
+- All tables with constraints
+- funding_amount check constraint (<= 5000000)
+- Partial unique index: one active application per user 
+  (user_id where status IN ('pending','under_review'))
+- Trigger or function to block inserts on applications where is_blacklisted = true
+
+RLS policies per the table in build.md:
+- Applicants read/write only their own rows
+- Investors read deals where is_active = true; details_gated column must NOT 
+  be accessible to logged-out or unauthenticated requests
+- Admins bypass via service role used in server actions only
+- No client-side role bypass
+
+Storage: create two PRIVATE buckets — financial-records and bank-statements. 
+No public access. No public URLs ever.
+
+After applying: run `supabase gen types typescript --local > lib/database.types.ts`
+and commit the file.
+
+Show me the full migration SQL first. Wait for my go-ahead before applying.
+
+When done: update build.md Current State, tick Section 1 tasks, append Build Log entry.
+```
+
+### Definition of Done
+
+- Migration applied clean, no errors
+- All tables and enums exist in Supabase dashboard
+- `funding_amount` check constraint rejects values > 5,000,000
+- Partial unique index prevents two active applications for the same user
+- RLS verified: test with three separate role tokens — applicant cannot read another applicant's row, investor cannot read `details_gated` while logged out, admin server action succeeds
+- Both Storage buckets exist, private, no public access
+- `lib/database.types.ts` committed
+
+### Self-update step
+
+Claude Code logs: final schema decisions, any column changes from the draft, RLS test results.
+
+---
+
+## Section 2 — Auth, Roles & Middleware
+
+**Objective:** Complete auth flows with role selection, and a fully tested middleware access matrix before any feature is built behind it.
+
+**Why test the matrix first:** Auth + middleware caused repeated rework on a past project. Test all four states before building anything that depends on them.
+
+### Tasks
+
+- [ ] Signup page with role selection (Applicant | Investor) — writes `profiles.role`
+- [ ] Email + password signup with email verification
+- [ ] Login page
+- [ ] Logout action
+- [ ] Password reset flow (request + confirm)
+- [ ] Create `profiles` row on signup (DB trigger preferred; server action fallback)
+- [ ] Middleware protecting `(app)` routes: requires active session
+- [ ] Middleware protecting `(admin)` routes: requires `role = admin`
+- [ ] Logged-out users hitting protected routes → redirect to `/login`
+- [ ] Session refresh handled (Supabase `getSession` + refresh token)
+- [ ] Brand-styled auth pages (Sora headings, Inter body, paper bg, forest-green buttons)
+- [ ] Run manual auth test checklist — all states pass before moving to Section 3
+
+### Auth Test Matrix (run before calling this section done)
+
+| Route | Logged out | Applicant | Investor | Admin |
+|---|---|---|---|---|
+| `/` (marketing) | ✓ visible | ✓ visible | ✓ visible | ✓ visible |
+| `/opportunities` | ✓ visible (summary only) | ✓ visible | ✓ visible | ✓ visible |
+| `/dashboard` | → `/login` | ✓ own dashboard | ✓ own dashboard | ✓ |
+| `/dashboard/apply` | → `/login` | ✓ | → `/login` or redirect | — |
+| `/admin` | → `/login` | → `/login` or 403 | → `/login` or 403 | ✓ |
+| `/admin/applications` | → `/login` | 403 | 403 | ✓ |
+
+All six rows must pass before Section 3 starts.
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 2: authentication and middleware. Read build.md.
+
+Critical note from our past builds: auth and middleware caused repeated rework 
+when we built features before testing the access matrix. We are not doing that 
+here. The matrix test runs before we touch Section 3.
+
+Implement with Supabase Auth:
+
+1. Signup page at /signup:
+   - Role selection (Applicant or Investor) — required, writes to profiles.role
+   - Email + password fields
+   - Email verification on submit
+   - On signup: create profiles row (use a DB trigger if possible; 
+     server action fallback if trigger doesn't work reliably)
+
+2. Login page at /login — email + password, redirect to /dashboard on success
+
+3. Logout server action — clears session, redirects to /
+
+4. Password reset: /forgot-password (request) and /reset-password (confirm + new password)
+
+5. Middleware:
+   - (app) routes: require active session → else redirect to /login
+   - (admin) routes: require session AND role = admin → else redirect to /login
+   - Handle session refresh (call supabase.auth.getSession and refresh token)
+   - Do not use client-side role checks for access control
+
+All auth pages must use brand styles: Sora on headings, Inter on body, 
+paper (#FAFAF8) background, forest-green (#1A3D2F) buttons, clean minimal layout.
+
+After building, give me the manual test checklist from build.md Section 2 
+and walk through it with me. The section is not done until all rows pass.
+
+When done: update build.md — paste the passing test matrix into the Build Log,
+tick Section 2 tasks, update Current State.
+```
+
+### Definition of Done
+
+- Signup creates user in `auth.users` and row in `profiles` with correct role
+- Email verification email fires (check inbox, not just logs)
+- Login, logout, and password reset all work end-to-end
+- All six rows of the auth test matrix pass
+- No client-side role check used anywhere for route protection
+
+### Self-update step
+
+Claude Code pastes the passing auth matrix results into the Build Log.
+
+---
+
+## Section 3 — Applicant Flow
+
+**Objective:** End-to-end applicant journey: signup → multi-step application with draft save → document upload → submit → status tracking.
+
+### Tasks
+
+- [ ] Applicant dashboard at `/dashboard` — shows application status and history
+- [ ] Multi-step application form at `/dashboard/apply`:
+  - Step 1: Business details (name, founder name, contact email, phone)
+  - Step 2: Business description and monthly revenue
+  - Step 3: Funding amount (₦5M cap enforced client + server) and funding type
+  - Step 4: Document uploads (financial records + bank statements → private buckets)
+  - Step 5: Review and confirm
+- [ ] Zod validation on every step, RHF for form state
+- [ ] Save as draft at any step (status = `draft`) — resumable on next login
+- [ ] Submit server action: status → `pending`, confirmation email via ZeptoMail, block if active application exists, block if user is blacklisted
+- [ ] Application status page: clear states for Pending / Under Review / Approved / Rejected
+- [ ] Rejection reason displayed when status = `rejected`
+- [ ] No public document URLs anywhere — files go to private Storage only
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 3: applicant flow. Read build.md. Auth and middleware are done and tested.
+
+All mutations go through server actions — never client-side fetch to the DB.
+No public document URLs, ever.
+
+Build:
+
+1. /dashboard — applicant's home. Shows:
+   - Current application status (or CTA to apply if none exists)
+   - Application history if multiple drafts exist
+
+2. /dashboard/apply — multi-step form using React Hook Form + Zod:
+   Step 1: business_name, founder_name, contact_email, contact_phone
+   Step 2: business_description, monthly_revenue
+   Step 3: funding_amount (enforce ≤ 5,000,000 in Zod schema AND in the server action), 
+           funding_type (equity | debt | asset | revenue_based)
+   Step 4: document uploads — financial records to 'financial-records' bucket, 
+           bank statements to 'bank-statements' bucket. Private. No public URL.
+           Show upload progress.
+   Step 5: review screen — show all entered data before submit
+
+3. Save as draft at any step. Button labelled "Save and continue later".
+   Saves current fields to applications table with status = 'draft'.
+   On next login, dashboard shows "Resume your application" CTA.
+
+4. Submit (server action):
+   - Validate all fields server-side with Zod
+   - Check: user is not blacklisted → if blacklisted, return error, do not insert
+   - Check: user has no existing application with status IN ('pending','under_review') 
+     → if exists, return error, do not insert second one
+   - Set status = 'pending', submitted_at = now()
+   - Send confirmation email via ZeptoMail (template: application_submitted)
+   - Return success state to UI
+
+5. Status page — visible states:
+   - Draft: "Your application is saved. Resume or submit."
+   - Pending: "We have received your application and will review it shortly."
+   - Under Review: "Your application is being reviewed by our team."
+   - Approved: "Congratulations. Our team will be in touch."
+   - Rejected: "Unfortunately your application was not approved." + rejection_reason field
+
+Do not build the email template in detail yet — that is Section 7. For now, 
+stub out the email send with a console.log and a TODO comment.
+
+When done: update build.md — log form architecture, validation edge cases, 
+any deviations. Tick Section 3 tasks. Update Current State.
+```
+
+### Definition of Done
+
+- Test applicant can: sign up → start application → save draft → log out → log back in → resume → complete all steps → upload documents → submit
+- Submission is blocked if a pending/under_review application already exists
+- Submission is blocked if user is blacklisted
+- ₦5M cap returns a clear error if exceeded
+- No document URL is publicly accessible (verify by copying the file_path and attempting to open it while logged out — should fail)
+- Status page shows correct state for each status value including rejection reason
+
+### Self-update step
+
+Claude Code logs: form architecture decisions, Zod schema structure, any edge cases handled beyond the spec.
+
+---
+
+## Section 4 — Admin Portal
+
+**Objective:** Admin can review, approve, reject, blacklist, promote applications to deals, manage all content, see metrics — all mutations logged to audit_log.
+
+### Tasks
+
+- [ ] Seed first admin (show SQL before running)
+- [ ] Admin dashboard at `/admin` — metrics overview
+- [ ] Applications inbox at `/admin/applications` — filterable, searchable table
+- [ ] Application detail view at `/admin/applications/[id]`
+  - Full application data
+  - Documents via 10-minute server-generated signed URLs (admin only)
+  - Internal `admin_notes` field
+- [ ] Approve action: status → `approved`, write audit_log, trigger email
+- [ ] Reject action: status → `rejected`, rejection reason required, write audit_log, trigger email
+- [ ] Blacklist user: sets `is_blacklisted = true` + `blacklist_reason`, writes audit_log, reversible
+- [ ] Promote approved application → new `deals` row: admin sets `summary_public`, `details_gated`, `industry`, `revenue_to_date`, `funding_required`, `is_active`
+- [ ] Deals CRUD at `/admin/deals`
+- [ ] Portfolio CRUD at `/admin/portfolio`
+- [ ] User management at `/admin/users`: deactivate/reactivate, view blacklist status
+- [ ] Dashboard metrics: total applications, approval rate, active deals, total funding requested, registered users
+- [ ] Email notification to admin on new application submitted (stub → wired in Section 7)
+
+### Audit Log Action Vocabulary (lock this before building)
+
+```
+application.submitted
+application.approved
+application.rejected
+application.under_review
+user.blacklisted
+user.unblacklisted
+user.deactivated
+user.reactivated
+deal.created
+deal.updated
+deal.deactivated
+portfolio.created
+portfolio.updated
+```
+
+Every admin mutation writes one of these to `audit_log`. No freeform strings.
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 4: admin portal. Read build.md. Auth and applicant flow are done and tested.
+
+Critical rules:
+- All admin mutations run through server actions using the Supabase service role.
+- Every mutation writes to audit_log using the vocabulary locked in build.md Section 4.
+- Documents are served only via server-generated signed URLs, valid 10 minutes, 
+  generated only when an admin is authenticated. No public document URLs.
+
+Propose the admin route structure before building anything. Wait for approval.
+
+Then build:
+
+1. Seed the first admin. Show me the SQL before running it:
+   INSERT into auth.users... then update profiles set role = 'admin'...
+
+2. /admin — dashboard with metrics:
+   Total applications (all statuses), approval rate, active deals count, 
+   total funding requested (sum), registered users count.
+   Metrics are read-only. No cache needed for V1, fresh query on load.
+
+3. /admin/applications — table with:
+   Columns: business name, founder, funding amount, funding type, status, submitted date
+   Filters: status, funding type, date range, funding amount range
+   Search: business name, founder name, contact email
+   Row click → detail view
+
+4. /admin/applications/[id] — detail view:
+   All application fields. admin_notes textarea (auto-saves on blur via server action).
+   Documents section: for each document, generate a signed URL server-side, 
+   valid 10 min, display inline or as a download link. Log the signed URL 
+   generation to console (not to DB). Never expose the raw Storage path.
+   
+   Actions:
+   - "Mark Under Review" → status = under_review, log application.under_review
+   - "Approve" → status = approved, log application.approved, stub email
+   - "Reject" → modal, rejection_reason required, status = rejected, 
+     log application.rejected, stub email
+   - "Blacklist User" → modal, blacklist_reason required, sets is_blacklisted = true 
+     on profiles, log user.blacklisted, reversible from /admin/users
+
+5. /admin/applications/[id]/promote — promote to deal:
+   Only available when status = approved.
+   Form fields: summary_public, details_gated, industry, revenue_to_date, 
+   funding_required, is_active (toggle).
+   On submit: create deals row, set source_application_id, log deal.created.
+
+6. /admin/deals — list of all deals with edit/deactivate actions.
+   Edit → update deal fields, log deal.updated.
+   Deactivate → is_active = false, log deal.deactivated.
+
+7. /admin/portfolio — CRUD for portfolio_companies.
+   Fields: name, description, logo (upload to Storage), display_order, is_published.
+   Log portfolio.created and portfolio.updated.
+
+8. /admin/users — table of all profiles.
+   Show: full_name, email, role, is_blacklisted, is_active, created_at.
+   Actions: deactivate (is_active = false, log user.deactivated), 
+   reactivate (is_active = true, log user.reactivated),
+   remove blacklist (is_blacklisted = false, log user.unblacklisted).
+
+Email sends in this section are stubs (console.log + TODO). Wired properly in Section 7.
+
+When done: update build.md — log admin route map, audit_log vocabulary confirmation,
+any deviations. Tick Section 4 tasks. Update Current State.
+```
+
+### Definition of Done
+
+- First admin seeded and can log in
+- Full review loop works: submit as applicant → review in admin → approve/reject → status updates on applicant side
+- Every admin action creates a row in `audit_log` with the correct vocabulary
+- Documents are only accessible via signed URLs — raw Storage path never exposed
+- Signed URLs return 403 after 10 minutes (test this manually)
+- Blacklisted user cannot submit a new application
+- Metrics on dashboard render with real data
+
+### Self-update step
+
+Claude Code logs: admin route map, audit_log action vocabulary as implemented, signed URL generation approach.
+
+---
+
+## Section 5 — Investor Flow
+
+**Objective:** Public deal discovery, login-gated full details, express interest, investor dashboard.
+
+### Tasks
+
+- [ ] `/opportunities` public page: active deals showing `summary_public`, industry, `revenue_to_date`, `funding_required` only
+- [ ] Filter and search: by industry, funding type, amount range
+- [ ] "View details" CTA on each deal card
+- [ ] Logged-out "View details" → prompt to sign up or log in (do not show `details_gated`)
+- [ ] Logged-in investor: full deal detail including `details_gated`
+- [ ] Verify at network level: `details_gated` column is never in any response to logged-out requests
+- [ ] "Express interest" server action: creates admin notification, logs to `notifications` table, shows confirmation to investor
+- [ ] Investor dashboard at `/dashboard`: deals they have expressed interest in
+- [ ] Optional (flag if time is tight): email investors when a new deal goes live
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 5: investor flow. Read build.md. Confirm gating approach before building.
+
+Critical: logged-out users must never receive the details_gated column in any 
+network response — not just hidden in the UI. The query itself must exclude it 
+for unauthenticated requests. RLS is the backstop, but the primary enforcement 
+is at the query/server-component level. Before building, tell me how you plan 
+to enforce this and wait for my confirmation.
+
+Build:
+
+1. /opportunities (public, no auth required):
+   Fetch only: id, business_name, industry, revenue_to_date, funding_required, 
+   summary_public, funding_type, created_at.
+   Do NOT select details_gated here under any circumstances.
+   Show deal cards in a clean grid. Each card has a "View details" button.
+   
+   Filters: industry (dropdown), funding type (dropdown), funding amount range (slider or inputs).
+   These filter client-side after initial load (no re-fetch needed for V1).
+
+2. "View details" behaviour:
+   - Logged out → redirect to /login with a ?redirect=/opportunities/[id] param
+   - Logged in as investor → /opportunities/[id] showing full detail including details_gated
+   - Logged in as applicant → show summary only or redirect (decide and document)
+
+3. /opportunities/[id] (authenticated investors):
+   Fetch full deal including details_gated.
+   Show all fields cleanly.
+   "Express interest" button → server action:
+   - Insert into notifications (user_id = admin id, type = 'investor_interest', 
+     message includes deal name and investor email)
+   - Show investor a confirmation: "Your interest has been noted. We will be in touch."
+   - Log this action somewhere sensible (notifications table is fine for V1)
+
+4. Investor dashboard at /dashboard:
+   Show deals the investor has expressed interest in.
+   This requires either a join table or querying notifications by investor user_id 
+   and type = 'investor_interest'. Use whichever is cleaner — document the decision.
+
+5. Optional: when admin sets a deal to is_active = true, trigger an email to all 
+   investors. Flag this as optional — skip if it adds significant complexity to V1.
+
+When done: update build.md — document how details_gated gating is enforced 
+(column exclusion approach, not just RLS), log dashboard data model decision.
+Tick Section 5 tasks. Update Current State.
+```
+
+### Definition of Done
+
+- Logged-out user can browse `/opportunities` and sees summaries only
+- Open browser DevTools Network tab on `/opportunities` while logged out — `details_gated` must not appear in any response payload
+- Logged-in investor sees full deal detail at `/opportunities/[id]`
+- "Express interest" creates a notification row and shows confirmation
+- Investor dashboard shows their expressed-interest deals
+
+### Self-update step
+
+Claude Code documents the exact gating enforcement method used and confirms it was verified in DevTools.
+
+---
+
+## Section 6 — Marketing Pages
+
+**Objective:** All public pages in `(marketing)` with final copy, pulling live data where needed, fully responsive.
+
+**Reference template:** Bain Capital Ventures (baincapitalventures.com) — screenshot saved in repo as `docs/bcv-reference.png`. Match this layout section for section. Not the content — the structure, spacing, and section sequence.
+
+**Homepage section order (top to bottom — must match BCV structure exactly):**
+1. Nav
+2. Hero — full-bleed dark, large display headline left, visual element right, body + dual CTAs bottom-left
+3. Ticker strip — scrolling portfolio companies + funding types with status tags
+4. Spotlight — asymmetric 2-col: 1 large featured article/story left + 3 stacked cards right
+5. Approach — eyebrow + large heading, then accordion rows left + illustration right inside bordered box
+6. Pull quote — full-bleed dark section, large serif quote + attributed photo right
+7. Portfolio grid — oversized partial word bleeding left edge + 3 company cards with photos/initials
+8. Portfolio feature — founder quote left + company list right, 2-col
+9. Email signup — minimal full-width serif input + arrow
+10. Footer — massive "SDA" logotype filling full width, nav links top-right, legal + social bottom
+
+**Known gaps from reference comparison (fix these, do not skip):**
+- Hero right column: use a real photo if client provides one; placeholder is a dark textured box with SDA monogram
+- Pull quote section: background must be noticeably darker than page (`#0d120e`) so it reads as a distinct band
+- Footer logotype: "SDA" must be very large — target ~120px font-size — filling the footer width the way BCV's "BCV" does
+- Portfolio cards: use company initials in circular avatars until real photos are provided; note in Build Log what's missing
+
+### Tasks
+
+- [ ] Homepage (`/`) — 10-section BCV structure above, all sections in order
+- [ ] Nav — logo left, 6 links center, "Apply for funding" CTA right
+- [ ] Hero — 2-col grid, headline + CTAs left, dark visual right; `TickerStrip` as separate `'use client'` component
+- [ ] Spotlight section — featured story left, 3 article cards right; placeholder copy until real stories exist
+- [ ] Approach section — 3 accordion rows left (JS-toggled open/close), globe/map illustration right
+- [ ] Pull quote section — full-bleed `#0d120e` bg, Sora 32px weight 300 quote, founder photo placeholder right
+- [ ] Portfolio grid — "ple" oversized bleed text + "Meet our portfolio." heading + 3 company cards
+- [ ] Portfolio feature — founder quote left, 4 company list right (live from `portfolio_companies`)
+- [ ] Email signup — single input row, arrow submit, no form element (use button + input)
+- [ ] Footer — "SDA" at ~120px Sora weight 600, nav links column top-right, legal row bottom
+- [ ] About page (`/about`)
+- [ ] Portfolio page (`/portfolio`): grid from `portfolio_companies` where `is_published = true`
+- [ ] For Investors page (`/investors`)
+- [ ] Apply for Funding landing page (`/apply`): eligibility requirements prominent, CTA to `/signup?role=applicant`
+- [ ] FAQ page (`/faq`): shadcn Accordion component
+- [ ] Footer on all marketing pages: Privacy, Terms, Risk Disclosure stubs
+- [ ] SEO: unique `<title>` and `<meta name="description">`, Open Graph tags on all pages
+- [ ] Sitemap at `/sitemap.xml`
+- [ ] Responsive at 375px, 768px, 1280px
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 6: marketing pages. Read build.md before writing a single line of code.
+
+Auth, applicant, admin, and investor flows are done.
+Every visual decision below is locked. Do not improvise, substitute, or improve 
+anything not listed as flexible.
+
+─────────────────────────────────────────
+REFERENCE TEMPLATE
+─────────────────────────────────────────
+
+The layout template is Bain Capital Ventures: baincapitalventures.com
+Screenshot is saved at docs/bcv-reference.png in the repo.
+
+Match the BCV STRUCTURE section for section — not their content, their layout logic:
+- How sections are divided and sequenced
+- The asymmetric 2-col patterns
+- The full-bleed bands that break the page rhythm
+- The oversized typography moments (hero headline, partial bleed word, footer logotype)
+- The hairline border system (no cards, no shadows — only 1px lines)
+
+After building the homepage, take a screenshot of localhost and compare it 
+side-by-side against docs/bcv-reference.png. List every structural difference 
+you can see, fix them, screenshot again. Do not call the homepage done until 
+the section sequence and spacing rhythm matches the reference. Log the comparison 
+results in the Build Log.
+
+─────────────────────────────────────────
+HOMEPAGE SECTION ORDER (locked — matches BCV top to bottom)
+─────────────────────────────────────────
+
+1. NAV
+   flex, space-between, padding 18px 40px
+   border-bottom: 1px solid rgba(255,255,255,0.1)
+   Left:   "SDA" — Sora 18px weight 600
+   Center: Funding types · Portfolio · For investors · Insights · About · Contact
+           Inter 12px, rgba(255,255,255,0.5), hover #FAFAF8
+   Right:  "Apply for funding" — bg #1A3D2F, Inter 12px, padding 8px 18px,
+           no border-radius, hover bg #244d3c
+
+2. HERO
+   Full-bleed dark section, min-height 340px
+   2-col grid: hero content left | visual panel right (220px fixed width)
+   background: #0A0A0A with subtle texture overlay (repeating-linear-gradient
+     of near-invisible horizontal lines: rgba(255,255,255,0.02))
+   Left col (padding 60px 40px 48px):
+     Eyebrow: "Micro angel investing · Nigeria" — Inter 11px uppercase 
+              letter-spacing 0.14em rgba(255,255,255,0.4) mb 20px
+     H1 (Sora 52px weight 300 line-height 1.06 letter-spacing -0.025em):
+       "Backing early-stage"
+       "businesses"
+       <em style="font-style:normal;font-weight:300;color:rgba(255,255,255,0.45)">
+         with traction.
+       </em>
+     Body: Inter 13px rgba(255,255,255,0.6) line-height 1.7 max-width 380px mb 28px
+     CTAs gap 10px: [Apply for funding] primary + [Explore opportunities →] ghost
+   Right col (bg #1a2e1a, full section height):
+     Dark green panel. Until real photo provided: centered SDA monogram
+     (Sora 16px weight 600 in a 48px circle, bg #1A3D2F) + "Capital platform" tag below.
+     When client provides a portrait photo: replace with next/image, object-fit cover.
+     Note in Build Log: "Hero right panel — awaiting client photo"
+
+3. TICKER STRIP ('use client' component — TickerStrip.tsx)
+   overflow hidden, padding 13px 0, bg #0d0d0b
+   border-bottom: 1px solid rgba(255,255,255,0.1)
+   Items (render twice for seamless loop, 32s linear):
+     "Fundora HQ" [Funded tag] · "Kidcode" [Funded tag] · 
+     "My Little Big Surprise" [Funded tag] · "Rent & Rig Limited" [Funded tag] · 
+     "Equity · Debt · Asset financing · Revenue-based"
+   Item: Sora 12px weight 300 rgba(255,255,255,0.35), padding 0 32px
+   Tag:  Inter 10px bg #1A3D2F rgba(255,255,255,0.8) padding 2px 7px ml 8px
+   Separator dot: color #1A3D2F
+
+4. SPOTLIGHT SECTION
+   2-col grid (1fr 1fr), border-bottom 1px rgba(255,255,255,0.1)
+   Left col (padding 48px 40px, border-right 1px rgba(255,255,255,0.1)):
+     Eyebrow: "Spotlight"
+     Label badge: "Founder insight" — bg #1A3D2F, Inter 10px, padding 3px 8px
+     H2: Sora 28px weight 300 line-height 1.18, letter-spacing -0.02em
+         "Why execution matters more than the idea"
+     Image placeholder: 100% width, 160px height, bg #1a2e1a
+                        Note in Build Log: "Spotlight image — awaiting client asset"
+     Author row: 28px circle avatar (bg #1A3D2F, initials) + name + role
+   Right col (3 stacked article cards):
+     Each card: padding 24px 32px, border-bottom 1px rgba(255,255,255,0.1)
+     2-col inner: text left + 80×60px thumb right
+     Thumb: dark bg placeholder, note awaiting asset
+     Card label (Inter 10px uppercase): "Portfolio news" / "Founder story" / "Insight"
+     Card title: Sora 15px weight 300 line-height 1.3
+     Author: Inter 11px rgba(255,255,255,0.4)
+     Hover: background rgba(255,255,255,0.02)
+     Cards:
+       "Fundora HQ closes growth round to expand financial infrastructure"
+       "Kidcode: building the next generation of Nigerian tech talent"
+       "What 6 months of traction actually looks like in the data"
+     Note in Build Log: "Spotlight cards — placeholder copy, awaiting real stories"
+
+5. APPROACH SECTION
+   Top: padding 48px 40px 0
+     Eyebrow: "Our approach"
+     H2: Sora 38px weight 300 letter-spacing -0.02em — "How we invest."
+   Grid below (2-col 1fr 1fr, border-top 1px rgba(255,255,255,0.1)):
+     Left (padding 36px 40px, border-right 1px rgba(255,255,255,0.1)):
+       3 accordion rows — JS click toggles open/closed state
+       Each row: padding 20px 0, border-bottom 1px rgba(255,255,255,0.08)
+       Title: Sora 16px weight 400 + "+" / "−" indicator right
+       Body (visible when open): Inter 12px rgba(255,255,255,0.5) line-height 1.7 max-width 340px mt 12px
+       Row 1 (open by default): "Traction-first selection"
+         Body: "We only back businesses with at least 6 months of verifiable revenue.
+                Ideas without numbers do not qualify."
+       Row 2: "Flexible capital structures"
+         Body: "Equity, debt, asset financing, and revenue-based options depending
+                on what fits the business model."
+       Row 3: "Founder-aligned terms"
+         Body: "We structure deals around the business, not a template.
+                Funding request must not exceed ₦5 million."
+     Right (padding 36px 40px, flex center):
+       Circle illustration: 160px diameter, border 1px rgba(255,255,255,0.12)
+       Inner ring: 120px, border 1px rgba(255,255,255,0.06)
+       Horizontal equator line
+       "NG" label: Inter 10px rgba(255,255,255,0.2) uppercase letter-spacing 0.1em
+
+6. PULL QUOTE SECTION
+   background: #0d120e (noticeably darker/greener than page — this is the full-bleed band)
+   padding: 72px 40px
+   border-bottom: 1px solid rgba(255,255,255,0.1)
+   2-col grid (1fr 260px), gap 48px, align-items center
+   Left:
+     Quote: Sora 32px weight 300 line-height 1.22 letter-spacing -0.02em
+            rgba(255,255,255,0.88) — NO italic
+            "Capital should meet businesses that are already doing the work."
+     Attribution: Inter 11px rgba(255,255,255,0.35) mt 20px letter-spacing 0.04em
+                  "SDA · Micro Angel Investing Platform · Nigeria"
+   Right:
+     Dark box, height 220px, bg linear from #1a3520 to #0d1a0d
+     Centered: 56px circle (bg rgba(255,255,255,0.06)) with "SDA" Sora 16px weight 300
+     Below circle: Inter 11px rgba(255,255,255,0.3) "Investment team"
+     Note in Build Log: "Pull quote right — awaiting founder/team photo"
+
+7. PORTFOLIO GRID SECTION
+   border-bottom: 1px solid rgba(255,255,255,0.1)
+   Header row (padding 48px 40px 0, overflow hidden):
+     Flex, align-items baseline
+     Partial bleed word: "ple " — Sora 64px weight 300 color rgba(255,255,255,0.06)
+                         letter-spacing -0.04em, no line break
+     Heading: "Meet our portfolio." — Sora 38px weight 300 letter-spacing -0.02em color #FAFAF8
+   3-col card grid below (border-top 1px rgba(255,255,255,0.1) mt 32px):
+     Each card: border-right 1px rgba(255,255,255,0.1), last child no border-right
+     Photo area (200px height, bg linear #1a2e1a → #0d150d):
+       Centered circle avatar: 64px, bg rgba(26,61,47,0.6), border 1px rgba(255,255,255,0.1)
+       Initials: Sora 20px weight 300 rgba(255,255,255,0.5)
+       Bottom-left tag: company sector, Inter 9px bg rgba(255,255,255,0.08) padding 3px 8px
+     Info area (padding 20px 24px):
+       Company name: Sora 16px weight 400
+       Role line: Inter 11px rgba(255,255,255,0.4) — "industry · city"
+       Pills: border 1px rgba(255,255,255,0.12) Inter 10px rgba(255,255,255,0.4)
+              padding 3px 8px, no border-radius
+     Companies:
+       Fundora HQ / "Financial infrastructure · Lagos" / [Equity] [Active]
+       Kidcode / "Tech education · Abuja" / [Revenue-based] [Active]
+       Rent & Rig Limited / "Equipment rental · Lagos" / [Debt] [Active]
+     Note in Build Log: "Portfolio cards — using initials until client provides photos"
+
+8. PORTFOLIO FEATURE
+   2-col grid (1fr 1fr), border-bottom 1px rgba(255,255,255,0.1)
+   Left (padding 56px 40px, border-right 1px rgba(255,255,255,0.1)):
+     Eyebrow: "Portfolio feature"
+     Quote: Sora 18px weight 300 line-height 1.5 rgba(255,255,255,0.85)
+            "The SDA team understood what we were building before we had the
+            words for it. They backed the numbers, not the pitch."
+     Attribution: Inter 11px rgba(255,255,255,0.35) mt 20px
+                  "Founder, Fundora HQ · Backed 2023"
+     Note in Build Log: "Portfolio quote — placeholder, awaiting real founder quote"
+   Right (bg linear #0f1f10 → #0A0A0A, padding 40px):
+     "Backed businesses" tag: bg #1A3D2F Inter 9px padding 4px 10px
+     4 company rows (live from portfolio_companies table, fallback to hardcoded):
+       Each: flex, gap 14px, padding 14px 0, border-bottom 1px rgba(255,255,255,0.06)
+       32px circle (bg #1A3D2F, initials Sora 10px weight 500)
+       Name: Sora 13px weight 400
+       Sub:  Inter 10px rgba(255,255,255,0.35)
+
+9. EMAIL SIGNUP
+   padding: 48px 40px
+   border-bottom: 1px solid rgba(255,255,255,0.1)
+   Label: Inter 11px rgba(255,255,255,0.35) max-width 500px mb 20px line-height 1.6
+          "Sign up for SDA deal flow — updates on new opportunities, portfolio
+           news, and what we have been backing."
+   Input row (max-width 500px):
+     border-bottom: 1px solid rgba(255,255,255,0.25)
+     No border on top/left/right — only the bottom line
+     Input: flex:1, bg transparent, no border, Sora 14px weight 300 rgba(255,255,255,0.2)
+            placeholder "Enter your email", padding 12px 0
+     Arrow: Inter 18px rgba(255,255,255,0.4) hover #FAFAF8 — "→"
+     Do NOT use an HTML <form> element — use div + button
+
+10. FOOTER
+    padding: 32px 40px 24px
+    border-top: 1px solid rgba(255,255,255,0.08)
+    Top row — flex space-between align-items flex-start:
+      Left: "SDA" — Sora ~120px weight 600 letter-spacing -0.05em color #FAFAF8
+            Size it so it fills roughly 60-70% of footer width
+      Right: nav column (flex-direction column gap 8px):
+             Funding types · Portfolio · For investors · About · Apply · Contact
+             Inter 11px rgba(255,255,255,0.35) letter-spacing 0.04em, hover 0.7
+    Bottom row (border-top 1px rgba(255,255,255,0.08) mt 24px pt 16px):
+      Left:  "© 2025 SDA Micro Angel Investing. All rights reserved. · Privacy · Terms · Risk Disclosure"
+             Inter 10px rgba(255,255,255,0.2)
+      Right: LinkedIn · Twitter · Instagram — Inter 10px rgba(255,255,255,0.25)
+
+─────────────────────────────────────────
+DESIGN SYSTEM (locked — from build.md Brand Tokens)
+─────────────────────────────────────────
+
+Fonts (load via next/font/google):
+  Sora:  weights 300, 400, 600 — all headings, nav logo, pull quotes, eyebrows
+  Inter: weights 400, 500      — all body copy, buttons, labels, captions
+
+CSS font variables (already in globals.css from Section 0):
+  --sr: 'Sora', system-ui, sans-serif
+  --in: 'Inter', system-ui, sans-serif
+
+CRITICAL — Sora has no true italic:
+  Never use font-style: italic on any Sora element.
+  Heading emphasis uses font-weight: 300 + color: rgba(255,255,255,0.5)
+  on <em> spans, with font-style: normal explicitly set.
+
+Page background: #0A0A0A (near-black) for the homepage.
+--paper (#FAFAF8) is used only for primary button text and light elements on dark bg.
+
+Type scale:
+  Hero h1:         Sora 58px weight 300, line-height 1.08, letter-spacing -0.02em
+  Section h2:      Sora 42px weight 300, line-height 1.12, letter-spacing -0.02em
+  Small h2:        Sora 32px weight 300, letter-spacing -0.01em
+  Funding label:   Sora 22px weight 400
+  Nav logo:        Sora 20px weight 400
+  Stats:           Sora 36px weight 300
+  Pull quote:      Sora 48px weight 300 — NO italic
+  Body:            Inter 15–16px weight 400, line-height 1.7
+  Nav/CTA/labels:  Inter 13px weight 400–500, letter-spacing 0.03–0.04em
+  Eyebrow:         Inter 11px uppercase, letter-spacing 0.12em
+
+Weight-300 Sora may read too thin at sizes below 32px at browser rendering.
+If it does, bump those instances to weight 400. This is a browser judgment call
+at build time — not a spec change.
+
+Colors on dark background:
+  Primary text:   #FAFAF8
+  Secondary text: rgba(255,255,255,0.65)
+  Muted text:     rgba(255,255,255,0.4)
+  Hint / eyebrow: rgba(255,255,255,0.3)
+  Dividers:       rgba(255,255,255,0.08)
+  Accent fill:    #1A3D2F
+  Ticker bg:      #0f0f0d
+
+Buttons (zero border-radius on all — non-negotiable):
+  Primary: bg #FAFAF8, color #0A0A0A, no border, padding 13px 28px,
+           Inter 13px letter-spacing 0.04em, hover bg #e8e6e0
+  Ghost:   bg transparent, color #FAFAF8, border 1px solid rgba(255,255,255,0.25),
+           padding 13px 28px, Inter 13px, hover border rgba(255,255,255,0.55)
+  Nav CTA: bg #1A3D2F, color #FAFAF8, padding 9px 20px,
+           Inter 13px letter-spacing 0.03em, hover bg #244d3c
+
+Zero border-radius everywhere except the 6px dot markers (border-radius: 50%).
+No box-shadow anywhere. No gradients anywhere.
+
+─────────────────────────────────────────
+LAYOUT RULES
+─────────────────────────────────────────
+
+Section padding:  80px 48px
+Hero padding:     100px 48px 80px
+Closing padding:  100px 48px
+Section divider:  border-bottom: 1px solid rgba(255,255,255,0.08)
+No max-width cap — sections are full bleed with horizontal padding only.
+
+Grid system:
+  Hero:              2-col (1fr 1fr), gap 64px, align-items end
+  Focus section:     2-col (1fr 1fr), gap 64px
+  Investors section: 2-col (1fr 1fr), gap 64px
+  Portfolio grid:    4-col repeat(4,1fr), gap 0, hairline borders between items
+  Funding grid:      4-col repeat(4,1fr), gap 1px,
+                     background rgba(255,255,255,0.08) — the gap IS the line
+  Stats inner:       2-col (1fr 1fr), gap 32px
+
+Mobile (max-width: 768px):
+  All 2-col grids → 1 column
+  Portfolio grid  → 2 columns
+  Funding grid    → 2 columns
+  Hero padding    → 60px 24px 48px
+  Section padding → 60px 24px
+  Nav: hide nav-links list, keep logo and nav-cta button
+
+─────────────────────────────────────────
+WHAT NOT TO DO
+─────────────────────────────────────────
+
+Do not add border-radius to any button or container (except 50% on avatar circles).
+Do not add box-shadow anywhere.
+Do not use font-style: italic on any Sora element.
+Do not add hero background image unless client provides one — use textured dark bg.
+Do not center-align text outside the pull quote / closing sections.
+Do not add card borders or shadows — hairline 1px lines only.
+Do not use Tailwind for one-off rgba values — write explicit CSS or CSS modules.
+Do not add animations beyond the ticker strip.
+Do not add a hamburger menu — on mobile hide nav-links, keep logo and CTA.
+
+─────────────────────────────────────────
+OTHER PAGES — scaffold now, copy to follow
+─────────────────────────────────────────
+
+Scaffold these routes with placeholder content. I will paste real copy page by page.
+  /about
+  /portfolio  (pulls portfolio_companies live data, same grid as homepage portfolio section)
+  /investors
+  /apply      (landing page — NOT the form, that is /dashboard/apply)
+  /faq        (use shadcn Accordion component)
+  /privacy    (stub — "Coming soon")
+  /terms      (stub — "Coming soon")
+  /risk-disclosure (stub — "Coming soon")
+
+Footer links to all of the above appear on every marketing page.
+
+SEO on every page:
+  Unique <title> and <meta name="description">
+  og:title, og:description, og:image (placeholder image for now)
+  /sitemap.xml
+
+─────────────────────────────────────────
+SCREENSHOT COMPARISON REQUIREMENT
+─────────────────────────────────────────
+
+After building the homepage:
+1. Take a screenshot of localhost:3000 at 1280px width
+2. Place it side by side with docs/bcv-reference.png
+3. List every structural difference section by section
+4. Fix all structural gaps before calling the homepage done
+5. Log the comparison results and what was fixed in the Build Log
+
+The homepage is NOT done until the section sequence, spacing rhythm, 
+and layout logic matches the BCV reference. Content is SDA — structure is BCV.
+
+─────────────────────────────────────────
+MISSING ASSETS — note these in Build Log, do not block on them
+─────────────────────────────────────────
+
+These are placeholders until client provides real files:
+- Hero right panel: awaiting founder/team portrait photo
+- Spotlight featured image: awaiting editorial asset
+- Spotlight card thumbnails (x3): awaiting assets
+- Pull quote right panel: awaiting founder/team photo
+- Portfolio company photos (x3+): using initials circles until provided
+- Portfolio company descriptions: using placeholders until confirmed
+
+When done: update build.md — list placeholder vs final assets, 
+list any missing items. Tick Section 6 tasks. Append Build Log entry.
+```
+
+### Definition of Done
+
+- `npm run build` passes with no errors
+- Homepage section order matches BCV reference exactly (10 sections in order)
+- Screenshot comparison completed and logged — all structural gaps resolved
+- Ticker scrolls smoothly and loops without a visible jump
+- Accordion rows in Approach section open and close via JS click
+- Portfolio section pulls from Supabase with hardcoded fallback
+- Footer "SDA" logotype is large (~120px) and fills the footer width
+- Pull quote section has visibly distinct background (#0d120e)
+- Zero border-radius on buttons, confirmed by browser inspect
+- Zero `font-style: italic` on any Sora element, confirmed by grep
+- All placeholder assets noted in Build Log with what is needed from client
+- Responsive at 375px, 768px, 1280px
+- No dark-mode flash (light mode locked from Section 0)
+- All other pages render with no 404
+- SEO tags present on all pages
+- Sitemap accessible at `/sitemap.xml`
+
+### Self-update step
+
+Claude Code logs: which pages have final copy, which have placeholders, any missing assets (logos, images) needed from the client.
+
+---
+
+## Section 7 — Email & Notifications
+
+**Objective:** All transactional emails working with real variables rendering in a real inbox. ZeptoMail syntax confirmed from live docs before any template is written.
+
+**Why this is its own section:** Email variable syntax fails silently. Every template must be tested with a real send before being wired to application logic.
+
+### Tasks
+
+- [ ] Confirm ZeptoMail merge-tag syntax from current docs — document the exact syntax
+- [ ] Build and send one real test email before wiring any template
+- [ ] Template: email verification (Supabase handles, customise template in dashboard)
+- [ ] Template: password reset (Supabase handles, customise template)
+- [ ] Template: `application_submitted` — confirmation to applicant
+- [ ] Template: `application_approved` — to applicant
+- [ ] Template: `application_rejected` — to applicant, includes rejection reason
+- [ ] Template: `application_under_review` — to applicant
+- [ ] Template: `new_application_admin` — to admin on new submission
+- [ ] Template: `user_blacklisted` — to user (optional — confirm if needed with client)
+- [ ] Template: `deal_live` (optional) — to all investors when a deal goes live
+- [ ] Replace all Section 3 and Section 4 email stubs with real ZeptoMail calls
+- [ ] In-app notification bell (optional — reads from `notifications` table)
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 7: email and notifications. Read build.md.
+
+Explicit instruction from our lessons: email template variable syntax silently 
+failed on a past build. Do not assume ZeptoMail uses the same syntax as any 
+other service. Do not write a single template until you have confirmed the 
+exact merge-tag syntax from ZeptoMail's current documentation.
+
+Step 1: Go to ZeptoMail's documentation and confirm:
+- What is the exact syntax for a merge variable in a template? 
+  (e.g. {{variable}}, {variable}, [%variable%], etc.)
+- How are templates called from the API — template key, batch send, or direct HTML?
+- What does the API request body look like for a transactional send with variables?
+Show me the syntax and a sample API call before writing any template.
+
+Step 2: Build each template and send one real test email before wiring it up.
+Test recipient: use my email address (I'll give it to you).
+Templates needed:
+- application_submitted: variables = applicant_name, business_name, submitted_date
+- application_approved: variables = applicant_name, business_name
+- application_rejected: variables = applicant_name, business_name, rejection_reason
+- application_under_review: variables = applicant_name, business_name
+- new_application_admin: variables = applicant_name, business_name, 
+  funding_amount, funding_type, submitted_date, admin_link
+
+For each template: build it, send a real test, confirm variables render correctly 
+in the inbox, then wire it into the server action.
+
+Step 3: Replace all TODO/stub email sends from Sections 3 and 4 with real calls.
+
+Step 4: Optional — in-app notification bell. Reads from notifications table, 
+shows unread count, marks as read on click. Only build this if Step 3 is 
+fully done. Flag if time is tight.
+
+ZeptoMail API key is in .env.local as ZEPTO_MAIL_API_KEY.
+
+When done: update build.md — log the confirmed ZeptoMail syntax, 
+list every template with verification status (sent + variables confirmed). 
+Tick Section 7 tasks. Update Current State.
+```
+
+### Definition of Done
+
+- ZeptoMail merge-tag syntax documented in Build Log
+- Every template tested with a real send — variables render correctly in a real inbox
+- All Section 3 and 4 email stubs replaced with real calls
+- Applicant receives confirmation email on submission
+- Applicant receives status change email on approve/reject
+- Admin receives notification email on new submission
+
+### Self-update step
+
+Claude Code logs: confirmed ZeptoMail syntax, complete list of templates with test status (sent/variables confirmed/wired).
+
+---
+
+## Section 8 — QA, Security & Launch
+
+**Objective:** Harden the build, verify security explicitly, deploy to production, migrate DNS.
+
+**This section cannot be skipped or rushed.** Document security is the most sensitive part of the entire platform.
+
+### Tasks
+
+- [ ] E2E test each role (applicant: signup→apply→track; investor: browse→gate→interest; admin: full loop)
+- [ ] Edge cases: blacklisted reapply blocked, draft resume, expired signed URL, duplicate active app blocked, unauthorised admin access blocked
+- [ ] **Security check 1:** Confirm no document URL is reachable while logged out
+- [ ] **Security check 2:** Confirm investor cannot read another user's application
+- [ ] **Security check 3:** Confirm `details_gated` column never appears in a logged-out network response
+- [ ] **Security check 4:** Confirm admin routes return 403/redirect for non-admin authenticated users
+- [ ] **Security check 5:** Confirm `funding_amount` DB constraint rejects values > 5,000,000 via direct SQL attempt
+- [ ] Loading skeletons on all data-fetching pages
+- [ ] Empty states on all list/table views (no applications, no deals, no portfolio companies)
+- [ ] Error boundaries on all route groups
+- [ ] Mobile responsiveness final audit (375px minimum)
+- [ ] Vercel production deploy
+- [ ] DNS migration checklist for sda.ng
+- [ ] Production smoke test
+- [ ] Admin handover document
+
+### Manual Prompt (you → Claude Code)
+
+```
+Section 8: QA, security, and launch. Read build.md. This is the final section.
+
+Do not rush the security checks. Each one must be documented with evidence 
+of how it was verified. "It should be fine" is not evidence.
+
+Part 1 — Security verification (do these first, block on any failure):
+
+Security check 1 — Document URL exposure:
+- Copy a file_path from the application_documents table.
+- Attempt to access it directly via the Supabase Storage URL while logged out.
+- Expected result: 403 or redirect. If accessible: stop, this is a critical bug.
+- Show me the URL you tested and the response code.
+
+Security check 2 — Cross-user application access:
+- Log in as applicant A. Note their application ID.
+- Log in as applicant B. Attempt to fetch applicant A's application via 
+  direct Supabase query or API call.
+- Expected result: empty result set (RLS blocks it). Show me the query and result.
+
+Security check 3 — details_gated column leakage:
+- Open DevTools Network tab.
+- Hit /opportunities while logged out.
+- Inspect every network response. Confirm details_gated does not appear.
+- Show me a screenshot description or the response payload confirming absence.
+
+Security check 4 — Admin route protection:
+- Log in as an applicant. Attempt to navigate to /admin/applications.
+- Expected result: redirect to /login or 403. Show the response.
+
+Security check 5 — DB constraint:
+- Attempt to insert an application with funding_amount = 6000000 via Supabase 
+  SQL editor directly.
+- Expected result: constraint violation error. Show me the error message.
+
+Part 2 — Polish:
+- Add loading skeletons to: /dashboard, /admin/applications, /opportunities
+- Add empty states to: applications inbox (no applications yet), 
+  opportunities page (no active deals), investor dashboard (no interests yet)
+- Add error boundaries to route groups (marketing), (app), (admin)
+- Final mobile audit at 375px: check every page in browser devtools
+
+Part 3 — Deploy:
+- Deploy to Vercel production environment (not preview)
+- Confirm all environment variables are set in Vercel production settings:
+  NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY,
+  ZEPTO_MAIL_API_KEY, and any others used
+- Give me a DNS migration checklist for sda.ng:
+  - Current DNS records to note before migrating
+  - Vercel domain verification step
+  - A/CNAME record changes needed
+  - Propagation time estimate
+  - Rollback plan if something breaks
+
+Part 4 — Admin handover document:
+Write a short (1–2 page) handover doc covering:
+- How to log in as admin
+- How to review and approve/reject an application
+- How to promote an approved application to a live deal
+- How to blacklist and unblacklist a user
+- How to add/edit portfolio companies
+- How to add/edit deals
+- Where to find the audit log
+
+When done: update build.md — mark phase as LIVE, log security check results 
+with evidence, confirm production URL. Tick all Section 8 tasks. Final Build Log entry.
+```
+
+### Definition of Done
+
+- All 5 security checks pass with documented evidence
+- Site is live at sda.ng (or staging URL if DNS not yet migrated)
+- All environment variables confirmed in Vercel production
+- Admin handover document written and handed over
+- Loading states and empty states present on key pages
+- Mobile renders correctly at 375px
+
+### Self-update step
+
+Final Build Log entry: production URL, security check results, any known issues deferred to V2.
+
+---
+
+# Build Log (append-only)
+
+> One entry per completed section. Newest at bottom.
+> Format: `[YYYY-MM-DD] Section N — what shipped — decisions made — deviations — open issues`
+
+```
+[           ] Build Log starts here. Claude Code appends entries below this line.
+```
+
+---
+
+## Environment Variables Reference
+
+These must exist before the relevant section runs. Never commit values to the repo.
+
+```
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=        # server-side only, never exposed to client
+
+# ZeptoMail
+ZEPTO_MAIL_API_KEY=               # confirm key name matches ZeptoMail dashboard
+
+# App
+NEXT_PUBLIC_APP_URL=              # https://sda.ng in production
+```
+
+---
+
+## V2 Backlog (do not build in V1)
+
+Things that were explicitly deferred. Architecture should not block these.
+
+- Payment processing / escrow (Paystack or equivalent)
+- Investor KYC verification flow
+- Founder ↔ investor direct messaging
+- SMS notifications
+- Blog / content section
+- Multi-currency support
+- Native mobile app
+- Admin → investor introduction flow
+
+---
+
+## Standing Reminders
+
+- No payments in V1. If it appears, flag it.
+- Private documents, signed URLs only, admin-only.
+- All writes through server actions.
+- Update this file after every session. Stale build.md is a bug.
+- Do not hallucinate libraries, env vars, or API shapes.
