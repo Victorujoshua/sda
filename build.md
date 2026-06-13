@@ -5,30 +5,24 @@ SDA Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 1 — IN PROGRESS (migration written; blocked on Supabase access token)
-Last completed section: Section 6 — All marketing pages complete, pushed to GitHub
-Next section: Section 1 — Provide personal access token → link → db push → buckets → types → Section 2
-Live URL: — (Vercel deploy still pending — unblocked once env vars are set)
+Phase: Section 1 — NEARLY COMPLETE (one item remaining: create Storage buckets in dashboard)
+Last completed section: Section 1 — migration applied (20260613000001, verified local+remote), types generated, .env.local created
+Next section: Section 1 close-out (buckets) → Section 2 (Auth)
+Live URL: — (Vercel deploy still pending — unblocked once env vars added to Vercel)
 Known open issues:
-  - BLOCKED: supabase login interactive OAuth does not work in Claude Code environment.
-    Resolution: generate a personal access token at supabase.com/dashboard/account/tokens
-    and provide it — I will use SUPABASE_ACCESS_TOKEN env var to authenticate without login.
-  - Project ref confirmed: mxuvbjjunajthrtlxrbr
-  - BLOCKED: Storage buckets not yet created — do after db push:
-    Supabase dashboard → Storage → New bucket → "financial-records" (private, no public access)
-                                              → "bank-statements"   (private, no public access)
-  - BLOCKED: TypeScript types not yet generated — run after db push:
-    npx supabase gen types typescript --project-id mxuvbjjunajthrtlxrbr > lib/database.types.ts
-  - BLOCKED: .env.local does not exist — create with:
-    NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_APP_URL
+  - USER ACTION REQUIRED: Create two private Storage buckets in Supabase dashboard:
+    Storage → New bucket → "financial-records" (public OFF) + "bank-statements" (public OFF)
+  - .env.local confirmed created (session 9)
+  - Migration confirmed applied both locally and remotely (migration list verified)
   - Section 0 Vercel deploy still pending — import GitHub repo at vercel.com, set env vars
-  - Section 1 tasks [ ] all pending apply
+  - Supabase project ref: mxuvbjjunajthrtlxrbr (eu-west-1)
+  - supabase login interactive OAuth does not work in Claude Code; use SUPABASE_ACCESS_TOKEN instead
   - docs/bcv-reference.png missing from repo — screenshot comparison still pending
   - Remaining placeholder assets: pull quote photo, portfolio card photos, founder quote
   - Recurring dev issue: stale/corrupted .next cache → full fix:
     Stop-Process node → Remove-Item -Recurse -Force .next → npm install → npm run dev
   - Mobile: FundingOptions, WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited
-Last updated: 2026-06-13 (session 7)
+Last updated: 2026-06-13 (session 9)
 (Claude Code: overwrite this entire block after every session. Never leave it stale.)
 ---
 Project Snapshot
@@ -197,15 +191,15 @@ Section 1 — Database Schema & RLS
 Objective: Full Postgres schema, enums, constraints, RLS policies, private storage buckets, and generated TypeScript types.
 Why this before auth: Auth depends on the `profiles` table. Get the schema right once.
 Tasks
-[ ] Show migration SQL before applying anything
-[ ] Create enums: `user\_role`, `funding\_type`, `application\_status`, `document\_type`
-[ ] Create all tables (see schema below)
-[ ] Add `funding\_amount` check constraint (≤ 5,000,000)
-[ ] Add partial unique index: one active application per user
-[ ] Write RLS policies per role
-[ ] Create two private Storage buckets: `financial-records`, `bank-statements`
-[ ] Generate TypeScript types (`supabase gen types typescript`)
-[ ] Commit generated types to `lib/database.types.ts`
+[x] Show migration SQL before applying anything
+[x] Create enums: `user\_role`, `funding\_type`, `application\_status`, `document\_type`
+[x] Create all tables (see schema below)
+[x] Add `funding\_amount` check constraint (≤ 5,000,000)
+[x] Add partial unique index: one active application per user
+[x] Write RLS policies per role
+[ ] Create two private Storage buckets: `financial-records`, `bank-statements` ← user action: Supabase dashboard → Storage → New bucket (private)
+[x] Generate TypeScript types (`supabase gen types typescript`)
+[x] Commit generated types to `lib/database.types.ts`
 Schema
 Enums
 ```sql
@@ -1649,6 +1643,25 @@ Build Log (append-only)
         Intro: .sda-intro-section grid-template-columns 1fr; .sda-intro-left padding 60px 24px; .sda-intro-video-col display:none
   Desktop styles: all unchanged — inline styles and existing CSS untouched
   Screenshot: confirmed nav hides desktop links at ~500px window width (below 768px breakpoint)
+
+\[2026-06-13] Section 1 — Schema applied, types generated (session 8)
+  Shipped:
+  - Migration applied to remote Supabase project (ref: mxuvbjjunajthrtlxrbr, eu-west-1)
+    via `npx supabase db push` with SUPABASE_ACCESS_TOKEN (personal access token, not interactive login)
+    Interactive `supabase login` OAuth does not work in Claude Code environment — use token env var
+  - lib/database.types.ts generated (476 lines) — all 7 tables and 4 enums verified:
+    Tables: application_documents, applications, audit_log, deals, notifications, portfolio_companies, profiles
+    Enums: application_status (5 values), document_type (2), funding_type (4), user_role (3)
+  - Committed and pushed to GitHub (commit a8644b9)
+  Decisions:
+  - supabase/.temp/ not committed (gitignored — ephemeral CLI state)
+  - Storage bucket creation: Supabase Management API POST endpoint does not exist for buckets;
+    CLI storage subcommand only handles objects (ls/cp/mv/rm), not bucket creation.
+    Buckets must be created via Supabase dashboard or project Storage REST API with service role key.
+  Open / user actions required:
+  - Create "financial-records" and "bank-statements" buckets (private) via Supabase dashboard
+  - Create .env.local with NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_APP_URL
 
 \[2026-06-13] Section 1 — Migration file written (session 5, pending apply)
   Status: BLOCKED on Supabase project connection. Migration file written to disk.
