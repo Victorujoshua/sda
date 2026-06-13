@@ -5,24 +5,30 @@ SDA Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 6 — COMPLETE (post-section polish applied)
-Last completed section: Section 6 — Global dark theme applied to all inner marketing pages (portfolio cards, gold CTAs, accordion polish)
-Next section: Section 0 step 7 — Vercel deploy (still pending) → Section 1 (migration SQL awaiting approval)
-Live URL: — (pending Vercel deploy)
+Phase: Section 1 — IN PROGRESS (migration written; blocked on Supabase access token)
+Last completed section: Section 6 — All marketing pages complete, pushed to GitHub
+Next section: Section 1 — Provide personal access token → link → db push → buckets → types → Section 2
+Live URL: — (Vercel deploy still pending — unblocked once env vars are set)
 Known open issues:
-  - shadcn v4 resolved: components/ui/button.tsx rewritten to Tailwind v3
-  - Custom accordion built in components/ui/accordion.tsx (named export AccordionGroup)
-  - Sora weight 500 not in next/font config (only 300/400/600) — H1 fontWeight 500 browser-substituted; add "500" to Sora weights in app/layout.tsx if rendering looks wrong
-  - H1 at 80px inside 900px column — confirm both lines sit on one line each at 1280px viewport
-  - Section 0 Vercel deploy still pending
-  - Section 1 migration SQL presented but not yet approved by user
+  - BLOCKED: supabase login interactive OAuth does not work in Claude Code environment.
+    Resolution: generate a personal access token at supabase.com/dashboard/account/tokens
+    and provide it — I will use SUPABASE_ACCESS_TOKEN env var to authenticate without login.
+  - Project ref confirmed: mxuvbjjunajthrtlxrbr
+  - BLOCKED: Storage buckets not yet created — do after db push:
+    Supabase dashboard → Storage → New bucket → "financial-records" (private, no public access)
+                                              → "bank-statements"   (private, no public access)
+  - BLOCKED: TypeScript types not yet generated — run after db push:
+    npx supabase gen types typescript --project-id mxuvbjjunajthrtlxrbr > lib/database.types.ts
+  - BLOCKED: .env.local does not exist — create with:
+    NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_APP_URL
+  - Section 0 Vercel deploy still pending — import GitHub repo at vercel.com, set env vars
+  - Section 1 tasks [ ] all pending apply
   - docs/bcv-reference.png missing from repo — screenshot comparison still pending
   - Remaining placeholder assets: pull quote photo, portfolio card photos, founder quote
-  - Nav is position:absolute — inner pages rely on #0A0A0A layout bg for nav readability
-  - Recurring dev issue: stale/corrupted .next cache causes blank page or "Cannot find module './948.js'" —
-    full fix: Stop-Process node → Remove-Item -Recurse -Force .next → npm install → npm run dev
-  - Mobile: other sections (FundingOptions, WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer) not yet audited for mobile — verified Nav/Hero/Intro only
-Last updated: 2026-06-13 (session 3)
+  - Recurring dev issue: stale/corrupted .next cache → full fix:
+    Stop-Process node → Remove-Item -Recurse -Force .next → npm install → npm run dev
+  - Mobile: FundingOptions, WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited
+Last updated: 2026-06-13 (session 7)
 (Claude Code: overwrite this entire block after every session. Never leave it stale.)
 ---
 Project Snapshot
@@ -1643,6 +1649,57 @@ Build Log (append-only)
         Intro: .sda-intro-section grid-template-columns 1fr; .sda-intro-left padding 60px 24px; .sda-intro-video-col display:none
   Desktop styles: all unchanged — inline styles and existing CSS untouched
   Screenshot: confirmed nav hides desktop links at ~500px window width (below 768px breakpoint)
+
+\[2026-06-13] Section 1 — Migration file written (session 5, pending apply)
+  Status: BLOCKED on Supabase project connection. Migration file written to disk.
+  Shipped:
+  - supabase/migrations/20260613000001_initial_schema.sql (full schema, ~180 lines)
+  Schema decisions:
+  - 4 enums: user_role, funding_type, application_status, document_type
+  - 7 tables exactly matching build.md spec — no added/missing columns
+  - funding_amount CHECK (funding_amount <= 5000000)
+  - Partial unique index: applications_one_active_per_user ON applications(user_id)
+    WHERE status IN ('pending','under_review')
+  - Blacklist trigger: check_blacklist_before_application() BEFORE INSERT ON applications
+    SECURITY DEFINER + fixed search_path so it reads profiles regardless of caller RLS
+  - ON DELETE CASCADE: profiles→auth.users, applications→profiles, application_documents→applications, notifications→profiles
+  - ON DELETE SET NULL: deals→applications (source_application_id), deals→profiles (created_by),
+    applications→profiles (reviewed_by), audit_log→profiles (actor_id) — preserves records on user deletion
+  - FORCE ROW LEVEL SECURITY omitted — service role has BYPASSRLS in Supabase; ENABLE is sufficient
+  - details_gated: RLS allows authenticated users to see active deal rows including this column;
+    column exclusion for anon/unauthenticated enforced at server component query level (Section 5)
+  RLS policies:
+  - profiles: authenticated SELECT/UPDATE own row; no INSERT policy (service role handles it)
+  - applications: authenticated SELECT/INSERT/UPDATE own rows; investors have zero policy = no access
+  - application_documents: authenticated SELECT/INSERT for own application docs only (subquery join)
+  - deals: anon SELECT is_active=true; authenticated SELECT is_active=true; no writes from client
+  - portfolio_companies: anon + authenticated SELECT is_published=true (two separate policies)
+  - notifications: authenticated ALL own rows
+  - audit_log: no policies = no client access (service role only)
+  Next steps to close Section 1:
+  1. Create Supabase project at supabase.com → get project URL + anon key + service role key
+  2. Create .env.local with all three + NEXT_PUBLIC_APP_URL
+  3. Apply migration: paste SQL into Supabase SQL editor, OR:
+     npx supabase login → npx supabase link --project-ref <ref> → npx supabase db push
+  4. Create two private Storage buckets via Supabase dashboard:
+     Storage → New bucket → "financial-records" (private) → "bank-statements" (private)
+     Set bucket policies: no public access, service role only for all operations
+  5. Generate TypeScript types:
+     npx supabase gen types typescript --project-id <ref> > lib/database.types.ts
+  6. Commit lib/database.types.ts and supabase/ to repo
+
+\[2026-06-13] Section 6 (post) — GitHub push (session 4)
+  Shipped:
+  - git commit "Section 6: complete marketing homepage + inner pages with SDA dark theme"
+    75 files changed, 4122 insertions, 1182 deletions
+    Commit hash: 4636016 on master
+  - git push origin master — succeeded
+    Remote: https://github.com/Victorujoshua/sda.git
+  - .gitignore updated: .claude/settings.local.json and .claude/skills/ excluded
+  No code changes this session — push only.
+  Next action: import repo into Vercel (vercel.com → Add New Project → import from GitHub),
+    set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_APP_URL,
+    confirm green deploy, then close Section 0 DoD.
 
 \[2026-06-13] Section 6 (post) — ForInvestors heading: two-line break + font-size 42px
   Shipped:
