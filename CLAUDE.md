@@ -29,7 +29,9 @@ One codebase. One database. Three roles.
 | Database + Auth | Supabase (Postgres + Auth) | RLS enforced; service role for admin mutations only |
 | File Storage | Supabase Storage | Private buckets only — no public URLs ever |
 | Email | ZeptoMail | Transactional only — verify syntax before coding |
-| Styling | Tailwind CSS + shadcn/ui | Custom tokens override defaults |
+| Styling | Tailwind CSS + shadcn/ui | Custom tokens override defaults — resolve v4 shadcn issue before Section 3 |
+| UI Components | 21st.dev Magic MCP | `/ui [description]` in Claude Code — always override with SDA tokens after generation |
+| Design intelligence | UI-UX-Pro max skill | Loaded as Claude Code skill — reference for all layout and spacing decisions |
 | Forms | React Hook Form + Zod | Validation server-side AND client-side |
 | Hosting | Vercel | Auto-deploy from GitHub |
 

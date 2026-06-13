@@ -1,0 +1,129 @@
+import { HOMEPAGE_PORTFOLIO } from "@/lib/portfolio-data";
+
+export default function PortfolioGrid() {
+  const companies = HOMEPAGE_PORTFOLIO;
+
+  return (
+    <section style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+      {/* "ple " bleed + heading */}
+      <div style={{
+        padding: "48px 40px 0",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "baseline",
+        gap: "0",
+      }}>
+        <span style={{
+          fontFamily: "var(--sr)",
+          fontSize: "64px",
+          fontWeight: 300,
+          color: "rgba(255,255,255,0.06)",
+          letterSpacing: "-0.04em",
+          lineHeight: 1,
+          marginRight: "8px",
+        }}>
+          ple
+        </span>
+        <span style={{
+          fontFamily: "var(--sr)",
+          fontSize: "38px",
+          fontWeight: 300,
+          color: "#FAFAF8",
+          letterSpacing: "-0.02em",
+        }}>
+          Meet our portfolio.
+        </span>
+      </div>
+
+      {/* 3-col grid */}
+      <div className="sda-portfolio-grid">
+        {companies.map((company, i) => (
+          <div
+            key={company.name}
+            style={{
+              borderRight: i < companies.length - 1
+                ? "1px solid rgba(255,255,255,0.1)"
+                : "none",
+            }}
+          >
+            {/* Photo area */}
+            <div style={{
+              height: "200px",
+              background: "linear-gradient(180deg, #CF9A0A, #7a5c06)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+            }}>
+              <div style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                backgroundColor: "rgba(26,61,47,0.6)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "var(--sr)",
+                fontSize: "20px",
+                fontWeight: 300,
+                color: "rgba(255,255,255,0.5)",
+              }}>
+                {company.initials}
+              </div>
+              <span style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "12px",
+                fontFamily: "var(--in)",
+                fontSize: "9px",
+                backgroundColor: "rgba(255,255,255,0.08)",
+                color: "rgba(255,255,255,0.5)",
+                padding: "3px 8px",
+              }}>
+                {company.sector}
+              </span>
+            </div>
+
+            {/* Info area */}
+            <div style={{ padding: "20px 24px" }}>
+              <p style={{
+                fontFamily: "var(--sr)",
+                fontSize: "16px",
+                fontWeight: 400,
+                color: "#FAFAF8",
+                marginBottom: "4px",
+              }}>
+                {company.name}
+              </p>
+              <p style={{
+                fontFamily: "var(--in)",
+                fontSize: "11px",
+                color: "rgba(255,255,255,0.4)",
+                marginBottom: "10px",
+              }}>
+                {company.sector} · {company.city}
+              </p>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                {company.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    style={{
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      fontFamily: "var(--in)",
+                      fontSize: "10px",
+                      color: "rgba(255,255,255,0.4)",
+                      padding: "3px 8px",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

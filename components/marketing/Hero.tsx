@@ -1,0 +1,108 @@
+import Link from "next/link";
+
+export default function Hero() {
+  return (
+    <section style={{
+      position: "relative",
+      width: "100%",
+      minHeight: "100vh",
+      backgroundImage: "url('/images/hero_bg.jpg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-end",
+    }}>
+      {/* Gradient overlay */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.75) 65%, rgba(0,0,0,0.90) 100%)",
+        zIndex: 0,
+      }} />
+
+      {/* Content */}
+      <div className="sda-hero-content" style={{
+        position: "relative",
+        zIndex: 1,
+        padding: "80px 40px 64px",
+        maxWidth: "900px",
+      }}>
+        <p style={{
+          fontFamily: "var(--in)",
+          fontSize: "11px",
+          textTransform: "uppercase",
+          letterSpacing: "0.14em",
+          color: "rgba(255,255,255,0.4)",
+          marginBottom: "20px",
+        }}>
+          Micro angel investing · Nigeria
+        </p>
+
+        <h1 className="sda-hero-h1" style={{
+          fontFamily: "var(--sr)",
+          fontSize: "80px",
+          fontWeight: 500,
+          lineHeight: 1.0,
+          letterSpacing: "-0.02em",
+          color: "#FAFAF8",
+          whiteSpace: "normal",
+          marginBottom: 0,
+        }}>
+          Backing early-stage<br />
+          businesses with traction.
+        </h1>
+
+        <p className="sda-hero-body" style={{
+          fontFamily: "var(--in)",
+          fontSize: "18px",
+          fontWeight: 400,
+          lineHeight: 1.6,
+          color: "rgba(255,255,255,0.65)",
+          maxWidth: "480px",
+          marginTop: "24px",
+          marginBottom: 0,
+        }}>
+          We invest in businesses that are already operating, generating revenue,
+          serving customers, and ready to grow. We also connect investors to credible
+          businesses with real potential.
+        </p>
+
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "32px" }}>
+          <Link
+            href="/signup?role=applicant"
+            className="sda-btn-primary"
+            style={{
+              fontFamily: "var(--in)",
+              fontSize: "12px",
+              color: "#0A0A0A",
+              padding: "10px 22px",
+              textDecoration: "none",
+              letterSpacing: "0.04em",
+              display: "inline-block",
+            }}
+          >
+            Apply for funding
+          </Link>
+          <Link
+            href="/opportunities"
+            className="sda-btn-ghost"
+            style={{
+              fontFamily: "var(--in)",
+              fontSize: "12px",
+              color: "#FAFAF8",
+              padding: "10px 22px",
+              textDecoration: "none",
+              letterSpacing: "0.04em",
+              display: "inline-block",
+              backgroundColor: "transparent",
+            }}
+          >
+            Explore opportunities →
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

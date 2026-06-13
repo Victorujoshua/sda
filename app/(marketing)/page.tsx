@@ -1,97 +1,48 @@
+import { Metadata } from "next";
+import Hero from "@/components/marketing/Hero";
+import TickerStrip from "@/components/marketing/TickerStrip";
+import Intro from "@/components/marketing/Intro";
+import FundingOptions from "@/components/marketing/FundingOptions";
+import WhatWeLookFor from "@/components/marketing/WhatWeLookFor";
+import ForInvestors from "@/components/marketing/ForInvestors";
+import PullQuote from "@/components/marketing/PullQuote";
+import PortfolioGrid from "@/components/marketing/PortfolioGrid";
+import PortfolioFeature from "@/components/marketing/PortfolioFeature";
+import EmailSignup from "@/components/marketing/EmailSignup";
+
+export const metadata: Metadata = {
+  title: "SDA — Micro Angel Investing in Nigeria",
+  description:
+    "SDA backs early-stage Nigerian businesses with traction. Equity, debt, asset financing, and revenue-based funding for founders who are already doing the work.",
+  openGraph: {
+    title: "SDA — Micro Angel Investing in Nigeria",
+    description:
+      "SDA backs early-stage Nigerian businesses with traction. Apply for funding or explore our portfolio.",
+    url: "https://sda.ng",
+    siteName: "SDA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SDA — Micro Angel Investing in Nigeria",
+    description:
+      "SDA backs early-stage Nigerian businesses with traction.",
+  },
+};
+
 export default function HomePage() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--paper)",
-        color: "var(--ink)",
-        fontFamily: "var(--in)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        padding: "48px",
-      }}
-    >
-      <p
-        style={{
-          fontFamily: "var(--in)",
-          fontSize: "11px",
-          textTransform: "uppercase",
-          letterSpacing: "0.12em",
-          color: "var(--muted)",
-          marginBottom: "24px",
-        }}
-      >
-        SDA · Micro Angel Investing · Nigeria
-      </p>
-
-      <h1
-        style={{
-          fontFamily: "var(--sr)",
-          fontSize: "58px",
-          fontWeight: 300,
-          lineHeight: 1.08,
-          letterSpacing: "-0.02em",
-          color: "var(--ink)",
-          marginBottom: "16px",
-        }}
-      >
-        Marketing placeholder
-      </h1>
-
-      <p style={{ fontFamily: "var(--in)", fontSize: "15px", color: "var(--muted)" }}>
-        Route: <code>/</code> — (marketing) group — Section 6 builds this page.
-      </p>
-
-      <div
-        style={{
-          marginTop: "32px",
-          display: "flex",
-          gap: "12px",
-        }}
-      >
-        <div
-          style={{
-            display: "inline-flex",
-            gap: "8px",
-            flexWrap: "wrap",
-          }}
-        >
-          {[
-            { label: "--ink", color: "#0A0A0A" },
-            { label: "--paper", color: "#FAFAF8", border: "#E5E4DF" },
-            { label: "--accent", color: "#1A3D2F" },
-            { label: "--muted", color: "#6B6B6B" },
-            { label: "--surface", color: "#F2F1EC", border: "#E5E4DF" },
-            { label: "--success", color: "#2D6A4F" },
-            { label: "--warning", color: "#B45309" },
-            { label: "--danger", color: "#991B1B" },
-          ].map(({ label, color, border }) => (
-            <span
-              key={label}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                fontFamily: "var(--in)",
-                fontSize: "11px",
-                color: "var(--muted)",
-              }}
-            >
-              <span
-                style={{
-                  width: "14px",
-                  height: "14px",
-                  backgroundColor: color,
-                  border: `1px solid ${border ?? "#0A0A0A33"}`,
-                  flexShrink: 0,
-                }}
-              />
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
+    <main>
+      <Hero />
+      <TickerStrip />
+      <Intro />
+      <FundingOptions />
+      <WhatWeLookFor />
+      <ForInvestors />
+      <PullQuote />
+      <PortfolioGrid />
+      <PortfolioFeature />
+      <EmailSignup />
     </main>
   );
 }
