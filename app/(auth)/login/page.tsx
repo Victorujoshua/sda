@@ -29,17 +29,31 @@ function LoginForm() {
       return;
     }
 
-    // Role-based redirect — admins go to /admin, everyone else to /dashboard.
-    // Honour an explicit redirectTo param (e.g. middleware sent them here from /admin/...).
+    // Honour an explicit redirectTo param (middleware sent them here from a protected route).
     if (searchParams.get("redirectTo")) {
       router.push(redirectTo);
-    } else {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data: profile } = user
-        ? await supabase.from("profiles").select("role").eq("id", user.id).single()
-        : { data: null };
-      const isAdmin = profile?.role === "admin" || profile?.role === "super_admin";
-      router.push(isAdmin ? "/admin" : "/dashboard");
+      router.refresh();
+      return;
+    }
+
+    // No redirectTo — send each role to its own dashboard.
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: profile } = user
+      ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+      : { data: null };
+
+    switch (profile?.role) {
+      case "super_admin":
+      case "admin":
+        router.push("/admin");
+        break;
+      case "investor":
+        router.push("/dashboard/invest");
+        break;
+      case "applicant":
+      default:
+        router.push("/dashboard");
+        break;
     }
     router.refresh();
   }

@@ -34,40 +34,54 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // ── (app) routes — require active session ─────────────────
-  if (pathname.startsWith("/dashboard")) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.searchParams.set("redirectTo", pathname);
-      return NextResponse.redirect(url);
-    }
-  }
-
-  // ── (admin) routes — require session AND role = admin ─────
-  if (pathname.startsWith("/admin")) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.searchParams.set("redirectTo", pathname);
-      return NextResponse.redirect(url);
-    }
-
-    // Role check against database — not a client-side claim.
+  // Fetch role once for any protected route — reused across all checks below.
+  const needsRole =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+  let role: string | null = null;
+  if (user && needsRole) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
+    role = profile?.role ?? null;
+  }
 
-    if (
-      !profile ||
-      (profile.role !== "admin" && profile.role !== "super_admin")
-    ) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
-    }
+  const loginRedirect = (from: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("redirectTo", from);
+    return NextResponse.redirect(url);
+  };
+  const hardRedirect = (to: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = to;
+    url.search = "";
+    return NextResponse.redirect(url);
+  };
+
+  // ── /dashboard/invest — investor only ────────────────────
+  if (pathname.startsWith("/dashboard/invest")) {
+    if (!user) return loginRedirect(pathname);
+    if (role === "admin" || role === "super_admin") return hardRedirect("/admin");
+    if (role === "applicant" || !role) return hardRedirect("/dashboard");
+    // investor: allow through
+  }
+
+  // ── /dashboard (not /dashboard/invest) — applicant only ──
+  else if (pathname.startsWith("/dashboard")) {
+    if (!user) return loginRedirect(pathname);
+    if (role === "admin" || role === "super_admin") return hardRedirect("/admin");
+    if (role === "investor") return hardRedirect("/dashboard/invest");
+    // applicant: allow through
+  }
+
+  // ── /admin — admin or super_admin only ───────────────────
+  else if (pathname.startsWith("/admin")) {
+    if (!user) return loginRedirect(pathname);
+    if (role !== "admin" && role !== "super_admin") return loginRedirect(pathname);
+    // admin/super_admin: allow through
   }
 
   return supabaseResponse;
