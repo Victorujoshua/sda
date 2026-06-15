@@ -29,7 +29,18 @@ function LoginForm() {
       return;
     }
 
-    router.push(redirectTo);
+    // Role-based redirect — admins go to /admin, everyone else to /dashboard.
+    // Honour an explicit redirectTo param (e.g. middleware sent them here from /admin/...).
+    if (searchParams.get("redirectTo")) {
+      router.push(redirectTo);
+    } else {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = user
+        ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+        : { data: null };
+      const isAdmin = profile?.role === "admin" || profile?.role === "super_admin";
+      router.push(isAdmin ? "/admin" : "/dashboard");
+    }
     router.refresh();
   }
 

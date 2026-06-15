@@ -76,6 +76,11 @@ export default async function DashboardPage({
     interestedDeals = (deals as InterestedDeal[]) ?? [];
   }
 
+  // Safety net — admins should never land here; send them home
+  if (profile?.role === "admin" || profile?.role === "super_admin") {
+    redirect("/admin");
+  }
+
   const latestApp = (applications?.[0] as Application) ?? null;
   const firstName = profile?.full_name?.split(" ")[0] ?? "there";
   const justSubmitted = params.submitted === "true";
@@ -113,20 +118,6 @@ export default async function DashboardPage({
           SDA
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          {profile?.role === "admin" && (
-            <Link
-              href="/admin"
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
-                color: "var(--muted)",
-                textDecoration: "none",
-                letterSpacing: "0.02em",
-              }}
-            >
-              Admin portal →
-            </Link>
-          )}
           <form action={logout}>
             <button
               type="submit"
