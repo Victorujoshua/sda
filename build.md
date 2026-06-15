@@ -169,8 +169,8 @@ Known open issues:
   - Mobile: WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited (FundingOptions now done)
   - FundingOptions icons: user should visually verify white icons on dark bg at desktop + 375px mobile
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
-Last updated: 2026-06-15 (session 43)
-GitHub: latest push 1739cfb → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
+Last updated: 2026-06-15 (session 44)
+GitHub: latest push 6dd40d6 → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
 Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
   To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
              (B) run `vercel --prod` from your own terminal, OR
@@ -1333,6 +1333,13 @@ Build Log (append-only)
 > Format: `\[YYYY-MM-DD] Section N — what shipped — decisions made — deviations — open issues`
 ```
 \[           ] Build Log starts here. Claude Code appends entries below this line.
+
+\[2026-06-15] Section 8 — Security check 3 fix: migration file written (NOT YET APPLIED)
+  supabase/migrations/20260615000003_revoke_details_gated_anon.sql written.
+  Contains: REVOKE SELECT (details_gated) ON public.deals FROM anon;
+  Live test confirmed fix is NOT yet applied — anon key still reads details_gated.
+  Blocked on user running migration in Supabase SQL editor.
+  Next step: user runs the SQL, then re-run check 3 to confirm gap closed.
 
 \[2026-06-15] Section 8 — Security checks 1–4 run
   Check 1 — Document URL exposure: PENDING (cannot complete until storage buckets created).
