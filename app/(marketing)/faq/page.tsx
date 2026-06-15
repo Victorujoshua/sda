@@ -103,6 +103,36 @@ const FAQ_GROUPS = [
         answer:
           "Yes. SDA supports syndicate structures where multiple investors participate in the same deal. This is coordinated through the SDA team after you express interest.",
       },
+      {
+        question: "How will I track my investments?",
+        answer:
+          "Investors will have access to updates and reporting on startup performance, key milestones, and funding rounds and developments.",
+      },
+      {
+        question: "Can I invest in multiple startups?",
+        answer:
+          "Yes, and we strongly encourage diversification across multiple deals to manage risk.",
+      },
+      {
+        question: "Is there a community aspect to the platform?",
+        answer:
+          "Yes. SDA fosters a collaborative investor community where members share insights, discuss deals, co-invest, and learn from experienced angels.",
+      },
+      {
+        question: "How are investments structured?",
+        answer:
+          "Investments are typically structured through pooled investment vehicles or special purpose vehicles (SPVs), allowing multiple investors to invest collectively in a single deal.",
+      },
+      {
+        question: "What happens after I invest?",
+        answer:
+          "After investing, funds are deployed into the startup, you receive confirmation and documentation, and ongoing updates are shared periodically.",
+      },
+      {
+        question: "Why choose SDA over other angel platforms?",
+        answer:
+          "Lower barrier to entry through micro-investing, curated high-quality deal flow, a strong community and co-investment network, and a focus on emerging markets and high-growth sectors.",
+      },
     ],
   },
   {
@@ -137,6 +167,51 @@ const FAQ_GROUPS = [
         question: "What is a blacklisted user?",
         answer:
           "A user who has been flagged by the SDA admin team for misrepresentation, fraud, or policy violation. Blacklisted users cannot submit new applications. This is an administrative action, not an automatic outcome of rejection.",
+      },
+    ],
+  },
+  {
+    title: "Risks and returns",
+    items: [
+      {
+        question: "What are the risks involved?",
+        answer:
+          "Angel investing is high risk. Startups can fail, and investors should be prepared for the possibility of losing their entire investment.",
+      },
+      {
+        question: "What kind of returns can I expect?",
+        answer:
+          "Returns are not guaranteed. However, successful startup investments can generate significant returns over time through acquisitions, IPOs, or secondary sales. Investors should take a portfolio approach to improve their chances of success.",
+      },
+      {
+        question: "How long does it take to see returns?",
+        answer:
+          "Startup investments are illiquid and long-term. Typical holding periods range from 3 to 10 years, depending on the company's growth and exit opportunities.",
+      },
+      {
+        question: "Can I exit my investment early?",
+        answer:
+          "Early exits are generally not guaranteed. Liquidity typically occurs only during acquisition events, secondary sales, or public listings.",
+      },
+    ],
+  },
+  {
+    title: "For founders",
+    items: [
+      {
+        question: "Can founders apply for funding?",
+        answer:
+          "Yes. Founders can submit their startups for consideration through our application process. Selected startups go through screening and due diligence before being presented to investors.",
+      },
+      {
+        question: "How often are new deals shared?",
+        answer:
+          "Deal frequency varies, but we aim to provide a consistent pipeline of vetted opportunities throughout the year.",
+      },
+      {
+        question: "Do you support beginner investors?",
+        answer:
+          "Yes. We offer educational resources, investment guides, webinars, and community discussions to support investors at every level.",
       },
     ],
   },

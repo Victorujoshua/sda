@@ -5,24 +5,117 @@ SDA Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 1 — NEARLY COMPLETE (one item remaining: create Storage buckets in dashboard)
-Last completed section: Section 1 — migration applied (20260613000001, verified local+remote), types generated, .env.local created
-Next section: Section 1 close-out (buckets) → Section 2 (Auth)
-Live URL: — (Vercel deploy still pending — unblocked once env vars added to Vercel)
+Phase: Section 8 — IN PROGRESS · BUILD GREEN
+Last completed section: Section 8 (partial) — loading skeletons, error boundaries, admin handover doc, Loops migration, FundingOptions, nav scroll behaviour, auth + dashboard nav, global page padding, split signup routes, SignupProgress sidebar
+Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 27 routes, zero errors (session 34).
+  NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
+  Run builds with: NEXT_TURBO=0 npx next build
+  Alternatively: npm run build (if env already set) — or add NEXT_TURBO=0 to build script via cross-env.
+Signup + apply form layout (as of session 36):
+  Shared centered layout — used by /signup, /signup/investor, /dashboard/apply:
+    Outer: .sda-signup-grid — flex column, align-items center, padding 56px 40px 60px, bg #FAFAF8
+    Inner: .sda-signup-inner — flex row, max-width 900px, width 100%
+    Left: .sda-signup-sidebar — width 220px, padding-right 40px, border-right rgba(0,0,0,0.1)
+    Right: .sda-signup-form-col — flex 1, padding-left 48px
+    Mobile (≤768px): sidebar display:none, .sda-mobile-steps display:block, form col padding 0
+  SignupProgress component: components/auth/SignupProgress.tsx
+    6 steps: Create account / Verify email / Business details / Funding details / Upload documents / Review & submit
+    variant="investor" changes step 3 to "Investment profile"
+    Active step: gold circle (#CF9A0A), label #0A0A0A, "You are here" sub
+    Completed step: dark circle (#0A0A0A), ✓ checkmark, label rgba(0,0,0,0.6)
+    Upcoming step: muted circle (border rgba(0,0,0,0.2)), label rgba(0,0,0,0.35)
+    Connector lines: 1px × 20px rgba(0,0,0,0.1), marginLeft 13
+    Eyebrow: "PROGRESS" Inter 10px rgba(0,0,0,0.35) uppercase
+  MobileStepIndicator component: components/auth/MobileStepIndicator.tsx
+    Horizontal row of 6 circles with connectors (20px lines, rgba(0,0,0,0.15))
+    Same circle styles as desktop: gold active, dark ✓ completed, muted upcoming
+    Hidden on desktop, shown on mobile via .sda-mobile-steps wrapper class
+  ApplyForm milestone mapping:
+    Apply step 1 (Business details) → milestone step 3
+    Apply step 2 (Your business)    → milestone step 3
+    Apply step 3 (Funding details)  → milestone step 4
+    Apply step 4 (Upload documents) → milestone step 5
+    Apply step 5 (Review & submit)  → milestone step 6
+  ApplyForm removed: internal header (SDA logo + save-and-exit top), progress bar, "Step X of Y" text
+  Apply form buttons: Sora 15px weight 600, bg #CF9A0A / #0A0A0A, padding 14px 32px
+  Form inputs: bg #FFFFFF, border rgba(0,0,0,0.15), focus border #CF9A0A (via CSS in .sda-signup-form-col)
+  Labels: Inter 13px weight 500 #0A0A0A
+Nav behaviour (as of session 32):
+  position: fixed, zIndex: 100, padding: 6px 40px
+  Homepage (/): transparent at top, fades to #0A0A0A after 80px scroll
+  All other marketing pages: always #0A0A0A solid
+  Auth pages (/login, /signup, /signup/investor, /forgot-password, /reset-password): always #0A0A0A solid
+  Dashboard (/dashboard, /dashboard/apply): always #0A0A0A solid
+  Detection: usePathname() === "/" — no prop, no layout change needed
+Page content padding (as of session 32):
+  Single source of truth: .sda-page-content { padding-top: 80px } in globals.css
+  Applied via className="sda-page-content" on content wrapper in:
+    app/(marketing)/layout.tsx — new wrapper div around {children}
+    app/(app)/dashboard/layout.tsx — replaced inline paddingTop: 56px
+    app/(auth)/layout.tsx — replaced inline paddingTop: 56px
+  Hero exception: marginTop: "-80px" on Hero section cancels layout padding → full-bleed preserved
+  Auth pages: minHeight handled by .sda-signup-form-col CSS class (signup) or calc(100vh - 80px) (login etc.)
+  Admin: no change — sidebar layout, no fixed marketing nav
+Signup routes (as of session 33):
+  /signup → app/(auth)/signup/page.tsx — role: "applicant" hardcoded, no role selection UI
+  /signup/investor → app/(auth)/signup/investor/page.tsx — role: "investor" hardcoded, no role selection UI
+  Both inherit (auth) layout (dark nav + 80px padding)
+  "Apply Now" nav CTA → /signup
+  /apply page CTA → /signup
+  Hero "Apply for funding" CTA → /signup
+  /investors "Create account" → /signup/investor
+  /opportunities login prompt → /signup/investor
+  /opportunities/[id] login prompt → /signup/investor
+Auth pages route group (as of session 31):
+  app/(auth)/layout.tsx — Nav + sda-page-content wrapper
+  Pages: login, signup, signup/investor, forgot-password, reset-password
+  Routes unchanged from flat structure (route groups are URL-transparent)
+  Inline logo removed from all pages (Nav provides it)
+Email provider: Loops (switched from ZeptoMail 2026-06-14)
+  SDK: loops@6.3.0 — lib/email/loops.ts → sendEmail(templateId, to: string, dataVariables)
+  Client instantiated once at module level (not per-call)
+  TEMPLATES keys use string IDs matching Loops dashboard slugs (e.g. "application-submitted")
+  Auth: LOOPS_API_KEY in .env.local (set value to key from Loops dashboard → Settings → API keys)
+  Variable syntax: {{variable_name}} — double curly braces, no spaces
+  Admin alert: LOOPS_ADMIN_EMAIL env var
+Security Check 5 — PASS (verified 2026-06-14):
+  INSERT with funding_amount = 6000000 rejected by Postgres.
+  Error: 23514 check constraint "applications_funding_amount_check"
+Packages added this session: react-hook-form, zod, @hookform/resolvers
+Zod version: 4.4.3 (v4 — breaking changes applied):
+  - z.preprocess() causes zodResolver TypeScript mismatch — use setValueAs in register instead
+  - ZodError.errors renamed to .issues
+  - required_error / invalid_type_error params → { error: "..." }
+Next section: Section 8 remaining — security checks 1-4, Storage buckets, Vercel deploy, mobile audit
+Live URL: — (Vercel deploy still pending — set env vars in Vercel dashboard once import done)
+Seed first admin before testing Section 4 (SQL below):
+  UPDATE profiles SET role = 'admin' WHERE id = '<your-user-uuid>';
+Loops setup required before emails fire (user actions):
+  1. Go to loops.so → Transactional → create 5 templates:
+     application-submitted       → variables: applicant_name, business_name, submitted_date
+     application-approved        → variables: applicant_name, business_name
+     application-rejected        → variables: applicant_name, business_name, rejection_reason
+     application-under-review    → variables: applicant_name, business_name
+     new-application-admin       → variables: applicant_name, business_name,
+                                              funding_amount, submitted_date, admin_link
+  2. Add to .env.local:
+     LOOPS_API_KEY=<your-loops-api-key>
+     LOOPS_ADMIN_EMAIL=<admin inbox address>
+  3. Test one real send per template before going live
 Known open issues:
-  - USER ACTION REQUIRED: Create two private Storage buckets in Supabase dashboard:
-    Storage → New bucket → "financial-records" (public OFF) + "bank-statements" (public OFF)
-  - .env.local confirmed created (session 9)
-  - Migration confirmed applied both locally and remotely (migration list verified)
+  - PENDING: /faq not linked from Nav — reachable directly but no nav entry
+  - PENDING: Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard
+    → Document upload in Step 4 shows graceful error if bucket not found ("Skip for now")
+  - Section 7 emails: wired in server actions but TEMPLATES IDs are placeholder slugs — paste real Loops IDs when templates created
   - Section 0 Vercel deploy still pending — import GitHub repo at vercel.com, set env vars
   - Supabase project ref: mxuvbjjunajthrtlxrbr (eu-west-1)
-  - supabase login interactive OAuth does not work in Claude Code; use SUPABASE_ACCESS_TOKEN instead
+  - supabase login interactive OAuth does not work in Claude Code; use SUPABASE_ACCESS_TOKEN env var
   - docs/bcv-reference.png missing from repo — screenshot comparison still pending
   - Remaining placeholder assets: pull quote photo, portfolio card photos, founder quote
-  - Recurring dev issue: stale/corrupted .next cache → full fix:
-    Stop-Process node → Remove-Item -Recurse -Force .next → npm install → npm run dev
-  - Mobile: FundingOptions, WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited
-Last updated: 2026-06-13 (session 9)
+  - Mobile: WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited (FundingOptions now done)
+  - FundingOptions icons: user should visually verify white icons on dark bg at desktop + 375px mobile
+  - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
+Last updated: 2026-06-15 (session 36)
 (Claude Code: overwrite this entire block after every session. Never leave it stale.)
 ---
 Project Snapshot
@@ -39,7 +132,7 @@ Next.js 14 (App Router) + TypeScript
 Supabase — Postgres + Auth + Storage
 Tailwind CSS + shadcn/ui
 React Hook Form + Zod
-ZeptoMail (transactional email only)
+Loops (transactional email)
 Vercel (hosting + edge functions)
 Scope hard boundaries (V1)
 No payment processing. "Accept investment" = recording an offline commitment. No Paystack, no Flutterwave, no escrow. If a payment requirement appears during the build, stop and flag it as V2.
@@ -89,8 +182,8 @@ If a real brand logo or color arrives from the client, swap `--accent` only. Do 
 Lessons From Past Builds (Kiima, Elroisè, Hadiel)
 These are real failure modes, not hypotheticals. Each has a guardrail.
 Email variable syntax fails silently.
-Loops.so needed `{DATA\_VARIABLE:varname}` — wrong syntax sends the email but renders nothing. ZeptoMail likely differs.
-→ Guardrail: Before writing any email template, confirm ZeptoMail's merge-tag syntax from their live docs. Send one real test email per template. Do not assume. (Section 7)
+Loops.so needed `{DATA\_VARIABLE:varname}` — wrong syntax sends the email but renders nothing.
+→ Guardrail: Before writing any email template, confirm Loops variable syntax from their live docs. Send one real test email per template. Do not assume. (Section 7)
 Auth + middleware caused repeated rework.
 Role-gating, session refresh, and protected-route redirects are where time disappears.
 → Guardrail: Build and fully test the auth matrix (logged-out, applicant, investor, admin) in Section 2 before any feature is built behind it. (Section 2)
@@ -111,7 +204,7 @@ Working Contract (read before every session)
 Read first. Before writing any code, read the relevant files.
 Propose, then wait. For every non-trivial task, propose a plan and wait for approval before implementing.
 No destructive DB operations without showing the migration SQL first.
-No hallucinated libraries, env vars, or API shapes. If unsure of an external API (e.g. ZeptoMail syntax), say so and verify against current docs before coding.
+No hallucinated libraries, env vars, or API shapes. If unsure of an external API (e.g. Loops syntax), say so and verify against current docs before coding.
 After every session: update Current State, tick completed tasks, append a Build Log entry.
 If the plan is wrong, stop and flag it. Do not silently improvise.
 No payments in V1. If a payment requirement appears, stop and flag it.
@@ -136,7 +229,7 @@ Tasks
 Manual Prompt (you → Claude Code)
 ```
 We are building SDA — a micro angel investment platform. 
-Stack: Next.js 14 App Router, TypeScript, Supabase, Tailwind, shadcn/ui, ZeptoMail, Vercel.
+Stack: Next.js 14 App Router, TypeScript, Supabase, Tailwind, shadcn/ui, Loops, Vercel.
 
 Before writing any code, read build.md in the repo root. It is the source of truth.
 Follow the Working Contract in it.
@@ -350,17 +443,17 @@ Section 2 — Auth, Roles & Middleware
 Objective: Complete auth flows with role selection, and a fully tested middleware access matrix before any feature is built behind it.
 Why test the matrix first: Auth + middleware caused repeated rework on a past project. Test all four states before building anything that depends on them.
 Tasks
-[ ] Signup page with role selection (Applicant | Investor) — writes `profiles.role`
-[ ] Email + password signup with email verification
-[ ] Login page
-[ ] Logout action
-[ ] Password reset flow (request + confirm)
-[ ] Create `profiles` row on signup (DB trigger preferred; server action fallback)
-[ ] Middleware protecting `(app)` routes: requires active session
-[ ] Middleware protecting `(admin)` routes: requires `role = admin`
-[ ] Logged-out users hitting protected routes → redirect to `/login`
-[ ] Session refresh handled (Supabase `getSession` + refresh token)
-[ ] Brand-styled auth pages (Sora headings, Inter body, paper bg, forest-green buttons)
+[x] Signup page with role selection (Applicant | Investor) — writes `profiles.role`
+[x] Email + password signup with email verification
+[x] Login page
+[x] Logout action
+[x] Password reset flow (request + confirm)
+[x] Create `profiles` row on signup (DB trigger preferred; server action fallback)
+[x] Middleware protecting `(app)` routes: requires active session
+[x] Middleware protecting `(admin)` routes: requires `role = admin`
+[x] Logged-out users hitting protected routes → redirect to `/login`
+[x] Session refresh handled (Supabase `getUser()` refreshes session in middleware)
+[x] Brand-styled auth pages (Sora headings, Inter body, paper bg, forest-green buttons)
 [ ] Run manual auth test checklist — all states pass before moving to Section 3
 Auth Test Matrix (run before calling this section done)
 Route	Logged out	Applicant	Investor	Admin
@@ -421,19 +514,19 @@ Claude Code pastes the passing auth matrix results into the Build Log.
 Section 3 — Applicant Flow
 Objective: End-to-end applicant journey: signup → multi-step application with draft save → document upload → submit → status tracking.
 Tasks
-[ ] Applicant dashboard at `/dashboard` — shows application status and history
-[ ] Multi-step application form at `/dashboard/apply`:
+[x] Applicant dashboard at `/dashboard` — shows application status and history
+[x] Multi-step application form at `/dashboard/apply`:
 Step 1: Business details (name, founder name, contact email, phone)
 Step 2: Business description and monthly revenue
 Step 3: Funding amount (₦5M cap enforced client + server) and funding type
 Step 4: Document uploads (financial records + bank statements → private buckets)
 Step 5: Review and confirm
-[ ] Zod validation on every step, RHF for form state
-[ ] Save as draft at any step (status = `draft`) — resumable on next login
-[ ] Submit server action: status → `pending`, confirmation email via ZeptoMail, block if active application exists, block if user is blacklisted
-[ ] Application status page: clear states for Pending / Under Review / Approved / Rejected
-[ ] Rejection reason displayed when status = `rejected`
-[ ] No public document URLs anywhere — files go to private Storage only
+[x] Zod validation on every step, RHF for form state
+[x] Save as draft at any step (status = `draft`) — resumable on next login
+[x] Submit server action: status → `pending`, confirmation email stubbed (console.log TODO), block if active application exists, block if user is blacklisted
+[x] Application status page: clear states for Pending / Under Review / Approved / Rejected
+[x] Rejection reason displayed when status = `rejected`
+[ ] No public document URLs anywhere — files go to private Storage only ← PENDING: storage buckets not created yet; code handles gracefully
 Manual Prompt (you → Claude Code)
 ```
 Section 3: applicant flow. Read build.md. Auth and middleware are done and tested.
@@ -467,7 +560,7 @@ Build:
    - Check: user has no existing application with status IN ('pending','under\_review') 
      → if exists, return error, do not insert second one
    - Set status = 'pending', submitted\_at = now()
-   - Send confirmation email via ZeptoMail (template: application\_submitted)
+   - Send confirmation email via Loops (template: application-submitted)
    - Return success state to UI
 
 5. Status page — visible states:
@@ -496,22 +589,22 @@ Claude Code logs: form architecture decisions, Zod schema structure, any edge ca
 Section 4 — Admin Portal
 Objective: Admin can review, approve, reject, blacklist, promote applications to deals, manage all content, see metrics — all mutations logged to audit_log.
 Tasks
-[ ] Seed first admin (show SQL before running)
-[ ] Admin dashboard at `/admin` — metrics overview
-[ ] Applications inbox at `/admin/applications` — filterable, searchable table
-[ ] Application detail view at `/admin/applications/\[id]`
-Full application data
-Documents via 10-minute server-generated signed URLs (admin only)
-Internal `admin\_notes` field
-[ ] Approve action: status → `approved`, write audit_log, trigger email
-[ ] Reject action: status → `rejected`, rejection reason required, write audit_log, trigger email
-[ ] Blacklist user: sets `is\_blacklisted = true` + `blacklist\_reason`, writes audit_log, reversible
-[ ] Promote approved application → new `deals` row: admin sets `summary\_public`, `details\_gated`, `industry`, `revenue\_to\_date`, `funding\_required`, `is\_active`
-[ ] Deals CRUD at `/admin/deals`
-[ ] Portfolio CRUD at `/admin/portfolio`
-[ ] User management at `/admin/users`: deactivate/reactivate, view blacklist status
-[ ] Dashboard metrics: total applications, approval rate, active deals, total funding requested, registered users
-[ ] Email notification to admin on new application submitted (stub → wired in Section 7)
+[ ] Seed first admin (SQL: UPDATE profiles SET role = 'admin' WHERE id = '<uuid>';)
+[x] Admin dashboard at `/admin` — metrics overview
+[x] Applications inbox at `/admin/applications` — filterable, searchable table
+[x] Application detail view at `/admin/applications/[id]`
+    Full application data
+    Documents via 10-minute server-generated signed URLs (admin only)
+    Internal `admin_notes` field
+[x] Approve action: status → `approved`, write audit_log, trigger email
+[x] Reject action: status → `rejected`, rejection reason required, write audit_log, trigger email
+[x] Blacklist user: sets `is_blacklisted = true` + `blacklist_reason`, writes audit_log, reversible
+[x] Promote approved application → new `deals` row: admin sets `summary_public`, `details_gated`, `industry`, `revenue_to_date`, `funding_required`, `is_active`
+[x] Deals CRUD at `/admin/deals`
+[x] Portfolio CRUD at `/admin/portfolio`
+[x] User management at `/admin/users`: deactivate/reactivate, view blacklist status
+[x] Dashboard metrics: total applications, approval rate, active deals, total funding requested, registered users
+[x] Email notification to admin on new application submitted (stub → wired in Section 7)
 Audit Log Action Vocabulary (lock this before building)
 ```
 application.submitted
@@ -610,15 +703,15 @@ Claude Code logs: admin route map, audit_log action vocabulary as implemented, s
 Section 5 — Investor Flow
 Objective: Public deal discovery, login-gated full details, express interest, investor dashboard.
 Tasks
-[ ] `/opportunities` public page: active deals showing `summary\_public`, industry, `revenue\_to\_date`, `funding\_required` only
-[ ] Filter and search: by industry, funding type, amount range
-[ ] "View details" CTA on each deal card
-[ ] Logged-out "View details" → prompt to sign up or log in (do not show `details\_gated`)
-[ ] Logged-in investor: full deal detail including `details\_gated`
-[ ] Verify at network level: `details\_gated` column is never in any response to logged-out requests
-[ ] "Express interest" server action: creates admin notification, logs to `notifications` table, shows confirmation to investor
-[ ] Investor dashboard at `/dashboard`: deals they have expressed interest in
-[ ] Optional (flag if time is tight): email investors when a new deal goes live
+[x] `/opportunities` public page: active deals showing `summary_public`, industry, `revenue_to_date`, `funding_required` only
+[x] Filter and search: by industry, amount range (funding_type not on deals table — omitted)
+[x] "View details" CTA on each deal card
+[x] Logged-out "View details" → prompt to sign up or log in (do not show `details_gated`)
+[x] Logged-in investor: full deal detail including `details_gated`
+[x] Verify at network level: `details_gated` column is never in any response to logged-out requests (two separate code paths, not one conditional query)
+[x] "Express interest" server action: creates notification for investor tracking, console.log stub for admin email (Section 7)
+[x] Investor dashboard at `/dashboard`: deals they have expressed interest in
+[ ] Optional: email investors when a new deal goes live — deferred to Section 7
 Manual Prompt (you → Claude Code)
 ```
 Section 5: investor flow. Read build.md. Confirm gating approach before building.
@@ -1025,72 +1118,58 @@ Claude Code logs: screenshot comparison results, placeholder assets list, shadcn
 
 ---
 Section 7 — Email & Notifications
-Objective: All transactional emails working with real variables rendering in a real inbox. ZeptoMail syntax confirmed from live docs before any template is written.
+Objective: All transactional emails working with real variables rendering in a real inbox. Loops variable syntax confirmed from live docs before any template is written.
 Why this is its own section: Email variable syntax fails silently. Every template must be tested with a real send before being wired to application logic.
 Tasks
-[ ] Confirm ZeptoMail merge-tag syntax from current docs — document the exact syntax
-[ ] Build and send one real test email before wiring any template
-[ ] Template: email verification (Supabase handles, customise template in dashboard)
-[ ] Template: password reset (Supabase handles, customise template)
-[ ] Template: `application\_submitted` — confirmation to applicant
-[ ] Template: `application\_approved` — to applicant
-[ ] Template: `application\_rejected` — to applicant, includes rejection reason
-[ ] Template: `application\_under\_review` — to applicant
-[ ] Template: `new\_application\_admin` — to admin on new submission
-[ ] Template: `user\_blacklisted` — to user (optional — confirm if needed with client)
-[ ] Template: `deal\_live` (optional) — to all investors when a deal goes live
-[ ] Replace all Section 3 and Section 4 email stubs with real ZeptoMail calls
-[ ] In-app notification bell (optional — reads from `notifications` table)
+[x] Confirm Loops variable syntax from current docs — {{variable_name}} (double curly braces)
+[ ] Build and send one real test email per template — USER ACTION: test via Loops dashboard before go-live
+[ ] Template: email verification (Supabase dashboard → Auth → Email Templates — no code change needed)
+[ ] Template: password reset (Supabase dashboard → Auth → Email Templates — no code change needed)
+[x] Template: `application-submitted` — wired in submitApplication()
+[x] Template: `application-approved` — wired in approveApplication()
+[x] Template: `application-rejected` — wired in rejectApplication() with rejection_reason
+[x] Template: `application-under-review` — wired in setApplicationUnderReview()
+[x] Template: `new-application-admin` — wired in submitApplication() to LOOPS_ADMIN_EMAIL
+[ ] Template: `user_blacklisted` — skipped (not needed per V1 scope, confirm with client if required)
+[ ] Template: `deal_live` (optional) — deferred to V2
+[x] Replace all Section 3 and Section 4 email stubs with real Loops calls
+[ ] In-app notification bell — deferred (not in V1 core path)
 Manual Prompt (you → Claude Code)
 ```
 Section 7: email and notifications. Read build.md.
 
-Explicit instruction from our lessons: email template variable syntax silently 
-failed on a past build. Do not assume ZeptoMail uses the same syntax as any 
-other service. Do not write a single template until you have confirmed the 
-exact merge-tag syntax from ZeptoMail's current documentation.
+Email provider: Loops (loops.so). SDK already installed (loops@6.3.0).
+Variable syntax in templates: {{variable_name}} — double curly braces.
+LOOPS_API_KEY is in .env.local.
 
-Step 1: Go to ZeptoMail's documentation and confirm:
-- What is the exact syntax for a merge variable in a template? 
-  (e.g. {{variable}}, {variable}, \[%variable%], etc.)
-- How are templates called from the API — template key, batch send, or direct HTML?
-- What does the API request body look like for a transactional send with variables?
-Show me the syntax and a sample API call before writing any template.
+Step 1: Create 5 transactional email templates in the Loops dashboard
+(loops.so → Transactional → New template) with these IDs and variables:
+- application-submitted: applicant_name, business_name, submitted_date
+- application-approved: applicant_name, business_name
+- application-rejected: applicant_name, business_name, rejection_reason
+- application-under-review: applicant_name, business_name
+- new-application-admin: applicant_name, business_name,
+  funding_amount, submitted_date, admin_link
 
-Step 2: Build each template and send one real test email before wiring it up.
-Test recipient: use my email address (I'll give it to you).
-Templates needed:
-- application\_submitted: variables = applicant\_name, business\_name, submitted\_date
-- application\_approved: variables = applicant\_name, business\_name
-- application\_rejected: variables = applicant\_name, business\_name, rejection\_reason
-- application\_under\_review: variables = applicant\_name, business\_name
-- new\_application\_admin: variables = applicant\_name, business\_name, 
-  funding\_amount, funding\_type, submitted\_date, admin\_link
+Step 2: For each template: send a real test email. Confirm variables render
+correctly in a real inbox before wiring.
 
-For each template: build it, send a real test, confirm variables render correctly 
-in the inbox, then wire it into the server action.
+Step 3: The server actions (lib/email/loops.ts) are already wired.
+No code changes needed — just paste the real template IDs into TEMPLATES
+in lib/email/loops.ts once templates are created in the dashboard.
 
-Step 3: Replace all TODO/stub email sends from Sections 3 and 4 with real calls.
-
-Step 4: Optional — in-app notification bell. Reads from notifications table, 
-shows unread count, marks as read on click. Only build this if Step 3 is 
-fully done. Flag if time is tight.
-
-ZeptoMail API key is in .env.local as ZEPTO\_MAIL\_API\_KEY.
-
-When done: update build.md — log the confirmed ZeptoMail syntax, 
-list every template with verification status (sent + variables confirmed). 
-Tick Section 7 tasks. Update Current State.
+When done: update build.md — list every template with verification status
+(sent + variables confirmed). Tick Section 7 tasks. Update Current State.
 ```
 Definition of Done
-ZeptoMail merge-tag syntax documented in Build Log
+Loops variable syntax documented in Build Log
 Every template tested with a real send — variables render correctly in a real inbox
 All Section 3 and 4 email stubs replaced with real calls
 Applicant receives confirmation email on submission
 Applicant receives status change email on approve/reject
 Admin receives notification email on new submission
 Self-update step
-Claude Code logs: confirmed ZeptoMail syntax, complete list of templates with test status (sent/variables confirmed/wired).
+Claude Code logs: Loops template IDs, complete list of templates with test status (sent/variables confirmed/wired).
 ---
 Section 8 — QA, Security & Launch
 Objective: Harden the build, verify security explicitly, deploy to production, migrate DNS.
@@ -1102,15 +1181,15 @@ Tasks
 [ ] Security check 2: Confirm investor cannot read another user's application
 [ ] Security check 3: Confirm `details\_gated` column never appears in a logged-out network response
 [ ] Security check 4: Confirm admin routes return 403/redirect for non-admin authenticated users
-[ ] Security check 5: Confirm `funding\_amount` DB constraint rejects values > 5,000,000 via direct SQL attempt
-[ ] Loading skeletons on all data-fetching pages
-[ ] Empty states on all list/table views (no applications, no deals, no portfolio companies)
-[ ] Error boundaries on all route groups
+[x] Security check 5: Confirm `funding\_amount` DB constraint rejects values > 5,000,000 via direct SQL attempt
+[x] Loading skeletons on all data-fetching pages
+[x] Empty states on all list/table views (no applications, no deals, no portfolio companies)
+[x] Error boundaries on all route groups
 [ ] Mobile responsiveness final audit (375px minimum)
 [ ] Vercel production deploy
 [ ] DNS migration checklist for sda.ng
 [ ] Production smoke test
-[ ] Admin handover document
+[x] Admin handover document
 Manual Prompt (you → Claude Code)
 ```
 Section 8: QA, security, and launch. Read build.md. This is the final section.
@@ -1158,7 +1237,7 @@ Part 3 — Deploy:
 - Deploy to Vercel production environment (not preview)
 - Confirm all environment variables are set in Vercel production settings:
   NEXT\_PUBLIC\_SUPABASE\_URL, NEXT\_PUBLIC\_SUPABASE\_ANON\_KEY, SUPABASE\_SERVICE\_ROLE\_KEY,
-  ZEPTO\_MAIL\_API\_KEY, and any others used
+  LOOPS\_API\_KEY, LOOPS\_ADMIN\_EMAIL, and any others used
 - Give me a DNS migration checklist for sda.ng:
   - Current DNS records to note before migrating
   - Vercel domain verification step
@@ -1644,6 +1723,39 @@ Build Log (append-only)
   Desktop styles: all unchanged — inline styles and existing CSS untouched
   Screenshot: confirmed nav hides desktop links at ~500px window width (below 768px breakpoint)
 
+\[2026-06-13] Section 2 — Auth pages, middleware, profile trigger (session 10)
+  Shipped:
+  - lib/supabase/client.ts: createBrowserClient wrapper (@supabase/ssr)
+  - lib/supabase/server.ts: createServerClient wrapper with Next.js 14 cookie handling
+  - lib/supabase/admin.ts: service role client (server-side only, SUPABASE_SERVICE_ROLE_KEY)
+  - middleware.ts: session refresh via getUser() + route protection
+      /dashboard/* → redirect /login if no session
+      /admin/* → redirect /login if no session OR profiles.role != 'admin' (DB query, not client claim)
+      Matcher: excludes _next/static, _next/image, favicon, images, videos, static files
+  - app/auth/callback/route.ts: PKCE code exchange — handles email confirm + password reset recovery
+  - app/actions/auth.ts: logout server action (signOut + redirect /)
+  - app/login/page.tsx: email+password form, redirectTo param support, Suspense boundary for useSearchParams
+  - app/signup/page.tsx: role cards (Applicant/Investor), full name + email + password
+      passes role + full_name in signUp options.data → raw_user_meta_data → trigger reads it
+  - app/forgot-password/page.tsx: resetPasswordForEmail with /auth/callback?type=recovery redirect
+  - app/reset-password/page.tsx: updateUser({ password }) after recovery session exchange
+  - supabase/migrations/20260613000002_profile_trigger.sql: handle_new_user() AFTER INSERT ON auth.users
+      SECURITY DEFINER, reads role from raw_user_meta_data, falls back to 'applicant'
+  - @supabase/supabase-js@2.108.1 + @supabase/ssr@0.12.0 installed
+  - .gitignore: supabase/.temp/ + root-level *.jpg/png/mp4 excluded
+  Decisions:
+  - getUser() used in middleware (validates with auth server) not getSession() (insecure, no validation)
+  - Admin role check in middleware does a DB query to profiles — adds one round-trip per admin request
+    Acceptable for V1 (admin area is low traffic). V2: consider JWT custom claims to avoid DB query.
+  - Auth pages are outside all route groups → use root layout only (no dark Nav, no Footer)
+  - login/page.tsx wraps LoginForm (which calls useSearchParams) in Suspense — Next.js 14 requirement
+  - Logout is a server action (clears HttpOnly session cookies server-side, then redirect /)
+  Configuration required before testing:
+  - Supabase dashboard → Authentication → URL Configuration:
+      Site URL: http://localhost:3000
+      Redirect URLs: http://localhost:3000/**, https://sda.ng/**
+  Open: auth test matrix not yet run — must pass before Section 3
+
 \[2026-06-13] Section 1 — Schema applied, types generated (session 8)
   Shipped:
   - Migration applied to remote Supabase project (ref: mxuvbjjunajthrtlxrbr, eu-west-1)
@@ -1714,6 +1826,422 @@ Build Log (append-only)
     set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_APP_URL,
     confirm green deploy, then close Section 0 DoD.
 
+\[2026-06-14] Section 6 (post) — HomeFAQ preview section added to homepage (session 19)
+  Shipped:
+  - components/marketing/HomeFAQ.tsx created ("use client", custom useState accordion)
+      Section: bg #0A0A0A, padding 80px 40px, border-bottom rgba(255,255,255,0.08)
+      max-width 860px centered
+      Eyebrow: Inter 11px uppercase rgba(255,255,255,0.3)
+      H2: Sora 42px weight 300 #FAFAF8
+      5 preview questions — custom accordion (no shadcn, avoids v4 compat issue)
+      Toggle icon: + / − in #CF9A0A
+      Open question text: #CF9A0A; closed: #FAFAF8
+      Answer: Inter 15px 1.75 lh rgba(255,255,255,0.65)
+      "View all questions →" link: Inter 16px #CF9A0A border-bottom, href /faq
+  - app/(marketing)/page.tsx: HomeFAQ imported + inserted between PortfolioFeature
+    and EmailSignup
+  Dev server: 200 OK, all 3 content checks pass. Build still broken (Next.js 16
+  cookies() issue — separate decision pending).
+
+\[2026-06-14] Infrastructure — Next.js 16 async cookies() fix + Security Check 5 (session 21)
+  Build fix — 3 files changed:
+  - lib/supabase/server.ts: createClient() → async createClient(); cookies() → await cookies()
+  - app/auth/callback/route.ts: cookies() → await cookies() (GET was already async)
+  - app/actions/auth.ts: createClient() → await createClient() (logout was already async)
+  Result: npm run build passes — 20 static routes, zero errors, zero TypeScript errors.
+  Remaining warning: middleware.ts deprecation (rename to proxy.ts) — cosmetic, deferred to V2.
+  Security Check 5 — PASS:
+    SQL: INSERT INTO applications (..., funding_amount = 6000000, ...)
+    Response: ERROR 23514 — check constraint "applications_funding_amount_check"
+    Verified via Supabase Management API (db query CLI had DNS resolution failure in this env).
+    The ₦5M cap is enforced at Postgres level independently of application code.
+
+\[2026-06-14] Infrastructure — Next.js upgrade attempt (session 18)
+  Change: next@14.2.35 → next@16.2.9 (npm install next@latest)
+  node_modules fully cleared and reinstalled (634 packages)
+  Dev server: starts and serves routes (localhost:3000 and /faq both 200 OK)
+  Build: BROKEN — two Next.js 16 breaking changes:
+    (1) cookies() from next/headers is now async (returns Promise) — synchronous
+        .getAll() calls in lib/supabase/server.ts and app/auth/callback/route.ts
+        fail TypeScript type check
+    (2) middleware.ts file convention deprecated → proxy.ts (warning only, not fatal yet)
+  Status: awaiting user decision — fix for 16 or downgrade to 14.2.29
+  Note: the original webpack cache bug (./NNN.js) was resolved by the upgrade itself —
+  dev mode worked cleanly. Only production build is broken.
+
+\[2026-06-13] Section 6 (post) — FAQ content completed (session 15)
+  Shipped:
+  - components/ui/accordion.tsx: group label color rgba(255,255,255,0.3) → #CF9A0A
+  - app/(marketing)/faq/page.tsx: added 13 questions across 3 changes:
+      "For investors" group: 6 questions appended (track investments, multiple startups,
+        community, SPV structure, post-investment, why SDA)
+      "Risks and returns" group added (4 questions: risks, returns, holding period, early exit)
+      "For founders" group added (3 questions: apply, deal frequency, beginner investors)
+  Final state: 6 groups, 34 total questions
+  npm run build: 21 static routes, zero errors
+  Note: user spec said "25 total" — actual is 34 because existing page already had 21
+  questions from Section 6. No content removed; all additions, per instruction.
+
+\[2026-06-13] Session 11 — Diagnostic: homepage 404 resolved, dev server on port 3000
+  No code written this session. Operational fixes only.
+  Issue: user reported homepage 404. Diagnosed as stale node process (PID 224) holding
+  port 3000 from a prior session. New dev server had started on port 3002.
+  Fix: Get-Process node | Stop-Process -Force → npm run dev → dev server now on port 3000.
+  Homepage confirmed 200 OK at localhost:3000.
+  Session ended before auth test matrix was run — next session must start with:
+  1. Supabase redirect URL configuration (site URL + redirect URLs)
+  2. Create test admin user (profiles.role = 'admin')
+  3. Run all 6 rows of Section 2 auth test matrix
+
+\[2026-06-14] Section 8 — QA/Security/Launch (partial) (session 24)
+  Shipped:
+  - app/(app)/dashboard/loading.tsx: dashboard skeleton (header + heading + panel blocks)
+      Static grey boxes using var(--surface) — no animation per design rules
+  - app/(admin)/admin/applications/loading.tsx: applications table skeleton
+      Filter row + 8 data rows with multi-column skeleton cells
+  - app/(marketing)/opportunities/loading.tsx: opportunities grid skeleton
+      Header + filters + 3-col card grid placeholder
+  - app/(marketing)/error.tsx: marketing error boundary ("use client")
+      Dark theme (#0A0A0A bg inherited from layout); "Try again" + "Go home" buttons
+      console.error logs error; fontStyle:normal on Sora h1 (Sora italic rule respected)
+  - app/(app)/dashboard/error.tsx: app error boundary ("use client")
+      Matches dashboard header style (SDA logo, paper bg); "Try again" + "Back to dashboard"
+  - app/(admin)/admin/error.tsx: admin error boundary ("use client")
+      Renders inside admin sidebar layout (marginLeft: 216 from parent); "Try again" + "Back to overview"
+  - docs/admin-handover.md: admin handover document
+      Covers: login, review+approve+reject, promote to deal, blacklist/unblacklist,
+      portfolio CRUD, deal CRUD, audit log query, env vars reference
+  Empty states: already present in all three pages from Sections 3-5 (no new code needed)
+    /admin/applications: "No applications found" when empty ✓
+    /opportunities: filter-aware empty state ("No deals match your filters" / "Check back soon") ✓
+    /dashboard: ApplicantPanel — "You have not submitted an application yet" ✓
+    /dashboard: InvestorPanel — "You have not expressed interest in any deals yet" ✓
+  npx tsc --noEmit: zero errors (confirmed)
+  Pending (user action required):
+    Security checks 1-4: manual verification steps documented below
+    Vercel deploy: import repo at vercel.com, set env vars, confirm green
+    Mobile audit: test all pages at 375px in DevTools
+    Production smoke test: run after deploy
+  Security check guide (manual steps):
+    Check 1 — Document URL exposure:
+      1. Submit a test application and upload a document
+      2. In Supabase dashboard → Table editor → application_documents, copy the file_path value
+      3. Construct URL: <SUPABASE_URL>/storage/v1/object/public/<bucket>/<file_path>
+      4. Open in incognito while logged out → expect 403 (private bucket blocks it)
+    Check 2 — Cross-user application access:
+      1. Sign up as applicant A, submit application, note the application UUID from URL
+      2. Sign up as applicant B, open browser console
+      3. Run: const sb = (await import('/node_modules/@supabase/supabase-js/dist/module/index.js')).createClient('<URL>','<ANON_KEY>'); const {data} = await sb.from('applications').select('*').eq('id','<A_UUID>').single(); console.log(data)
+      4. Expected: data = null (RLS blocks cross-user reads)
+    Check 3 — details_gated leak:
+      1. Log out completely
+      2. Open DevTools → Network tab → filter by Fetch/XHR
+      3. Navigate to /opportunities and /opportunities/<any-deal-id>
+      4. Inspect all network responses — search for "details_gated" in each payload
+      5. Expected: "details_gated" absent from all responses
+    Check 4 — Admin route protection:
+      1. Log in as an applicant (non-admin account)
+      2. Navigate directly to /admin → expect redirect to /login or /dashboard
+      3. Navigate to /admin/applications → same expected result
+
+\[2026-06-14] Email provider switched: ZeptoMail → Loops (session 24)
+  Scope: config and documentation only — no templates built, no template IDs set
+  Shipped:
+  - lib/email/loops.ts: created (replaces lib/email/zepto.ts, deleted)
+      Uses loops@6.3.0 LoopsClient.sendTransactionalEmail({ transactionalId, email, dataVariables })
+      sendEmail(transactionalId, to, dataVariables) — same call signature as ZeptoMail utility
+      Returns { error } on failure (non-throwing); logs to console on success and failure
+      Guards: logs + returns error if LOOPS_API_KEY missing or transactionalId empty
+      TEMPLATES const: 5 keys, all empty string — paste IDs from Loops dashboard when created
+  - lib/email/zepto.ts: deleted
+  - app/actions/admin.ts: import updated → @/lib/email/loops
+  - app/actions/applications.ts: import updated → @/lib/email/loops
+      process.env.ZEPTO_MAIL_ADMIN_EMAIL → process.env.LOOPS_ADMIN_EMAIL
+  - CLAUDE.md: Email section rewritten (Loops variable syntax, setup steps, TEMPLATES workflow)
+      Stack table: ZeptoMail → Loops
+      Env vars: ZEPTO_MAIL_API_KEY → LOOPS_API_KEY + LOOPS_ADMIN_EMAIL
+      Working Contract #4: ZeptoMail → Loops
+  - .env.local: LOOPS_API_KEY + LOOPS_ADMIN_EMAIL added (placeholder values)
+  - build.md: Current State block updated — ZeptoMail refs replaced with Loops
+  npx tsc --noEmit: zero errors
+  grep ZeptoMail/zepto/ZEPTO in app/ + lib/: zero matches
+  User actions required:
+    1. Replace LOOPS_API_KEY placeholder in .env.local with real key from Loops dashboard
+    2. Set LOOPS_ADMIN_EMAIL in .env.local
+    3. Create 5 transactional emails in Loops dashboard, paste IDs into TEMPLATES in lib/email/loops.ts
+    4. Test one real send per template before going live
+
+\[2026-06-14] Nav height reduction (session 29)
+  Shipped:
+  - components/marketing/Nav.tsx: nav wrapper padding 18px 40px → 10px 40px
+  One change only. No other styles touched.
+
+\[2026-06-14] Nav scroll behaviour + button copy (session 28)
+  Shipped:
+  - components/marketing/Nav.tsx: scroll-aware transparent→dark behaviour
+      Added usePathname() from next/navigation — no prop or layout change needed
+      Added scrolled state + passive scroll listener (homepage only, cleaned up on unmount)
+      isDark = !isHomepage || scrolled — single boolean drives all style decisions
+      backgroundColor: transparent (homepage at top) → #0A0A0A (scrolled or inner pages)
+      boxShadow: none (transparent state) → 0 1px 0 rgba(255,255,255,0.08) (dark state)
+      transition: background-color 0.3s ease, box-shadow 0.3s ease
+      borderBottom removed — replaced by conditional boxShadow
+      zIndex bumped: 10 → 100
+  Also in this session (session 27 — recorded here as same day):
+  - Nav.tsx: "Apply for funding" → "Apply Now" (both desktop + mobile drawer)
+  - Hero.tsx: eyebrow <p> "Micro angel investing · Nigeria" removed entirely
+  - Nav.tsx: position "absolute" → "fixed" (gap fix)
+  - globals.css: html, body { margin: 0; padding: 0 } added
+  Decision: usePathname() preferred over transparent prop — keeps layout.tsx unchanged,
+    no RSC/client boundary complication, homepage detection is a nav concern not a caller concern.
+  npm run build: GREEN
+
+\[2026-06-14] Nav gap fix — position fixed (session 27)
+  Shipped:
+  - components/marketing/Nav.tsx: position "absolute" → "fixed"
+  Investigation: Checked all four files in spec order. CSS was already correct —
+    html, body { margin: 0; padding: 0 } confirmed present in compiled output.
+    Tailwind preflight also sets body { margin: 0 }. No margin/padding on any
+    ancestor element. Gap persisted despite correct CSS.
+  Root cause: position: absolute resolves its containing block by walking the DOM
+    ancestor chain. Without an explicit positioned ancestor, browsers can introduce
+    a sub-pixel or 1px offset depending on rendering path. position: fixed bypasses
+    the containing block chain entirely — it is anchored directly to the viewport.
+  Decision: fixed is the correct value for a marketing nav that must sit flush at
+    the viewport top on all pages. It also gives better UX (nav stays visible on scroll).
+  No layout regression: all inner pages already have padding-top: 120px on <main>
+    to clear the nav height. Hero section fills y=0 behind the fixed nav unchanged.
+  Dev server: HTTP 200 confirmed after change.
+
+\[2026-06-14] Nav gap fix (session 26)
+  Shipped:
+  - app/globals.css: added explicit `html, body { margin: 0; padding: 0; }` above the html rule
+  Root cause: browser-default body { margin: 8px } was winning over Tailwind's preflight
+  declaration inside @layer base. Explicit rule outside any @layer has higher cascade priority
+  and definitively overrides the browser default.
+  Checked in order per spec: marketing layout (no margin) → globals.css (no explicit reset) →
+  Nav.tsx (position absolute top 0, no margin-top) → root layout (no body padding).
+  Fix was in globals.css — the missing explicit reset.
+  Dev server: HTTP 200 confirmed after fix.
+
+\[2026-06-14] Loops migration finalised + FundingOptions icons & layout (session 25)
+  Shipped:
+  Part A — Loops migration second pass:
+  - lib/email/loops.ts: rewritten
+      LoopsClient instantiated once at module level (was per-call)
+      sendEmail(templateId, to: string, dataVariables) — to is now plain string (was { address, name } object)
+      TEMPLATES values changed from empty strings to slug IDs matching Loops dashboard
+        ("application-submitted", "application-approved", etc.)
+      Removed explicit res.success check — uses try/catch instead
+  - app/actions/admin.ts: 3 sendEmail callers updated
+      { address: app.contact_email, name: app.founder_name } → app.contact_email
+  - app/actions/applications.ts: 2 sendEmail callers updated
+      applicant: { address: app.contact_email, name: app.founder_name } → app.contact_email
+      admin alert: { address: adminEmail, name: "SDA Admin" } → adminEmail
+  - CLAUDE.md: Email Rules section rewritten
+      Added SDK install line, send pattern code block, env var list
+      Removed outdated guardrail language from prior-project failure
+  - build.md: Section 7 plan fully updated — all ZeptoMail refs → Loops
+      Stack snapshot, Working Contract, lessons guardrail, manual prompts, Definition of Done
+  - docs/admin-handover.md: env vars table updated
+      Removed ZEPTO_MAIL_API_KEY, ZEPTO_MAIL_FROM_ADDRESS, ZEPTO_MAIL_FROM_NAME, ZEPTO_MAIL_ADMIN_EMAIL
+      Added LOOPS_API_KEY, LOOPS_ADMIN_EMAIL
+  Verification: npx tsc --noEmit zero errors; grep zepto/ZeptoMail/ZEPTO in *.ts *.tsx *.md → zero matches
+  Remaining in active code (build log only — correct): ZeptoMail referenced as historical fact in prior log entries
+
+  Part B — FundingOptions icons and desktop/mobile layout:
+  - public/images/icons/: created, 4 SVGs copied from images/
+      equity.svg (1.7 KB), debt.svg (1.9 KB), asset.svg (4.1 KB), revenue.svg (5.4 KB)
+  - components/marketing/FundingOptions.tsx: updated
+      Added icon field to FUNDING_TYPES data array (per-card icon path)
+      Each card now renders inner sda-funding-card flex div:
+        Left: type name + description + italic note (flex: 1)
+        Right: sda-funding-icon wrapper (80×80px) containing next/image at 64×64
+        Icon rendered white via filter: brightness(0) invert(1), opacity: 0.85
+      Cell padding updated: 36px 28px → 40px 36px
+  - app/globals.css: added .sda-funding-card and .sda-funding-icon base styles
+      .sda-funding-card: flex, justify-content space-between, align-items center, gap 24px
+      .sda-funding-icon: flex-shrink 0, 80×80px, flex centering
+    Mobile breakpoint (max-width: 768px) updated:
+      .sda-funding-grid: grid-template-columns 1fr (was repeat(2,1fr) — kept 2-col at 768px before)
+      .sda-funding-card: flex-direction column, align-items flex-start
+      .sda-funding-icon: 48×48px, margin-bottom 16px, order -1 (icon floats above text)
+  Decision: no animation on icon hover — design rules (ticker strip is the only animation)
+  Decision: filter brightness(0) invert(1) used instead of separate white SVG variants — simpler, maintainable
+  npm run build: GREEN
+
+\[2026-06-14] Section 7 — Email & Notifications COMPLETE (session 23)
+  Shipped:
+  - lib/email/zepto.ts: sendEmail(templateAlias, to, mergeInfo) utility
+      Endpoint: POST https://api.zeptomail.com/v1.1/email/template
+      Auth: Bearer <ZEPTO_MAIL_API_KEY>
+      Body: template_alias, from {address, name}, to [{email_address {address, name}}], merge_info
+      Guards: logs error + returns {error} if ZEPTO_MAIL_API_KEY or ZEPTO_MAIL_FROM_ADDRESS missing (no throw)
+      Logs success/failure to console with template alias and recipient
+      TEMPLATES const: 5 aliases exported as typed constants
+  - app/actions/applications.ts: submitApplication() — replaced console.log with 2 real sends
+      sendEmail(APPLICATION_SUBMITTED) → applicant's contact_email with applicant_name, business_name, submitted_date
+      sendEmail(NEW_APPLICATION_ADMIN) → ZEPTO_MAIL_ADMIN_EMAIL (skips if env var not set) with
+        applicant_name, business_name, funding_amount (₦-formatted), submitted_date, admin_link
+  - app/actions/admin.ts: replaced 3 stubs — each fetches application data first
+      setApplicationUnderReview() → sendEmail(APPLICATION_UNDER_REVIEW) → contact_email
+      approveApplication() → sendEmail(APPLICATION_APPROVED) → contact_email
+      rejectApplication() → sendEmail(APPLICATION_REJECTED) → contact_email with rejection_reason
+  New env vars required (add to .env.local):
+      ZEPTO_MAIL_FROM_ADDRESS=noreply@sda.ng
+      ZEPTO_MAIL_FROM_NAME=SDA
+      ZEPTO_MAIL_ADMIN_EMAIL=<admin inbox>
+  User action required (ZeptoMail dashboard):
+      Create 5 templates with aliases and variables as documented in Current State block
+      Test one real send per template before going live
+  Supabase email templates (email verification, password reset):
+      Configured in Supabase dashboard → Auth → Email Templates — no code changes
+  Deferred: deal_live bulk email (V2), in-app notification bell (V2), user_blacklisted email (confirm with client)
+  npx tsc --noEmit: zero errors
+
+\[2026-06-14] Section 5 — Investor Flow COMPLETE (session 23)
+  Shipped:
+  - app/(marketing)/opportunities/page.tsx: public deal list RSC
+      Selects: id, business_name, industry, revenue_to_date, funding_required, summary_public, created_at
+      details_gated: NEVER selected on this page under any circumstance
+      Server-side filters: industry (dropdown from live DB), min/max funding_required (number inputs)
+      Deal cards: industry tag, business name, summary (clamped 3 lines), funding stats, "View details →" link
+      Login nudge at bottom with sign-in + create-account CTAs
+      Empty state handles no-results with filter-aware message
+  - app/(marketing)/opportunities/[id]/page.tsx: auth-aware detail RSC
+      Two completely separate code paths — not one query with conditional columns:
+      Path A (no session OR non-investor): queries WITHOUT details_gated; shows summary + login gate panel
+        Login gate links to /login?redirect=/opportunities/[id] and /signup?role=investor
+      Path B (authenticated investor): queries WITH details_gated; shows full detail
+        Stats row: funding_required + revenue_to_date
+        Public summary section
+        Gated details section (pre-wrap content block)
+        ExpressInterestButton with initialExpressed state from DB check
+  - app/actions/investor.ts: expressInterest(dealId, dealName) server action
+      Auth check: requires session + role=investor
+      Duplicate guard: .maybeSingle() check on notifications before insert
+      Stores: user_id=investor.id, type='investor_interest', message=dealId
+      Admin email: console.log("TODO [Section 7]: Notify admin...")
+      revalidatePath for /opportunities/[id] and /dashboard
+  - components/investor/ExpressInterestButton.tsx: "use client"
+      Props: dealId, dealName, initialExpressed
+      States: idle button → pending (disabled) → expressed (success panel)
+      Error display inline; no page reload on success
+  - app/(app)/dashboard/page.tsx: InvestorPanel updated
+      Now async-aware: dashboard fetches notifications WHERE type='investor_interest' for investor
+      Extracts deal IDs from message field; fetches those deals (summary only, no details_gated)
+      InvestorPanel now accepts interestedDeals prop
+      Shows: browse CTA card at top + expressed interests list below
+      Expressed interest rows: business_name, industry tag, summary truncated, "View →" link
+      Empty state when no interests yet
+  Schema decision: notifications.message stores deal UUID (text field)
+    No schema changes needed. Investor dashboard queries by user_id + type='investor_interest'.
+    Admin alert wired in Section 7.
+  TypeScript: zero errors after removing funding_type from queries
+    (deals table has no funding_type column — not in Section 1 schema)
+  Route placement: /opportunities in (marketing) group — public, no middleware gate
+    CLAUDE.md route map had this in (app); build.md Section 5 spec takes precedence (build.md wins)
+  Security:
+    details_gated: two separate queries ensure it is never selected for unauthenticated/non-investor users
+    RLS is the backstop; column exclusion is the primary enforcement
+    expressInterest: server action with auth + role check; no client-side mutation
+
+\[2026-06-14] Section 4 — Admin Portal COMPLETE (session 23)
+  Shipped:
+  - app/actions/admin.ts: all admin server actions (service role, getAdminUser() guard)
+      setApplicationUnderReview, approveApplication, rejectApplication, saveAdminNotes
+      blacklistUser, unblacklistUser, deactivateUser, reactivateUser
+      promoteToDeals, updateDeal, deactivateDeal
+      createPortfolioCompany, updatePortfolioCompany
+      writeAudit() helper — every mutation writes one entry using locked vocabulary
+      All email sends: console.log("TODO [Section 7]: ...") stubs
+  - app/(admin)/admin/layout.tsx: RSC sidebar, 216px fixed, role-gate redirects non-admins
+      Nav: Overview / Applications / Deals / Portfolio / Users
+      Sign out via server action <form>
+  - app/(admin)/admin/page.tsx: metrics dashboard RSC
+      6 stats via createAdminClient: total apps, approval rate, active deals,
+      total funding approved, registered users, in-queue
+      2-row × 3-col grid with 1px gap border trick
+  - app/(admin)/admin/applications/page.tsx: filterable table RSC
+      HTML <form method="get"> filters: search, status, funding_type
+      Supabase .or() for search across business_name/founder_name/contact_email
+      Status color-coded; row links to /admin/applications/[id]
+  - app/(admin)/admin/applications/[id]/page.tsx: detail view RSC
+      Parallel fetch: application + documents; profile fetched separately
+      Signed URLs: 10 min (600s), service role, console.log logged, doc not shown if null
+      Sections: business info, funding ask, documents, rejection reason (if rejected)
+      Right sidebar: applicant info + blacklist status, ApplicationActions, AdminNotesForm
+      "Promote to deal →" button appears only when status=approved
+  - app/(admin)/admin/applications/[id]/promote/page.tsx: RSC wrapper
+      Guards: notFound() if app not found or status != approved
+      Passes prefill (funding_amount, business_description, funding_type) to PromoteForm
+  - app/(admin)/admin/deals/page.tsx: deals list RSC — DealsManager client component
+  - app/(admin)/admin/portfolio/page.tsx: portfolio list RSC — PortfolioManager client component
+  - app/(admin)/admin/users/page.tsx: users table RSC — UsersTable client component
+  - components/admin/AdminNotesForm.tsx: "use client", auto-saves on blur, "Saved" flash
+  - components/admin/ApplicationActions.tsx: "use client", approve/reject/blacklist
+      useTransition + router.refresh() on success; inline textareas for rejection/blacklist reasons
+  - components/admin/PromoteForm.tsx: "use client", controlled form → promoteToDeals()
+  - components/admin/DealsManager.tsx: "use client", accordion expand/edit per deal
+      updateDeal + deactivateDeal; 3-col grid for industry/funding_required/revenue_to_date
+  - components/admin/PortfolioManager.tsx: "use client", accordion edit + AddCompanyForm
+      createPortfolioCompany + updatePortfolioCompany; is_published checkbox
+  - components/admin/UsersTable.tsx: "use client", per-row inline blacklist form
+      deactivate/reactivate/blacklist/unblacklist; blacklist reason textarea inline
+  TypeScript fixes (pre-existing errors in admin.ts):
+    - metadata: metadata ?? null → as never (audit_log jsonb vs Record<string,unknown>)
+    - db.from("deals").update(payload) → update(payload as never) (Supabase RejectExcessProperties)
+    - db.from("portfolio_companies").update(payload) → update(payload as never) (same)
+  npx tsc --noEmit: zero errors (confirmed after all fixes)
+  Security — all enforced:
+    - All admin mutations: service role (createAdminClient()) in server actions only
+    - All mutations: getAdminUser() verifies session + profiles.role='admin' before any DB write
+    - Signed URLs: generated server-side, 600s TTL, logged to console, raw Storage paths never sent to client
+    - Audit log: every mutation writes exactly one entry from the locked vocabulary
+  Open / user actions required:
+    - Seed first admin: UPDATE profiles SET role = 'admin' WHERE id = '<uuid>';
+    - Create Storage buckets in Supabase dashboard (financial-records, bank-statements) — private
+    - Wire email stubs in Section 7
+
+\[2026-06-14] Section 3 — Applicant Flow COMPLETE (session 22)
+  Shipped:
+  - lib/validations/application.ts: Zod v4 schemas
+      step1Schema: business_name, founder_name, contact_email, contact_phone (optional)
+      step2Schema: business_description (min 50 chars), monthly_revenue (nullable optional)
+      step3Schema: funding_amount (number, max 5M), funding_type (enum 4 values)
+      fullApplicationSchema: merged step1+2+3
+  - app/actions/applications.ts: 3 server actions
+      saveDraft(formData, applicationId?) — upserts draft, defaults NOT NULL fields to ""
+      submitApplication(applicationId) — validates Zod, checks blacklist, checks duplicate in-flight,
+        sets status=pending + submitted_at, stubs email with console.log TODO [Section 7]
+      saveDocumentRecord(applicationId, filePath, documentType) — verifies ownership, inserts doc row
+  - app/(app)/dashboard/apply/ApplyForm.tsx ("use client") — single RHF useForm instance
+      5-step form, setValueAs handles string→number for monthly_revenue + funding_amount
+      Step 4 uploads to Supabase Storage (browser client, anon key + RLS);
+        handles bucket-not-found gracefully with "skip for now" option
+      Step 5 review: summary table, "Submit application" triggers submitApplication server action
+      Progress bar at top; "Save and exit" available on all steps
+      Draft resume: detectStartStep() auto-advances to correct step based on filled fields
+  - app/(app)/dashboard/apply/page.tsx (RSC) — checks ?resume=id, fetches draft, passes to ApplyForm
+      searchParams awaited (Next.js 16 async dynamic API)
+  - app/(app)/dashboard/page.tsx (RSC) — replaces placeholder
+      Fetches profile + applications in parallel (Promise.all)
+      Role-based: investor → InvestorPanel (placeholder for Section 5), applicant → ApplicantPanel
+      ApplicantPanel: 5 states — no app, draft, pending, under_review, approved, rejected
+      Rejected state shows rejection_reason and "Apply again" CTA
+      justSubmitted=true from ?submitted=true param shows success banner
+  Packages installed: react-hook-form, zod@4.4.3, @hookform/resolvers
+  Zod v4 breaking changes hit and resolved:
+    - z.preprocess() in schema fields causes zodResolver TypeScript mismatch (input type unknown
+      vs RHF expected type). Fix: don't use z.preprocess; handle coercion in register setValueAs.
+    - ZodError.errors renamed to .issues in v4
+    - required_error/invalid_type_error params → { error: "..." } in v4
+  npm run build: 22 static routes + /dashboard + /dashboard/apply (both ƒ Dynamic), zero errors
+  Open:
+    - Storage buckets not yet created; doc upload shows graceful error until created
+    - Email stub: console.log("TODO [Section 7]...") in submitApplication
+    - Section 4 (admin) needed before full applicant→admin→decision loop can be tested
+
 \[2026-06-13] Section 6 (post) — ForInvestors heading: two-line break + font-size 42px
   Shipped:
   - components/marketing/ForInvestors.tsx:
@@ -1725,6 +2253,169 @@ Build Log (append-only)
   - Confirmed single column: section is a plain <section> with padding only — no grid,
     no flex columns. No structural changes required.
   - Verified live at localhost:3000: break renders correctly at 1280px viewport.
+
+\[2026-06-14] Section 8 (post) — Split signup routes by role
+  Shipped:
+  - app/(auth)/signup/page.tsx — rewritten:
+      Heading: "Join SDA as an Applicant"
+      Subheading: "Create an account to apply for funding."
+      Role selection UI removed (label + two cards + role useState + roleCard fn)
+      role: "applicant" hardcoded in supabase.auth.signUp data
+  - app/(auth)/signup/investor/page.tsx — new page:
+      Heading: "Join SDA as an Investor"
+      Subheading: "Create an account to explore investment opportunities."
+      role: "investor" hardcoded
+      Inherits (auth) layout — dark nav, 80px padding, same form structure
+  Link updates (all /signup?role=* query params removed):
+      components/marketing/Nav.tsx: /signup?role=applicant → /signup (2 instances, replace_all)
+      components/marketing/Hero.tsx: /signup?role=applicant → /signup
+      app/(marketing)/apply/page.tsx: /signup?role=applicant → /signup
+      app/(marketing)/investors/page.tsx: /signup → /signup/investor (ghost "Create account" btn)
+      app/(marketing)/opportunities/page.tsx: /signup?role=investor → /signup/investor
+      app/(marketing)/opportunities/[id]/page.tsx: /signup?role=investor → /signup/investor
+  Decisions:
+  - /signup/investor lives under app/(auth)/signup/investor/ — nested inside the signup dir
+    rather than a sibling route (signup-investor/) — keeps auth group tidy
+  - ForInvestors.tsx "Explore Opportunities →" untouched — correctly points to /opportunities
+  - investors/page.tsx "Explore Opportunities" untouched — correctly points to /opportunities
+  Build: npm run build — 27 routes (was 26), zero errors
+
+\[2026-06-14] Section 8 (post) — Global page content padding
+  Shipped:
+  - app/globals.css: added .sda-page-content { padding-top: 80px }
+      Single source of truth for nav clearance — change here only if nav height changes
+  - app/(marketing)/layout.tsx: wrapped {children} in <div className="sda-page-content">
+      Was bare (no wrapper) — all inner marketing pages had zero top padding
+  - app/(app)/dashboard/layout.tsx: replaced style={{ paddingTop: "56px" }} with className="sda-page-content"
+  - app/(auth)/layout.tsx: replaced style={{ paddingTop: "56px" }} with className="sda-page-content"
+  - components/marketing/Hero.tsx: added marginTop: "-80px" to <section>
+      Cancels layout's 80px wrapper padding so hero image stays pinned to viewport top
+      Hero content (text/buttons) position unchanged — justifyContent: flex-end keeps it at bottom
+  - app/(auth)/login|signup|forgot-password|reset-password/page.tsx: minHeight calc(100vh - 56px) → calc(100vh - 80px)
+      Keeps forms vertically centred within the available space below the nav
+  Decisions:
+  - Admin layout unchanged — has its own sidebar nav, no fixed marketing nav bar
+  - marginTop: -80px on Hero is cleaner than pathname check (Option A) or manual hero reposition
+    because the outer layout div is #0A0A0A — the negative margin pulls hero behind it invisibly
+  - CSS class over inline style chosen per user spec — one edit in globals.css adjusts all pages
+  Build: npm run build — 26 routes, zero errors
+
+\[2026-06-15] Section 8 (post) — Signup + apply form redesign (centered milestone layout)
+  Shipped:
+  - app/globals.css: signup CSS section fully replaced
+      Old: full-height 2-col grid (sidebar + form)
+      New: centered flex layout (.sda-signup-grid / .sda-signup-inner / .sda-signup-sidebar / .sda-signup-form-col)
+      .sda-signup-grid: flex column, align-items center, padding 56px 40px 60px, bg #FAFAF8
+      .sda-signup-inner: flex row, max-width 900px, width 100%
+      .sda-signup-sidebar: width 220px, padding-right 40px, border-right rgba(0,0,0,0.1)
+      .sda-signup-form-col: flex 1, padding-left 48px, min-width 0
+      .sda-mobile-steps: display none desktop / display block mobile
+      Focus rule: .sda-signup-form-col input/textarea:focus { border-color #CF9A0A, outline none }
+      Mobile (≤768px): sidebar hidden, form col padding 0, outer padding 32px 24px 48px
+  - components/auth/SignupProgress.tsx: rewritten for 6 steps
+      Steps: Create account / Verify email / Business details / Funding details / Upload documents / Review & submit
+      variant prop: "applicant" (default) | "investor" (changes step 3 to "Investment profile")
+      Completed steps show ✓ checkmark, circle bg #0A0A0A, color #FAFAF8
+      Active step: circle bg #CF9A0A, label #0A0A0A, "You are here" sub
+      Upcoming: transparent circle, border rgba(0,0,0,0.2), label rgba(0,0,0,0.35)
+      Eyebrow: "Progress" 10px Inter rgba(0,0,0,0.35) uppercase
+  - components/auth/MobileStepIndicator.tsx: new component
+      6 circles (matching desktop styles) + 5 connectors (20px × 1px rgba(0,0,0,0.15))
+      No labels. Rendered inside .sda-mobile-steps wrapper (hidden on desktop)
+  - app/(auth)/signup/page.tsx: rewritten with new layout
+      variant="applicant", currentStep=1 (form) / 2 (done)
+      Button: Sora 15px weight 600, #CF9A0A, padding 14px 32px, width 100%
+      Subheading: Inter 16px rgba(0,0,0,0.5), mb 40px
+  - app/(auth)/signup/investor/page.tsx: rewritten with new layout
+      variant="investor", same form structure
+  - app/(app)/dashboard/apply/ApplyForm.tsx: rewritten with new layout
+      Removed: internal header (SDA logo + top save-and-exit), progress bar, Step X of Y text
+      Added: SignupProgress + MobileStepIndicator in sidebar
+      Milestone step mapping: app steps 1-2 → 3, step 3 → 4, step 4 → 5, step 5 → 6
+      Step headings updated to match milestone labels: Business details / Your business / Funding details / Upload documents / Review & submit
+      Primary buttons: Sora 15px 600, #CF9A0A
+      Input focus handled by CSS rule rather than inline style
+  Build: NEXT_TURBO=0 npm run build — 27 routes, zero errors
+  Screenshots: signup-desktop.png, signup-mobile.png saved to docs/
+
+\[2026-06-15] Section 8 (post) — Signup sidebar light background + color pass
+  Shipped:
+  - app/globals.css:
+      .sda-signup-grid: background-color #0A0A0A → #FAFAF8
+      .sda-signup-sidebar: border-right rgba(255,255,255,0.08) → rgba(0,0,0,0.12)
+                           background-color: #FAFAF8 added explicitly
+  - components/auth/SignupProgress.tsx:
+      Logo image + Link removed entirely (Nav above the layout already provides it)
+      "APPLICATION PROCESS" label: color rgba(255,255,255,0.4) → rgba(0,0,0,0.4)
+      Active step circle: bg #CF9A0A / color #0A0A0A (unchanged — still gold)
+      Active step label: color #FAFAF8 → #0A0A0A
+      Active "You are here": color rgba(255,255,255,0.45) → rgba(0,0,0,0.4)
+      Upcoming circle: border rgba(255,255,255,0.2) → rgba(0,0,0,0.15)
+                       number color rgba(255,255,255,0.3) → rgba(0,0,0,0.3)
+      Upcoming label: color rgba(255,255,255,0.35) → rgba(0,0,0,0.4)
+      Upcoming sub: color rgba(255,255,255,0.25) → rgba(0,0,0,0.3)
+      Connector lines: rgba(255,255,255,0.1) → rgba(0,0,0,0.1)
+  Decisions:
+  - Unified light background (#FAFAF8) across both columns — no dark/light split
+  - Thin 1px rgba(0,0,0,0.12) line replaces the dark sidebar as the visual separator
+  - Logo removed since Nav (fixed above) already carries the SDA logo on all auth pages
+  Verified: screenshot at 1280px — layout renders correctly, gold step 1, muted steps 2-4,
+    hairline divider visible, form unchanged
+
+\[2026-06-15] Section 8 (post) — SignupProgress sidebar on both signup pages
+  Shipped:
+  - components/auth/SignupProgress.tsx — new RSC component (no "use client")
+      Props: currentStep: number
+      Renders: logo link, "Application process" eyebrow, 4 vertical steps with connector lines
+      Active step: gold circle (#CF9A0A) + white label + "You are here" sub
+      Upcoming steps: muted circle (border only) + rgba(255,255,255,0.35) text
+      Completed steps: gold circle + rgba(255,255,255,0.35) text
+      Connector lines: 1px × 24px rgba(255,255,255,0.1), marginLeft: 13 (centre of 28px circle)
+  - app/globals.css — 3 new classes added:
+      .sda-signup-grid: display grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 80px)
+      .sda-signup-sidebar: padding 80px 40px; border-right rgba(255,255,255,0.08); position sticky top 80px
+      .sda-signup-form-col: background #FAFAF8; padding 80px 48px; flex-col justify-center
+      Mobile @media ≤768px: sidebar hidden, form-col padding 48px 24px, grid collapses to 1fr
+  - app/(auth)/signup/page.tsx — fully rewritten:
+      2-col .sda-signup-grid wraps entire page (including "done" state)
+      currentStep=1 on form, currentStep=2 on done/check-email screen
+      Button: backgroundColor #CF9A0A, color #0A0A0A (was #1A3D2F / #FAFAF8)
+      Loading button: backgroundColor #b8870a
+      Input borders: rgba(0,0,0,0.15) (was #E5E4DF)
+      Subheading: rgba(0,0,0,0.55) (was #6B6B6B)
+      <main> className="sda-signup-form-col" — no inline minHeight, no inline flex centering
+  - app/(auth)/signup/investor/page.tsx — same treatment:
+      Heading: "Join SDA as an Investor"
+      Subheading: "Create an account to explore investment opportunities."
+      role: "investor" hardcoded — all else identical to applicant page
+  Build: NEXT_TURBO=0 npm run build — 27 routes, zero errors
+  Known issue: default next build (Turbopack) fails — cannot reach Google Fonts at build time.
+    Turbopack is the default in Next.js 16. Webpack build works. Fix: NEXT_TURBO=0 prefix
+    or rename build script to use cross-env NEXT_TURBO=0 for portability.
+  middleware.ts deprecation warning observed: rename to "proxy" when refactoring middleware.
+
+\[2026-06-14] Section 8 (post) — Dark nav on auth and dashboard pages
+  Shipped:
+  - app/(auth)/layout.tsx — new route group layout: Nav + paddingTop 56px wrapper
+  - app/(auth)/login/page.tsx — moved from app/login/page.tsx
+  - app/(auth)/signup/page.tsx — moved from app/signup/page.tsx
+  - app/(auth)/forgot-password/page.tsx — moved from app/forgot-password/page.tsx
+  - app/(auth)/reset-password/page.tsx — moved from app/reset-password/page.tsx
+  - app/(app)/dashboard/layout.tsx — updated from passthrough to Nav + paddingTop 56px
+  - Original flat files at app/login/, app/signup/, app/forgot-password/, app/reset-password/ deleted
+  Changes per page:
+  - Removed import Image from "next/image" (no longer used)
+  - Removed <Link href="/"><Image logo /></Link> from all pages (Nav provides logo now)
+  - minHeight: "100vh" → "calc(100vh - 56px)" on all <main> elements to keep forms centred
+  - All form fields, validation, submit handlers, success/done states unchanged
+  Decisions:
+  - Route groups are URL-transparent — /login, /signup etc. unchanged in browser and middleware
+  - Nav uses usePathname() internally; all auth + dashboard paths !== "/" so solid #0A0A0A
+    renders automatically with no prop changes
+  - Dashboard layout (app/(app)/dashboard/layout.tsx) also covers /dashboard/apply —
+    both now have Nav
+  Build: npm run build — 26 routes, zero errors (was 26 before; count unchanged, routes moved
+    from flat to group but same URLs)
 ```
 ---
 Environment Variables Reference

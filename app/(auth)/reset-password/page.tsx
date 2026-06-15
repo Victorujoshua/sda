@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ResetPasswordPage() {
@@ -34,12 +33,8 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+    <main style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
       <div style={{ width: "100%", maxWidth: "400px" }}>
-
-        <Link href="/" style={{ display: "inline-flex", marginBottom: "40px" }}>
-          <Image src="/images/logo.png" alt="SDA" width={80} height={28} style={{ objectFit: "contain" }} />
-        </Link>
 
         <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "#0A0A0A", marginBottom: "8px" }}>
           Set a new password
@@ -91,6 +86,12 @@ export default function ResetPasswordPage() {
             {loading ? "Updating…" : "Update password"}
           </button>
         </form>
+
+        <p style={{ fontFamily: "var(--in)", fontSize: "14px", color: "#6B6B6B", marginTop: "28px", textAlign: "center" }}>
+          <Link href="/login" style={{ color: "#1A3D2F", textDecoration: "none", fontWeight: 500 }}>
+            Back to sign in
+          </Link>
+        </p>
       </div>
     </main>
   );

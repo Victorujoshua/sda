@@ -8,6 +8,7 @@ import ForInvestors from "@/components/marketing/ForInvestors";
 import PullQuote from "@/components/marketing/PullQuote";
 import PortfolioGrid from "@/components/marketing/PortfolioGrid";
 import PortfolioFeature from "@/components/marketing/PortfolioFeature";
+import HomeFAQ from "@/components/marketing/HomeFAQ";
 import EmailSignup from "@/components/marketing/EmailSignup";
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default function HomePage() {
       <PullQuote />
       <PortfolioGrid />
       <PortfolioFeature />
+      <HomeFAQ />
       <EmailSignup />
     </main>
   );

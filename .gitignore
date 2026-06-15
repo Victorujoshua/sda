@@ -38,3 +38,13 @@ next-env.d.ts
 # Claude Code local settings
 .claude/settings.local.json
 .claude/skills/
+
+# Supabase CLI ephemeral state
+supabase/.temp/
+
+# Root-level original assets (web-served copies are in public/)
+/*.jpg
+/*.jpeg
+/*.png
+/*.mp4
+/*.webp

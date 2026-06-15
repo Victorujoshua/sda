@@ -1,23 +1,29 @@
+import Image from "next/image";
+
 const FUNDING_TYPES = [
   {
     type: "Equity",
     description: "Ownership stake in exchange for capital.",
     note: "Suitable for high-growth businesses",
+    icon: "/images/icons/equity.svg",
   },
   {
     type: "Debt",
     description: "Fixed repayment schedule over an agreed term.",
     note: "Suitable for businesses with steady cash flow",
+    icon: "/images/icons/debt.svg",
   },
   {
     type: "Asset financing",
     description: "Secured against business assets or equipment.",
     note: "Suitable for capital-intensive operations",
+    icon: "/images/icons/asset.svg",
   },
   {
     type: "Revenue-based",
     description: "Repay as a percentage of monthly revenue.",
     note: "Suitable for businesses with variable income",
+    icon: "/images/icons/revenue.svg",
   },
 ];
 
@@ -52,34 +58,47 @@ export default function FundingOptions() {
         {FUNDING_TYPES.map((item) => (
           <div
             key={item.type}
-            style={{ backgroundColor: "#0A0A0A", padding: "36px 28px" }}
+            style={{ backgroundColor: "#0A0A0A", padding: "40px 36px" }}
           >
-            <p style={{
-              fontFamily: "var(--sr)",
-              fontSize: "22px",
-              fontWeight: 400,
-              color: "#FAFAF8",
-              marginBottom: "10px",
-            }}>
-              {item.type}
-            </p>
-            <p style={{
-              fontFamily: "var(--in)",
-              fontSize: "16px",
-              color: "rgba(255,255,255,0.4)",
-              lineHeight: 1.6,
-              marginBottom: "8px",
-            }}>
-              {item.description}
-            </p>
-            <p style={{
-              fontFamily: "var(--in)",
-              fontSize: "14px",
-              fontStyle: "italic",
-              color: "rgba(255,255,255,0.25)",
-            }}>
-              {item.note}
-            </p>
+            <div className="sda-funding-card">
+              <div style={{ flex: 1 }}>
+                <p style={{
+                  fontFamily: "var(--sr)",
+                  fontSize: "22px",
+                  fontWeight: 400,
+                  color: "#FAFAF8",
+                  marginBottom: "10px",
+                }}>
+                  {item.type}
+                </p>
+                <p style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "16px",
+                  color: "rgba(255,255,255,0.4)",
+                  lineHeight: 1.6,
+                  marginBottom: "8px",
+                }}>
+                  {item.description}
+                </p>
+                <p style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "14px",
+                  fontStyle: "italic",
+                  color: "rgba(255,255,255,0.25)",
+                }}>
+                  {item.note}
+                </p>
+              </div>
+              <div className="sda-funding-icon">
+                <Image
+                  src={item.icon}
+                  alt={item.type}
+                  width={64}
+                  height={64}
+                  style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }}
+                />
+              </div>
+            </div>
           </div>
         ))}
       </div>

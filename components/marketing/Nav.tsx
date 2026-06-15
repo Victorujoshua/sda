@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -14,21 +15,36 @@ const NAV_LINKS = [
 
 export default function Nav() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHomepage = pathname === "/";
+
+  useEffect(() => {
+    if (!isHomepage) return;
+    const handleScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isHomepage]);
+
+  const isDark = !isHomepage || scrolled;
+  const navBg = isDark ? "#0A0A0A" : "transparent";
+  const navShadow = isDark ? "0 1px 0 rgba(255,255,255,0.08)" : "none";
 
   return (
     <>
       <nav style={{
-        position: "absolute",
+        position: "fixed",
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 10,
+        zIndex: 100,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "18px 40px",
-        borderBottom: "1px solid rgba(255,255,255,0.1)",
-        backgroundColor: "transparent",
+        padding: "6px 40px",
+        backgroundColor: navBg,
+        boxShadow: navShadow,
+        transition: "background-color 0.3s ease, box-shadow 0.3s ease",
       }}>
         {/* Left: logo */}
         <Link href="/" style={{ display: "inline-flex", alignItems: "center" }}>
@@ -74,7 +90,7 @@ export default function Nav() {
             ))}
           </ul>
           <Link
-            href="/signup?role=applicant"
+            href="/signup"
             className="sda-btn-nav-cta"
             style={{
               fontFamily: "var(--in)",
@@ -86,7 +102,7 @@ export default function Nav() {
               display: "inline-block",
             }}
           >
-            Apply for funding
+            Apply Now
           </Link>
         </div>
 
@@ -158,7 +174,7 @@ export default function Nav() {
         {/* Apply CTA at bottom */}
         <div style={{ marginTop: "40px" }}>
           <Link
-            href="/signup?role=applicant"
+            href="/signup"
             onClick={() => setIsOpen(false)}
             className="sda-btn-nav-cta"
             style={{
@@ -172,7 +188,7 @@ export default function Nav() {
               letterSpacing: "0.04em",
             }}
           >
-            Apply for funding
+            Apply Now
           </Link>
         </div>
       </div>

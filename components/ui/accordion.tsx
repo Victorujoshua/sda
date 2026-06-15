@@ -21,7 +21,7 @@ export function AccordionGroup({ title, items }: AccordionGroupProps) {
         fontSize: "11px",
         textTransform: "uppercase",
         letterSpacing: "0.12em",
-        color: "rgba(255,255,255,0.3)",
+        color: "#CF9A0A",
         marginBottom: "16px",
       }}>
         {title}

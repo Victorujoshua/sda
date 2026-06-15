@@ -1,7 +1,16 @@
+import Nav from "@/components/marketing/Nav";
+
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <Nav />
+      <div className="sda-page-content">
+        {children}
+      </div>
+    </>
+  );
 }

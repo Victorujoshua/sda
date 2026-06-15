@@ -28,7 +28,7 @@ One codebase. One database. Three roles.
 | Framework | Next.js 14 App Router + TypeScript | RSC by default; client components only when needed |
 | Database + Auth | Supabase (Postgres + Auth) | RLS enforced; service role for admin mutations only |
 | File Storage | Supabase Storage | Private buckets only — no public URLs ever |
-| Email | ZeptoMail | Transactional only — verify syntax before coding |
+| Email | Loops | Transactional email |
 | Styling | Tailwind CSS + shadcn/ui | Custom tokens override defaults — resolve v4 shadcn issue before Section 3 |
 | UI Components | 21st.dev Magic MCP | `/ui [description]` in Claude Code — always override with SDA tokens after generation |
 | Design intelligence | UI-UX-Pro max skill | Loaded as Claude Code skill — reference for all layout and spacing decisions |
@@ -233,18 +233,30 @@ portfolio.updated
 
 ## Email Rules
 
-**ZeptoMail syntax must be confirmed from live docs before writing any template.**
+Email provider: Loops (loops.so).
+SDK: `npm install loops` — `import { LoopsClient } from "loops"`.
 
-Do not assume ZeptoMail uses the same merge-tag syntax as any other service.
-Past failure: Loops.so required `{DATA_VARIABLE:varname}` — wrong syntax sends but renders nothing.
+Loops variable syntax in templates: `{{variable_name}}` — double curly braces, no spaces.
 
 Steps before coding any email template:
-1. Fetch ZeptoMail's current template documentation
-2. Confirm the exact merge-tag syntax
+1. Confirm the template exists in Loops dashboard (loops.so → Transactional)
+2. Note the exact transactionalId and variable names
 3. Send one real test email per template before wiring it up
-4. Confirm variables render in a real inbox — not just in logs
+4. Confirm variables render correctly in a real inbox — not just in logs
 
-Email stubs in Sections 3 and 4 use `console.log + // TODO: wire in Section 7`. Do not wire emails until Section 7.
+Send pattern:
+```ts
+const client = new LoopsClient(process.env.LOOPS_API_KEY!)
+await client.sendTransactionalEmail({
+  transactionalId: "your-template-id",
+  email: "recipient@example.com",
+  dataVariables: { variable_name: "value" },
+})
+```
+
+Email stubs in Sections 3 and 4 use `console.log` + `// TODO: wire in Section 7`. Do not wire emails until Section 7.
+
+Environment variables: `LOOPS_API_KEY` (server-side only — never expose to client), `LOOPS_ADMIN_EMAIL`.
 
 ---
 
@@ -271,7 +283,7 @@ Follow this in every session, without exception.
 1. **Read first.** Before writing any code, read `build.md` and the relevant source files.
 2. **Propose, then wait.** For every non-trivial task: state what you plan to do and wait for approval before implementing.
 3. **No destructive DB operations without showing the SQL first.** Show the migration, get a go-ahead, then run it.
-4. **No invented APIs, libraries, or env vars.** If you are unsure about an external API shape (e.g. ZeptoMail, Supabase edge function syntax), say so and verify from current docs before coding.
+4. **No invented APIs, libraries, or env vars.** If you are unsure about an external API shape (e.g. Loops, Supabase edge function syntax), say so and verify from current docs before coding.
 5. **If the plan is wrong, stop and flag it.** Do not silently improvise a different approach.
 6. **After every session:** update `build.md` — overwrite the Current State block, tick completed tasks, append a Build Log entry. A stale `build.md` is a bug.
 7. **No payments in V1.** If a payment requirement appears in any form, stop and flag it immediately.
@@ -288,8 +300,9 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=        ← server-side only
 
-# ZeptoMail
-ZEPTO_MAIL_API_KEY=               ← confirm key name matches ZeptoMail dashboard
+# Loops
+LOOPS_API_KEY=                    ← from Loops dashboard → Settings → API keys
+LOOPS_ADMIN_EMAIL=                ← admin inbox for new application alerts
 
 # App
 NEXT_PUBLIC_APP_URL=              ← https://sda.ng in production

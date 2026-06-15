@@ -96,7 +96,7 @@ export default function InvestorsPage() {
           Explore Opportunities
         </Link>
         <Link
-          href="/signup"
+          href="/signup/investor"
           style={{
             display: "inline-block",
             border: "1px solid rgba(255,255,255,0.25)",

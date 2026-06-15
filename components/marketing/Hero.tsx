@@ -6,6 +6,7 @@ export default function Hero() {
       position: "relative",
       width: "100%",
       minHeight: "100vh",
+      marginTop: "-80px",
       backgroundImage: "url('/images/hero_bg.jpg')",
       backgroundSize: "cover",
       backgroundPosition: "center",
@@ -29,18 +30,7 @@ export default function Hero() {
         padding: "80px 40px 64px",
         maxWidth: "900px",
       }}>
-        <p style={{
-          fontFamily: "var(--in)",
-          fontSize: "11px",
-          textTransform: "uppercase",
-          letterSpacing: "0.14em",
-          color: "rgba(255,255,255,0.4)",
-          marginBottom: "20px",
-        }}>
-          Micro angel investing · Nigeria
-        </p>
-
-        <h1 className="sda-hero-h1" style={{
+<h1 className="sda-hero-h1" style={{
           fontFamily: "var(--sr)",
           fontSize: "80px",
           fontWeight: 500,
@@ -71,7 +61,7 @@ export default function Hero() {
 
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "32px" }}>
           <Link
-            href="/signup?role=applicant"
+            href="/signup"
             className="sda-btn-primary"
             style={{
               fontFamily: "var(--in)",

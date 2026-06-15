@@ -192,7 +192,7 @@ export default function ApplyPage() {
 
       {/* CTA */}
       <Link
-        href="/signup?role=applicant"
+        href="/signup"
         style={{
           display: "inline-block",
           backgroundColor: "#CF9A0A",

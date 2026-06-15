@@ -9,7 +9,9 @@ export default function MarketingLayout({
   return (
     <div style={{ backgroundColor: "#0A0A0A", color: "#FAFAF8", minHeight: "100vh" }}>
       <Nav />
-      {children}
+      <div className="sda-page-content">
+        {children}
+      </div>
       <Footer />
     </div>
   );

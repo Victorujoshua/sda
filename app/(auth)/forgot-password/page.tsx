@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
@@ -32,11 +31,8 @@ export default function ForgotPasswordPage() {
 
   if (done) {
     return (
-      <main style={{ minHeight: "100vh", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+      <main style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
         <div style={{ width: "100%", maxWidth: "400px" }}>
-          <Link href="/" style={{ display: "inline-flex", marginBottom: "40px" }}>
-            <Image src="/images/logo.png" alt="SDA" width={80} height={28} style={{ objectFit: "contain" }} />
-          </Link>
           <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "#0A0A0A", marginBottom: "12px" }}>
             Check your email
           </h1>
@@ -54,12 +50,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+    <main style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
       <div style={{ width: "100%", maxWidth: "400px" }}>
-
-        <Link href="/" style={{ display: "inline-flex", marginBottom: "40px" }}>
-          <Image src="/images/logo.png" alt="SDA" width={80} height={28} style={{ objectFit: "contain" }} />
-        </Link>
 
         <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "#0A0A0A", marginBottom: "8px" }}>
           Reset your password
