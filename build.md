@@ -5,8 +5,8 @@ SDA Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · Two-tier admin COMPLETE
-Last completed section: Two-tier admin system — super_admin role, invite flow, permission gates on approve/promote, AdminTeamSection UI, /accept-invite page
+Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · Two-tier admin COMPLETE · Admin redirect bug FIXED
+Last completed section: Admin redirect bug fix — super_admin now lands on /admin after login (commit dd6d964)
 Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 27 routes, zero errors (session 34).
   NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
   Run builds with: NEXT_TURBO=0 npx next build
@@ -104,9 +104,16 @@ Two-tier admin system (COMPLETE — commit 2f014da):
     components/admin/ApplicationActions.tsx — actorRole prop, approve gated to super_admin
     app/(admin)/admin/applications/[id]/page.tsx — actorRole fetched, promote link gated
     middleware.ts — super_admin accepted on /admin routes
+  Super admin account — COMPLETE (2026-06-15):
+    Email:     support@sda.ng
+    UUID:      17e54dc3-ead4-4655-ad29-5135a28dd94e
+    Role:      super_admin ✓ (set automatically by handle_new_user trigger via user_metadata)
+    Full name: SDA Support
+    is_active: true
+    Password:  set via one-time recovery link (generated via Admin API, redirect to /reset-password)
+    Method:    auth.admin.createUser (email_confirm=true) — no signup page, no applicant role risk
   User actions still required:
-    1. UPDATE profiles SET role = 'super_admin' WHERE id = '<your-uuid>';
-    2. Create Loops template: admin-invite (variables: invite_link, invited_by_name, expires_at)
+    1. Create Loops template: admin-invite (variables: invite_link, invited_by_name, expires_at)
 Live URL: — (Vercel deploy still pending — set env vars in Vercel dashboard once import done)
 Seed first admin before testing Section 4 (SQL below):
   UPDATE profiles SET role = 'admin' WHERE id = '<your-user-uuid>';
@@ -135,9 +142,9 @@ Known open issues:
   - Mobile: WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited (FundingOptions now done)
   - FundingOptions icons: user should visually verify white icons on dark bg at desktop + 375px mobile
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
-Last updated: 2026-06-15 (session 40)
-GitHub: latest push 2f014da → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
-  10 files changed, 858 insertions(+), 23 deletions(-)
+Last updated: 2026-06-15 (session 42)
+GitHub: latest push dd6d964 → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
+  Admin redirect fix: 2 files changed, 17 insertions(+), 15 deletions(-)
 Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
   To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
              (B) run `vercel --prod` from your own terminal, OR
@@ -1300,6 +1307,18 @@ Build Log (append-only)
 > Format: `\[YYYY-MM-DD] Section N — what shipped — decisions made — deviations — open issues`
 ```
 \[           ] Build Log starts here. Claude Code appends entries below this line.
+
+\[2026-06-15] Section 8 (post) — Admin redirect bug fix (commit dd6d964)
+  Bug: super_admin (and admin) logged in and landed on /dashboard (applicant dashboard) instead of /admin.
+  Root cause: login page had a hardcoded router.push(redirectTo) where redirectTo defaulted to "/dashboard"
+  regardless of role. No role check was performed on successful sign-in.
+  Fix: app/(auth)/login/page.tsx — after successful signInWithPassword, if no explicit ?redirectTo param
+  is present, fetch the user's profile.role and push to /admin for admin/super_admin, /dashboard otherwise.
+  Safety net: app/(app)/dashboard/page.tsx — added early redirect to /admin if profile.role is admin or
+  super_admin. Also removed dead "Admin portal →" link that was now unreachable (TypeScript correctly
+  narrowed the type after the guard, making the role === "admin" check on that link report no overlap).
+  Middleware: already correct — /admin routes gated to admin + super_admin. No change needed.
+  Committed and pushed: dd6d964 → master.
 
 \[2026-06-13] Section 6 (post) — ForInvestors section added
   Shipped:
