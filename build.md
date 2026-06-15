@@ -5,12 +5,34 @@ SDA Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · Two-tier admin COMPLETE · Admin redirect bug FIXED
-Last completed section: Admin redirect bug fix — super_admin now lands on /admin after login (commit dd6d964)
+Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · SECURITY CHECK 3 BLOCKED
+Last completed section: Security checks 1-4 run (2026-06-15). Checks 2 and 4 pass. Check 1 pending (buckets). Check 3 FAIL — security gap confirmed: anon key can read details_gated via direct Supabase REST API.
 Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 27 routes, zero errors (session 34).
   NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
   Run builds with: NEXT_TURBO=0 npx next build
   Alternatively: npm run build (if env already set) — or add NEXT_TURBO=0 to build script via cross-env.
+Security checks status (2026-06-15):
+  Check 1 — Document URL exposure: PENDING. Buckets not created yet. Code verified correct:
+    - Signed URLs use createAdminClient() (service role), 600s TTL
+    - Raw file_path never passed to client JSX — only signedUrl
+    - Cannot test with real files until buckets exist in Supabase dashboard
+  Check 2 — Cross-user application access: PASS.
+    - RLS policy USING (user_id = auth.uid()) verified in migration SQL
+    - Live test: anon key returns [] for applications, application_documents, audit_log
+  Check 3 — details_gated leakage: FAIL — FIX REQUIRED BEFORE LAUNCH.
+    - App code correct: /opportunities and /opportunities/[id] never select details_gated for anon/non-investor
+    - SECURITY GAP: deals_anon_read_active RLS policy allows anon to read ALL columns
+    - Live test confirmed: anon key + direct Supabase REST API call returns details_gated content
+    - Fix proposed (awaiting approval): REVOKE SELECT (details_gated) ON public.deals FROM anon;
+    - Apply in Supabase SQL editor — no code changes needed after revocation
+  Check 4 — Admin route protection: PASS (unauthenticated case).
+    - /admin → 307 /login?redirectTo=%2Fadmin
+    - /admin/applications → 307 /login?redirectTo=%2Fadmin%2Fapplications
+    - /admin/deals → 307 /login?redirectTo=%2Fadmin%2Fdeals
+    - /admin/users → 307 /login?redirectTo=%2Fadmin%2Fusers
+    - /admin/portfolio → 307 /login?redirectTo=%2Fadmin%2Fportfolio
+    - Note: authenticated non-admin case relies on middleware DB role check (code verified, not live tested)
+  Check 5 — funding_amount constraint: PASS (verified 2026-06-14)
 Signup + apply form layout (as of session 36):
   Shared centered layout — used by /signup, /signup/investor, /dashboard/apply:
     Outer: .sda-signup-grid — flex column, align-items center, padding 56px 40px 60px, bg #FAFAF8
@@ -130,10 +152,15 @@ Loops setup required before emails fire (user actions):
      LOOPS_ADMIN_EMAIL=<admin inbox address>
   3. Test one real send per template before going live
 Known open issues:
+  - CRITICAL: Security check 3 FAIL — apply this SQL in Supabase SQL editor before launch:
+      REVOKE SELECT (details_gated) ON public.deals FROM anon;
+    Then re-run check 3 to confirm fix.
   - PENDING: /faq not linked from Nav — reachable directly but no nav entry
   - PENDING: Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard
     → Document upload in Step 4 shows graceful error if bucket not found ("Skip for now")
+    → Security check 1 cannot be completed until buckets + real documents exist
   - Section 7 emails: wired in server actions but TEMPLATES IDs are placeholder slugs — paste real Loops IDs when templates created
+  - Loops admin-invite template: create in Loops dashboard (variables: invite_link, invited_by_name, expires_at)
   - Section 0 Vercel deploy still pending — import GitHub repo at vercel.com, set env vars
   - Supabase project ref: mxuvbjjunajthrtlxrbr (eu-west-1)
   - supabase login interactive OAuth does not work in Claude Code; use SUPABASE_ACCESS_TOKEN env var
@@ -142,9 +169,8 @@ Known open issues:
   - Mobile: WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited (FundingOptions now done)
   - FundingOptions icons: user should visually verify white icons on dark bg at desktop + 375px mobile
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
-Last updated: 2026-06-15 (session 42)
-GitHub: latest push dd6d964 → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
-  Admin redirect fix: 2 files changed, 17 insertions(+), 15 deletions(-)
+Last updated: 2026-06-15 (session 43)
+GitHub: latest push 1739cfb → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
 Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
   To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
              (B) run `vercel --prod` from your own terminal, OR
@@ -1307,6 +1333,24 @@ Build Log (append-only)
 > Format: `\[YYYY-MM-DD] Section N — what shipped — decisions made — deviations — open issues`
 ```
 \[           ] Build Log starts here. Claude Code appends entries below this line.
+
+\[2026-06-15] Section 8 — Security checks 1–4 run
+  Check 1 — Document URL exposure: PENDING (cannot complete until storage buckets created).
+    Code review confirms: signed URLs use createAdminClient() (service role), 600s TTL,
+    raw file_path never reaches client JSX. No public URL path exists in any component.
+  Check 2 — Cross-user application access: PASS.
+    RLS verified in migration SQL: USING (user_id = auth.uid()) on SELECT/INSERT/UPDATE.
+    Live API test with anon key: applications → [], application_documents → [], audit_log → [].
+  Check 3 — details_gated leakage: FAIL — FIX REQUIRED.
+    App code is correct (two separate query paths, details_gated never selected for anon/non-investor).
+    Gap: deals_anon_read_active RLS policy allows anon to read all columns. Live test confirmed:
+    direct Supabase REST API call with anon key + select=details_gated returned gated content.
+    Test method: inserted test deal via service role, queried with anon key, confirmed leak, deleted deal.
+    Fix: REVOKE SELECT (details_gated) ON public.deals FROM anon; — no code changes needed.
+    Awaiting user to apply in Supabase SQL editor.
+  Check 4 — Admin route protection: PASS (unauthenticated).
+    All /admin/* routes return 307 → /login?redirectTo=... for unauthenticated requests.
+    Tested: /admin, /admin/applications, /admin/deals, /admin/users, /admin/portfolio.
 
 \[2026-06-15] Section 8 (post) — Admin redirect bug fix (commit dd6d964)
   Bug: super_admin (and admin) logged in and landed on /dashboard (applicant dashboard) instead of /admin.
