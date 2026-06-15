@@ -5,8 +5,8 @@ SDA Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 8 — IN PROGRESS · BUILD GREEN
-Last completed section: Section 8 (partial) — loading skeletons, error boundaries, admin handover doc, Loops migration, FundingOptions, nav scroll behaviour, auth + dashboard nav, global page padding, split signup routes, SignupProgress sidebar
+Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · Two-tier admin COMPLETE
+Last completed section: Two-tier admin system — super_admin role, invite flow, permission gates on approve/promote, AdminTeamSection UI, /accept-invite page
 Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 27 routes, zero errors (session 34).
   NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
   Run builds with: NEXT_TURBO=0 npx next build
@@ -87,6 +87,26 @@ Zod version: 4.4.3 (v4 — breaking changes applied):
   - ZodError.errors renamed to .issues
   - required_error / invalid_type_error params → { error: "..." }
 Next section: Section 8 remaining — security checks 1-4, Storage buckets, Vercel deploy, mobile audit
+Two-tier admin system (COMPLETE — commit 2f014da):
+  Permission matrix enforced:
+    admin:       view/review/reject/blacklist/manage deals+portfolio/view admin list
+    super_admin: all of the above + approve for funding + promote to deal + invite/remove admins
+  Files changed:
+    supabase/migrations/20260615000001_super_admin.sql — DB migration (applied by user)
+    lib/database.types.ts — admin_invites table type + super_admin added to user_role enum
+    app/actions/admin.ts — getSuperAdminUser(), inviteAdmin(), acceptAdminInvite(), removeAdmin()
+                           approveApplication() + promoteToDeals() gated to super_admin
+                           audit vocabulary extended: admin.invited / admin.accepted_invite / admin.removed
+    lib/email/loops.ts — ADMIN_INVITE template key added
+    app/accept-invite/page.tsx — public page, reads ?token=, name+password form
+    components/admin/AdminTeamSection.tsx — role badges, remove-admin, inline invite form
+    app/(admin)/admin/users/page.tsx — AdminTeamSection above applicants/investors table
+    components/admin/ApplicationActions.tsx — actorRole prop, approve gated to super_admin
+    app/(admin)/admin/applications/[id]/page.tsx — actorRole fetched, promote link gated
+    middleware.ts — super_admin accepted on /admin routes
+  User actions still required:
+    1. UPDATE profiles SET role = 'super_admin' WHERE id = '<your-uuid>';
+    2. Create Loops template: admin-invite (variables: invite_link, invited_by_name, expires_at)
 Live URL: — (Vercel deploy still pending — set env vars in Vercel dashboard once import done)
 Seed first admin before testing Section 4 (SQL below):
   UPDATE profiles SET role = 'admin' WHERE id = '<your-user-uuid>';
@@ -115,8 +135,14 @@ Known open issues:
   - Mobile: WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited (FundingOptions now done)
   - FundingOptions icons: user should visually verify white icons on dark bg at desktop + 375px mobile
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
-Last updated: 2026-06-15 (session 37)
-GitHub: pushed commit 16779f2 → master (github.com/Victorujoshua/sda)
+Last updated: 2026-06-15 (session 40)
+GitHub: latest push 2f014da → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
+  10 files changed, 858 insertions(+), 23 deletions(-)
+Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
+  To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
+             (B) run `vercel --prod` from your own terminal, OR
+             (C) Vercel dashboard → project → Deployments → Redeploy latest commit.
+  Steps 5–7 of deploy checklist still pending: env var verification, smoke test, mark phase LIVE.
 (Claude Code: overwrite this entire block after every session. Never leave it stale.)
 ---
 Project Snapshot
@@ -2417,6 +2443,61 @@ Build Log (append-only)
     both now have Nav
   Build: npm run build — 26 routes, zero errors (was 26 before; count unchanged, routes moved
     from flat to group but same URLs)
+
+\[2026-06-15] Two-tier admin — COMPLETE (commit 2f014da)
+  Shipped:
+  - supabase/migrations/20260615000001_super_admin.sql — applied to DB by user via SQL editor
+      ALTER TYPE user_role ADD VALUE 'super_admin'
+      CREATE TABLE admin_invites (id, email, token, invited_by, accepted_at, expires_at, created_at)
+      UNIQUE INDEX admin_invites_email_pending ON admin_invites(email) WHERE accepted_at IS NULL
+      RLS enabled, no client policies — service role only
+  - lib/database.types.ts — admin_invites Row/Insert/Update types added; super_admin in user_role enum
+  - app/actions/admin.ts:
+      getAdminUser() — now accepts admin OR super_admin (was admin-only)
+      getSuperAdminUser() — new helper, throws if caller is not super_admin
+      approveApplication() — switched to getSuperAdminUser()
+      promoteToDeals() — switched to getSuperAdminUser()
+      inviteAdmin(email) — super_admin only; checks for existing admin via auth.admin.listUsers();
+        inserts admin_invites row; sends admin-invite email via Loops; writes admin.invited audit
+      acceptAdminInvite(token, fullName, password) — validates token (not accepted, not expired);
+        creates auth user via admin API (email_confirm: true); upserts profile role=admin;
+        marks invite accepted; writes admin.accepted_invite audit
+      removeAdmin(userId) — super_admin only; sets role=applicant; blocks super_admin removal;
+        writes admin.removed audit
+      AuditAction type extended: admin.invited / admin.accepted_invite / admin.removed
+  - lib/email/loops.ts — ADMIN_INVITE: "admin-invite" added to TEMPLATES
+  - app/accept-invite/page.tsx — new public page (outside all route groups)
+      Reads ?token= from URL; shows name + password form; calls acceptAdminInvite();
+      Redirects to /login?message=... on success; shows error if token invalid/expired
+  - components/admin/AdminTeamSection.tsx — new "use client" component
+      Table of all admin/super_admin profiles with RoleBadge (gold for super_admin, muted for admin)
+      super_admin sees "Remove admin" button on admin rows (never on super_admin rows)
+      super_admin sees "+ Invite admin" button → inline InviteForm (email input + send + cancel)
+      Invite form shows success/error inline without page reload
+  - app/(admin)/admin/users/page.tsx
+      Fetches actor's role via createClient() + profiles lookup
+      Fetches admin team via createAdminClient() WHERE role IN ('admin','super_admin')
+      Main query now filters to applicants + investors only (admins shown in team section)
+      Role filter dropdown: removed 'admin' option (admins no longer in main table)
+      AdminTeamSection rendered above filters
+  - components/admin/ApplicationActions.tsx
+      New actorRole prop (string)
+      "Approve" button → "Approve for funding" (gold #CF9A0A), conditionally rendered for super_admin only
+  - app/(admin)/admin/applications/[id]/page.tsx
+      Fetches actor role via createClient()
+      "Promote to deal →" link gated: app.status === "approved" AND actorRole === "super_admin"
+      actorRole passed to ApplicationActions
+  - middleware.ts — role check: profile.role !== "admin" AND profile.role !== "super_admin"
+  Decisions:
+  - getSuperAdminUser() is a separate function from getAdminUser() — clearer call sites, no boolean param
+  - acceptAdminInvite() uses auth.admin.createUser() with email_confirm: true so no verification email needed
+  - Profile upsert used (not insert) in acceptAdminInvite() in case DB trigger already created the row
+  - removeAdmin() strips to 'applicant' role (not deletes) — preserves user data and application history
+  - inviteAdmin() uses auth.admin.listUsers() to check email uniqueness (profiles has no email column)
+  Build: NEXT_TURBO=0 npx next build — 28 routes, zero TypeScript errors (was 27, +/accept-invite)
+  User actions required before feature is live:
+    1. UPDATE profiles SET role = 'super_admin' WHERE id = '<your-uuid>';
+    2. Create Loops template: admin-invite (variables: invite_link, invited_by_name, expires_at)
 ```
 ---
 Environment Variables Reference
