@@ -18,7 +18,10 @@ type AuditAction =
   | "deal.updated"
   | "deal.deactivated"
   | "portfolio.created"
-  | "portfolio.updated";
+  | "portfolio.updated"
+  | "admin.invited"
+  | "admin.accepted_invite"
+  | "admin.removed";
 
 async function getAdminUser() {
   const supabase = await createClient();
@@ -32,7 +35,25 @@ async function getAdminUser() {
     .select("role")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "admin") throw new Error("Not authorized");
+  if (profile?.role !== "admin" && profile?.role !== "super_admin")
+    throw new Error("Not authorized");
+
+  return user;
+}
+
+async function getSuperAdminUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  if (profile?.role !== "super_admin") throw new Error("Not authorized");
 
   return user;
 }
@@ -100,7 +121,7 @@ export async function setApplicationUnderReview(
 export async function approveApplication(
   applicationId: string
 ): Promise<{ error?: string }> {
-  const user = await getAdminUser();
+  const user = await getSuperAdminUser();
   const db = createAdminClient();
 
   const { error } = await db
@@ -296,7 +317,7 @@ export async function promoteToDeals(
 ): Promise<{ id?: string; error?: string }> {
   if (!data.summary_public.trim()) return { error: "Public summary is required." };
 
-  const actor = await getAdminUser();
+  const actor = await getSuperAdminUser();
   const db = createAdminClient();
 
   const { data: deal, error } = await db
@@ -427,5 +448,159 @@ export async function updatePortfolioCompany(
 
   revalidatePath("/admin/portfolio");
   revalidatePath("/portfolio");
+  return {};
+}
+
+// ── Admin team management ────────────────────────────────────────────────────
+
+export async function inviteAdmin(
+  email: string
+): Promise<{ error?: string }> {
+  const trimmedEmail = email.trim().toLowerCase();
+  if (!trimmedEmail) return { error: "Email is required." };
+
+  const actor = await getSuperAdminUser();
+  const db = createAdminClient();
+
+  // Check email not already an admin or super_admin — look up via auth.users
+  const { data: authUsers } = await db.auth.admin.listUsers();
+  const existingUser = authUsers?.users.find((u) => u.email === trimmedEmail);
+  if (existingUser) {
+    const { data: existingProfile } = await db
+      .from("profiles")
+      .select("role")
+      .eq("id", existingUser.id)
+      .single();
+    if (
+      existingProfile?.role === "admin" ||
+      existingProfile?.role === "super_admin"
+    ) {
+      return { error: "This email already has an admin account." };
+    }
+  }
+
+  // Insert invite — unique index handles duplicate pending invite
+  const { data: invite, error: inviteError } = await db
+    .from("admin_invites")
+    .insert({ email: trimmedEmail, invited_by: actor.id })
+    .select("token")
+    .single();
+  if (inviteError) {
+    if (inviteError.code === "23505") {
+      return { error: "An invite has already been sent to this email." };
+    }
+    return { error: inviteError.message };
+  }
+
+  // Fetch actor's name for the email
+  const { data: actorProfile } = await db
+    .from("profiles")
+    .select("full_name")
+    .eq("id", actor.id)
+    .single();
+
+  const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/accept-invite?token=${invite.token}`;
+  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  await sendEmail(TEMPLATES.ADMIN_INVITE, trimmedEmail, {
+    invite_link: inviteLink,
+    invited_by_name: actorProfile?.full_name ?? "SDA",
+    expires_at: expiresAt,
+  });
+
+  await writeAudit(actor.id, "admin.invited", "admin_invite", invite.token as never, {
+    email: trimmedEmail,
+  });
+
+  revalidatePath("/admin/users");
+  return {};
+}
+
+export async function acceptAdminInvite(
+  token: string,
+  fullName: string,
+  password: string
+): Promise<{ error?: string }> {
+  const trimmedName = fullName.trim();
+  if (!trimmedName) return { error: "Full name is required." };
+  if (password.length < 8) return { error: "Password must be at least 8 characters." };
+
+  const db = createAdminClient();
+
+  // Validate token
+  const { data: invite, error: fetchError } = await db
+    .from("admin_invites")
+    .select("*")
+    .eq("token", token)
+    .is("accepted_at", null)
+    .gt("expires_at", new Date().toISOString())
+    .single();
+
+  if (fetchError || !invite) {
+    return { error: "This invite link is invalid or has expired." };
+  }
+
+  // Create auth user
+  const { data: newUser, error: createError } = await db.auth.admin.createUser({
+    email: invite.email,
+    password,
+    email_confirm: true,
+    user_metadata: { role: "admin", full_name: trimmedName },
+  });
+  if (createError) return { error: createError.message };
+
+  // Insert profile (trigger may also run — use upsert to be safe)
+  await db.from("profiles").upsert({
+    id: newUser.user.id,
+    role: "admin",
+    full_name: trimmedName,
+  });
+
+  // Mark invite accepted
+  await db
+    .from("admin_invites")
+    .update({ accepted_at: new Date().toISOString() })
+    .eq("id", invite.id);
+
+  await writeAudit(
+    newUser.user.id,
+    "admin.accepted_invite",
+    "admin_invite",
+    invite.id,
+    { email: invite.email }
+  );
+
+  return {};
+}
+
+export async function removeAdmin(
+  userId: string
+): Promise<{ error?: string }> {
+  const actor = await getSuperAdminUser();
+  const db = createAdminClient();
+
+  // Confirm target is admin (not super_admin — never remove super_admin via UI)
+  const { data: target } = await db
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .single();
+  if (!target) return { error: "User not found." };
+  if (target.role === "super_admin") return { error: "Cannot remove a super admin." };
+  if (target.role !== "admin") return { error: "This user is not an admin." };
+
+  const { error } = await db
+    .from("profiles")
+    .update({ role: "applicant" })
+    .eq("id", userId);
+  if (error) return { error: error.message };
+
+  await writeAudit(actor.id, "admin.removed", "user", userId);
+
+  revalidatePath("/admin/users");
   return {};
 }

@@ -8,6 +8,7 @@ export const TEMPLATES = {
   APPLICATION_REJECTED: "application-rejected",
   APPLICATION_UNDER_REVIEW: "application-under-review",
   NEW_APPLICATION_ADMIN: "new-application-admin",
+  ADMIN_INVITE: "admin-invite",
 } as const
 
 export async function sendEmail(

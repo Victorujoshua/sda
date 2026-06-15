@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import UsersTable from "@/components/admin/UsersTable";
+import AdminTeamSection from "@/components/admin/AdminTeamSection";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -8,14 +10,33 @@ export default async function AdminUsersPage({
 }) {
   const params = await searchParams;
   const db = createAdminClient();
+  const supabase = await createClient();
 
+  // Get current actor's role for permission-gated UI
+  const { data: { user: actor } } = await supabase.auth.getUser();
+  const { data: actorProfile } = actor
+    ? await db.from("profiles").select("role").eq("id", actor.id).single()
+    : { data: null };
+  const actorRole = actorProfile?.role ?? "admin";
+
+  // Fetch admin team separately (shown above the main table)
+  const { data: adminMembers } = await db
+    .from("profiles")
+    .select("id, full_name, role, created_at")
+    .in("role", ["admin", "super_admin"] as never[])
+    .order("created_at", { ascending: true });
+
+  // Main user table — applicants and investors only
   let query = db
     .from("profiles")
     .select("id, full_name, role, is_active, is_blacklisted, blacklist_reason, created_at")
+    .in("role", ["applicant", "investor"] as never[])
     .order("created_at", { ascending: false })
     .limit(300);
 
-  if (params.role) query = query.eq("role", params.role as never);
+  if (params.role && ["applicant", "investor"].includes(params.role)) {
+    query = query.eq("role", params.role as never);
+  }
   if (params.search) {
     const s = params.search.trim();
     query = query.ilike("full_name", `%${s}%`);
@@ -75,7 +96,13 @@ export default async function AdminUsersPage({
         {total} total · {blacklisted} blacklisted · {inactive} inactive
       </p>
 
-      {/* Filters */}
+      {/* Admin team */}
+      <AdminTeamSection
+        members={adminMembers ?? []}
+        actorRole={actorRole}
+      />
+
+      {/* Filters — applicants + investors only */}
       <form
         method="get"
         style={{
@@ -131,7 +158,6 @@ export default async function AdminUsersPage({
             <option value="">All roles</option>
             <option value="applicant">Applicant</option>
             <option value="investor">Investor</option>
-            <option value="admin">Admin</option>
           </select>
         </div>
 

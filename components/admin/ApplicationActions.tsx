@@ -26,11 +26,13 @@ export default function ApplicationActions({
   userId,
   currentStatus,
   isBlacklisted,
+  actorRole,
 }: {
   applicationId: string;
   userId: string;
   currentStatus: Status;
   isBlacklisted: boolean;
+  actorRole: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -41,6 +43,7 @@ export default function ApplicationActions({
   const [error, setError] = useState<string | null>(null);
 
   const isFinal = currentStatus === "approved" || currentStatus === "rejected";
+  const isSuperAdmin = actorRole === "super_admin";
 
   async function run(fn: () => Promise<{ error?: string }>) {
     setError(null);
@@ -108,17 +111,19 @@ export default function ApplicationActions({
             </button>
           )}
 
-          <button
-            onClick={() => run(() => approveApplication(applicationId))}
-            disabled={isPending}
-            style={{
-              ...btnBase,
-              backgroundColor: "var(--success)",
-              color: "#FAFAF8",
-            }}
-          >
-            Approve
-          </button>
+          {isSuperAdmin && (
+            <button
+              onClick={() => run(() => approveApplication(applicationId))}
+              disabled={isPending}
+              style={{
+                ...btnBase,
+                backgroundColor: "#CF9A0A",
+                color: "#0A0A0A",
+              }}
+            >
+              Approve for funding
+            </button>
+          )}
 
           <button
             onClick={() => {

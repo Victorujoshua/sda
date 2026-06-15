@@ -60,7 +60,10 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (!profile || profile.role !== "admin") {
+    if (
+      !profile ||
+      (profile.role !== "admin" && profile.role !== "super_admin")
+    ) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       return NextResponse.redirect(url);

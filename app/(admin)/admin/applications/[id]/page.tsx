@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ApplicationActions from "@/components/admin/ApplicationActions";
@@ -80,6 +81,14 @@ export default async function ApplicationDetailPage({
 }) {
   const { id } = await params;
   const db = createAdminClient();
+  const supabase = await createClient();
+
+  // Get actor's role for permission-gated UI
+  const { data: { user: actor } } = await supabase.auth.getUser();
+  const { data: actorProfile } = actor
+    ? await db.from("profiles").select("role").eq("id", actor.id).single()
+    : { data: null };
+  const actorRole = actorProfile?.role ?? "admin";
 
   const [{ data: app }, { data: docs }, ] = await Promise.all([
     db
@@ -188,8 +197,8 @@ export default async function ApplicationDetailPage({
           )}
         </div>
 
-        {/* Promote link — only if approved */}
-        {app.status === "approved" && (
+        {/* Promote link — approved + super_admin only */}
+        {app.status === "approved" && actorRole === "super_admin" && (
           <Link
             href={`/admin/applications/${id}/promote`}
             style={{
@@ -486,6 +495,7 @@ export default async function ApplicationDetailPage({
                   | "rejected"
               }
               isBlacklisted={profile?.is_blacklisted ?? false}
+              actorRole={actorRole}
             />
           </div>
 
