@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -51,7 +51,7 @@ export default function AppError({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "var(--muted)",
@@ -77,7 +77,7 @@ export default function AppError({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 15,
+            fontSize: 17,
             color: "var(--muted)",
             lineHeight: 1.7,
             margin: "0 0 32px",
@@ -90,7 +90,7 @@ export default function AppError({
             onClick={() => reset()}
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
               backgroundColor: "var(--accent)",
@@ -105,7 +105,7 @@ export default function AppError({
             href="/dashboard"
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
               color: "var(--ink)",

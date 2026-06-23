@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { saveAdminNotes } from "@/app/actions/admin";
@@ -35,7 +35,7 @@ export default function AdminNotesForm({
         <label
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.1em",
             color: "var(--muted)",
@@ -46,7 +46,7 @@ export default function AdminNotesForm({
         <span
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             color: isPending
               ? "var(--muted)"
               : saved
@@ -68,7 +68,7 @@ export default function AdminNotesForm({
           border: "1px solid var(--border)",
           padding: "10px 14px",
           fontFamily: "var(--in)",
-          fontSize: 14,
+          fontSize: 16,
           color: "var(--ink)",
           backgroundColor: "#fff",
           resize: "vertical",

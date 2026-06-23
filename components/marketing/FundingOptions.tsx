@@ -1,31 +1,35 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 
 const FUNDING_TYPES = [
   {
-    type: "Equity",
-    description: "Ownership stake in exchange for capital.",
-    note: "Suitable for high-growth businesses",
-    icon: "/images/icons/equity.svg",
+    type: "Revenue-Based Financing",
+    description: "Returns linked to business revenue over time",
+    icon: "/images/icons/revenue.svg",
   },
   {
-    type: "Debt",
-    description: "Fixed repayment schedule over an agreed term.",
-    note: "Suitable for businesses with steady cash flow",
+    type: "Fixed Return Financing",
+    description: "Structured repayments over a defined period",
     icon: "/images/icons/debt.svg",
   },
   {
-    type: "Asset financing",
-    description: "Secured against business assets or equipment.",
-    note: "Suitable for capital-intensive operations",
+    type: "Profit Sharing",
+    description: "Returns aligned with business performance",
     icon: "/images/icons/asset.svg",
   },
   {
-    type: "Revenue-based",
-    description: "Repay as a percentage of monthly revenue.",
-    note: "Suitable for businesses with variable income",
-    icon: "/images/icons/revenue.svg",
+    type: "Equity",
+    description: "Long-term participation in growth",
+    icon: "/images/icons/equity.svg",
   },
-];
+  {
+    // Hybrid Structures spans full width — icon placeholder: equity.svg
+    // TODO: replace icon with a dedicated hybrid/combined icon
+    type: "Hybrid Structures",
+    description: "A combination of income and long-term upside",
+    icon: "/images/icons/equity.svg",
+    fullWidth: true,
+  },
+] as const;
 
 export default function FundingOptions() {
   return (
@@ -35,30 +39,48 @@ export default function FundingOptions() {
     >
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "13px",
+        fontSize: "17px",
         textTransform: "uppercase",
         letterSpacing: "0.12em",
         color: "rgba(255,255,255,0.3)",
         marginBottom: "16px",
       }}>
-        How we fund
+        How capital is structured
       </p>
+
       <h2 style={{
         fontFamily: "var(--sr)",
         fontSize: "38px",
         fontWeight: 300,
         letterSpacing: "-0.02em",
         color: "#FAFAF8",
+        marginBottom: 0,
+      }}>
+        Not all businesses need the same type of capital.
+      </h2>
+
+      <p style={{
+        fontFamily: "var(--in)",
+        fontSize: "18px",
+        fontWeight: 400,
+        lineHeight: 1.6,
+        color: "rgba(255,255,255,0.55)",
+        maxWidth: "600px",
+        marginTop: "16px",
         marginBottom: "48px",
       }}>
-        Flexible structures for real business needs.
-      </h2>
+        We structure financing based on how the business actually operates.
+      </p>
 
       <div className="sda-funding-grid">
         {FUNDING_TYPES.map((item) => (
           <div
             key={item.type}
-            style={{ backgroundColor: "#0A0A0A", padding: "40px 36px" }}
+            style={{
+              backgroundColor: "#0A0A0A",
+              padding: "40px 36px",
+              ...("fullWidth" in item && item.fullWidth ? { gridColumn: "1 / -1" } : {}),
+            }}
           >
             <div className="sda-funding-card">
               <div style={{ flex: 1 }}>
@@ -73,20 +95,12 @@ export default function FundingOptions() {
                 </p>
                 <p style={{
                   fontFamily: "var(--in)",
-                  fontSize: "16px",
+                  fontSize: "18px",
                   color: "rgba(255,255,255,0.4)",
                   lineHeight: 1.6,
-                  marginBottom: "8px",
+                  marginBottom: 0,
                 }}>
                   {item.description}
-                </p>
-                <p style={{
-                  fontFamily: "var(--in)",
-                  fontSize: "14px",
-                  fontStyle: "italic",
-                  color: "rgba(255,255,255,0.25)",
-                }}>
-                  {item.note}
                 </p>
               </div>
               <div className="sda-funding-icon">
@@ -102,6 +116,29 @@ export default function FundingOptions() {
           </div>
         ))}
       </div>
+
+      {/* Closing statement */}
+      <p style={{
+        fontFamily: "var(--in)",
+        fontSize: "15px",
+        textTransform: "uppercase",
+        letterSpacing: "0.12em",
+        color: "rgba(255,255,255,0.3)",
+        marginTop: "48px",
+        marginBottom: 0,
+      }}>
+        The goal is simple
+      </p>
+      <p style={{
+        fontFamily: "var(--sr)",
+        fontSize: "24px",
+        fontWeight: 300,
+        color: "#FAFAF8",
+        marginTop: "12px",
+        marginBottom: 0,
+      }}>
+        Capital that fits the business, not the other way around.
+      </p>
     </section>
   );
 }

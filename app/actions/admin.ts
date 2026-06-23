@@ -577,6 +577,22 @@ export async function acceptAdminInvite(
   return {};
 }
 
+export async function updateUserName(
+  userId: string,
+  fullName: string
+): Promise<{ error?: string }> {
+  await getAdminUser();
+  const db = createAdminClient();
+  const trimmed = fullName.trim();
+  const { error } = await db
+    .from("profiles")
+    .update({ full_name: trimmed || null })
+    .eq("id", userId);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/users");
+  return {};
+}
+
 export async function removeAdmin(
   userId: string
 ): Promise<{ error?: string }> {

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 function fmt(n: number) {
@@ -10,24 +11,29 @@ function StatCard({
   sub,
 }: {
   label: string;
-  value: string | number;
+  value: ReactNode;
   sub?: string;
 }) {
   return (
     <div
+      className="sda-admin-stat-card"
       style={{
-        border: "1px solid var(--border)",
-        padding: "24px 28px",
+        backgroundColor: "var(--paper)",
+        padding: "32px 28px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        minHeight: 160,
       }}
     >
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
-          letterSpacing: "0.12em",
-          color: "var(--muted)",
-          margin: "0 0 10px",
+          letterSpacing: "0.08em",
+          color: "rgba(0,0,0,0.4)",
+          margin: "0 0 16px",
         }}
       >
         {label}
@@ -38,25 +44,24 @@ function StatCard({
           fontSize: 36,
           fontWeight: 300,
           letterSpacing: "-0.02em",
-          color: "var(--ink)",
+          color: "#0A0A0A",
           margin: 0,
           lineHeight: 1,
         }}
       >
         {value}
       </p>
-      {sub && (
-        <p
-          style={{
-            fontFamily: "var(--in)",
-            fontSize: 12,
-            color: "var(--muted)",
-            margin: "8px 0 0",
-          }}
-        >
-          {sub}
-        </p>
-      )}
+      <p
+        style={{
+          fontFamily: "var(--in)",
+          fontSize: 14,
+          color: "rgba(0,0,0,0.45)",
+          margin: "12px 0 0",
+          minHeight: 20,
+        }}
+      >
+        {sub ?? ""}
+      </p>
     </div>
   );
 }
@@ -113,7 +118,7 @@ export default async function AdminOverviewPage() {
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "var(--muted)",
@@ -135,64 +140,35 @@ export default async function AdminOverviewPage() {
         Dashboard
       </h1>
 
-      {/* Stats grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 1,
-          backgroundColor: "var(--border)",
-          marginBottom: 1,
-        }}
-      >
-        <div style={{ backgroundColor: "var(--paper)" }}>
-          <StatCard
-            label="Total applications"
-            value={fmt(total ?? 0)}
-            sub={`${inQueue} awaiting review`}
-          />
-        </div>
-        <div style={{ backgroundColor: "var(--paper)" }}>
-          <StatCard
-            label="Approval rate"
-            value={`${approvalRate}%`}
-            sub={`${approved ?? 0} approved · ${rejected ?? 0} rejected`}
-          />
-        </div>
-        <div style={{ backgroundColor: "var(--paper)" }}>
-          <StatCard
-            label="Active deals"
-            value={fmt(activeDeals ?? 0)}
-          />
-        </div>
-      </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 1,
-          backgroundColor: "var(--border)",
-        }}
-      >
-        <div style={{ backgroundColor: "var(--paper)" }}>
-          <StatCard
-            label="Total funding approved"
-            value={`₦${fmt(totalFunding)}`}
-          />
-        </div>
-        <div style={{ backgroundColor: "var(--paper)" }}>
-          <StatCard
-            label="Registered users"
-            value={fmt(totalUsers ?? 0)}
-          />
-        </div>
-        <div style={{ backgroundColor: "var(--paper)" }}>
-          <StatCard
-            label="In queue"
-            value={fmt(inQueue)}
-            sub={`${pending ?? 0} pending · ${underReview ?? 0} under review`}
-          />
-        </div>
+      {/* Single unified 3×2 stats grid */}
+      <div className="sda-admin-stats-grid">
+        <StatCard
+          label="Total applications"
+          value={fmt(total ?? 0)}
+          sub={`${inQueue} awaiting review`}
+        />
+        <StatCard
+          label="Approval rate"
+          value={`${approvalRate}%`}
+          sub={`${approved ?? 0} approved · ${rejected ?? 0} rejected`}
+        />
+        <StatCard
+          label="Active deals"
+          value={fmt(activeDeals ?? 0)}
+        />
+        <StatCard
+          label="Total funding approved"
+          value={<><span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{fmt(totalFunding)}</>}
+        />
+        <StatCard
+          label="Registered users"
+          value={fmt(totalUsers ?? 0)}
+        />
+        <StatCard
+          label="In queue"
+          value={fmt(inQueue)}
+          sub={`${pending ?? 0} pending · ${underReview ?? 0} under review`}
+        />
       </div>
     </div>
   );

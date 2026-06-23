@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -95,6 +95,19 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   transition: color 150ms;
 }
 .sda-nav-link:hover { color: #FAFAF8; }
+
+.sda-app-nav-signout {
+  font-family: var(--in);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.45);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: color 150ms;
+}
+.sda-app-nav-signout:hover { color: #FAFAF8; }
 
 .sda-btn-nav-cta {
   background-color: #CF9A0A;
@@ -341,7 +354,7 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   /* Hero */
   .sda-hero-content { padding: 100px 24px 48px !important; }
   .sda-hero-h1 { font-size: 48px !important; line-height: 1.1 !important; }
-  .sda-hero-body { font-size: 16px !important; }
+  .sda-hero-body { font-size: 18px !important; }
 
   /* Intro */
   .sda-intro-section { grid-template-columns: 1fr !important; }
@@ -351,4 +364,19 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 
 @media (max-width: 480px) {
   .sda-funding-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Admin stats grid ────────────────────────────────────────────────────── */
+
+.sda-admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background-color: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+  .sda-admin-stats-grid { grid-template-columns: 1fr; }
+  .sda-admin-stat-card { min-height: auto !important; }
 }

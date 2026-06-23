@@ -1,4 +1,4 @@
-import { PORTFOLIO_COMPANIES } from "@/lib/portfolio-data";
+﻿import { PORTFOLIO_COMPANIES } from "@/lib/portfolio-data";
 
 export default function PortfolioFeature() {
   return (
@@ -10,7 +10,7 @@ export default function PortfolioFeature() {
       }}>
         <p style={{
           fontFamily: "var(--in)",
-          fontSize: "11px",
+          fontSize: "15px",
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "rgba(255,255,255,0.3)",
@@ -33,7 +33,7 @@ export default function PortfolioFeature() {
         </blockquote>
         <p style={{
           fontFamily: "var(--in)",
-          fontSize: "11px",
+          fontSize: "15px",
           color: "rgba(255,255,255,0.35)",
           letterSpacing: "0.04em",
         }}>
@@ -91,7 +91,7 @@ export default function PortfolioFeature() {
               <div>
                 <p style={{
                   fontFamily: "var(--sr)",
-                  fontSize: "13px",
+                  fontSize: "17px",
                   fontWeight: 400,
                   color: "#FAFAF8",
                   margin: "0 0 2px",

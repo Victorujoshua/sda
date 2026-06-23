@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -29,7 +29,7 @@ export default function MarketingError({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "rgba(255,255,255,0.3)",
@@ -55,7 +55,7 @@ export default function MarketingError({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 15,
+          fontSize: 17,
           color: "rgba(255,255,255,0.5)",
           lineHeight: 1.7,
           margin: "0 0 32px",
@@ -69,7 +69,7 @@ export default function MarketingError({
           onClick={() => reset()}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "10px 22px",
             backgroundColor: "#FAFAF8",
@@ -84,7 +84,7 @@ export default function MarketingError({
           href="/"
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "10px 22px",
             color: "#FAFAF8",

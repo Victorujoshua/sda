@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -79,7 +79,7 @@ export default function Nav() {
                   className="sda-nav-link"
                   style={{
                     fontFamily: "var(--in)",
-                    fontSize: "16px",
+                    fontSize: "18px",
                     textDecoration: "none",
                     letterSpacing: "0.01em",
                   }}
@@ -94,7 +94,7 @@ export default function Nav() {
             className="sda-btn-nav-cta"
             style={{
               fontFamily: "var(--in)",
-              fontSize: "12px",
+              fontSize: "16px",
               color: "#FAFAF8",
               padding: "9px 20px",
               textDecoration: "none",
@@ -181,7 +181,7 @@ export default function Nav() {
               display: "block",
               textAlign: "center",
               fontFamily: "var(--in)",
-              fontSize: "14px",
+              fontSize: "18px",
               color: "#FAFAF8",
               padding: "14px 20px",
               textDecoration: "none",

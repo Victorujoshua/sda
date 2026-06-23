@@ -1,33 +1,33 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 
 const PREVIEW_ITEMS = [
   {
-    question: "What is SDA Micro Angel Investing?",
+    question: "What is SDA?",
     answer:
-      "SDA Micro Angel Investing is a platform that enables individuals to invest smaller ticket sizes into carefully vetted early-stage startups, alongside experienced angels and ecosystem leaders.",
+      "SDA is a private capital platform connecting vetted investors with revenue-generating businesses through structured financing. We focus on businesses that are already operating and generating revenue, not early-stage ideas.",
   },
   {
-    question: "Who can join the platform?",
+    question: "Is SDA a crowdfunding platform?",
     answer:
-      "Our platform is open to both new and experienced investors who meet our onboarding and compliance requirements. We particularly welcome first-time angel investors, professionals seeking exposure to startups, and experienced angels interested in co-investment opportunities.",
+      "No. SDA does not operate as a public crowdfunding platform. All opportunities are offered privately to approved participants within our network.",
   },
   {
-    question: "Do you charge fees?",
+    question: "What types of investments are available?",
     answer:
-      "Yes, we charge a combination of diligence and administrative fees to investors who are accepted onto the platform. These fees cover deal sourcing, vetting, documentation, and ongoing operational support.",
+      "SDA offers different structures depending on the business and investor preference: revenue-based financing, fixed return financing, profit-sharing agreements, equity investments, and hybrid structures combining income and upside.",
   },
   {
-    question: "How are startups chosen?",
+    question: "Are returns guaranteed?",
     answer:
-      "Startups are selected based on SDA's investment thesis, market opportunity and scalability, founding team strength, and alignment with investor interests. We also factor in the sector and geographic preferences of our investor community to ensure relevant deal flow.",
+      "No. There are no guaranteed returns. All investments carry risk, including the potential loss of capital.",
   },
   {
-    question: "What are the risks involved?",
+    question: "How does the investment process work?",
     answer:
-      "Angel investing is high risk. Startups can fail, and investors should be prepared for the possibility of losing their entire investment.",
+      "The process has five steps: investors apply and are onboarded, opportunities are shared privately, investors review deal details and structure, investment commitments are made, then funds are deployed and tracked.",
   },
 ];
 
@@ -46,7 +46,7 @@ export default function HomeFAQ() {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: "11px",
+            fontSize: "15px",
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "rgba(255,255,255,0.3)",
@@ -96,7 +96,7 @@ export default function HomeFAQ() {
                   <span
                     style={{
                       fontFamily: "var(--in)",
-                      fontSize: "16px",
+                      fontSize: "18px",
                       fontWeight: 400,
                       color: isOpen ? "#CF9A0A" : "#FAFAF8",
                     }}
@@ -119,7 +119,7 @@ export default function HomeFAQ() {
                   <div
                     style={{
                       fontFamily: "var(--in)",
-                      fontSize: "15px",
+                      fontSize: "17px",
                       lineHeight: 1.75,
                       color: "rgba(255,255,255,0.65)",
                       paddingBottom: "20px",
@@ -140,7 +140,7 @@ export default function HomeFAQ() {
             display: "inline-block",
             marginTop: "40px",
             fontFamily: "var(--in)",
-            fontSize: "16px",
+            fontSize: "18px",
             fontWeight: 500,
             color: "#CF9A0A",
             textDecoration: "none",

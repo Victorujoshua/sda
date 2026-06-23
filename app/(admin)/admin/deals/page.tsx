@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 import DealsManager from "@/components/admin/DealsManager";
 import Link from "next/link";
 
@@ -20,7 +20,7 @@ export default async function DealsPage() {
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "var(--muted)",
@@ -56,7 +56,7 @@ export default async function DealsPage() {
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           margin: "0 0 32px",
         }}

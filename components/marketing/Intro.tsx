@@ -19,8 +19,9 @@ export default function Intro() {
           color: "rgba(255,255,255,0.65)",
           marginBottom: "32px",
         }}>
-          We are building a focused investment platform for businesses that are
-          already in motion.
+          SDA is a private capital platform built for MSMEs that are already in motion.
+We focus on businesses with proven traction, clear financial visibility, and the capacity to grow
+with the right capital structure.
         </p>
 
         <div style={{ marginBottom: "32px" }}>
@@ -32,7 +33,7 @@ export default function Intro() {
             color: "#FAFAF8",
             margin: 0,
           }}>
-            Not just ideas.
+            This is not a marketplace for ideas.
           </p>
           <p style={{
             fontFamily: "var(--sr)",
@@ -42,7 +43,7 @@ export default function Intro() {
             color: "#FAFAF8",
             margin: 0,
           }}>
-            Not just ambition.
+            It is access to businesses
           </p>
           <p style={{
             fontFamily: "var(--sr)",
@@ -52,7 +53,7 @@ export default function Intro() {
             color: "#CF9A0A",
             margin: 0,
           }}>
-            But execution.
+             with evidence.
           </p>
         </div>
 

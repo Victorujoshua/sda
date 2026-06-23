@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ type Status = "draft" | "pending" | "under_review" | "approved" | "rejected";
 
 const btnBase: React.CSSProperties = {
   fontFamily: "var(--in)",
-  fontSize: 12,
+  fontSize: 14,
   letterSpacing: "0.04em",
   padding: "9px 20px",
   border: "none",
@@ -66,7 +66,7 @@ export default function ApplicationActions({
     border: "1px solid var(--border)",
     padding: "10px 14px",
     fontFamily: "var(--in)",
-    fontSize: 14,
+    fontSize: 16,
     color: "var(--ink)",
     backgroundColor: "#fff",
     resize: "vertical",
@@ -85,7 +85,7 @@ export default function ApplicationActions({
             padding: "10px 14px",
             marginBottom: 16,
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--danger)",
           }}
         >
@@ -154,7 +154,7 @@ export default function ApplicationActions({
           <label
             style={{
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               color: "var(--muted)",
@@ -210,7 +210,7 @@ export default function ApplicationActions({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.1em",
             color: "var(--muted)",
@@ -225,7 +225,7 @@ export default function ApplicationActions({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 13,
+                fontSize: 15,
                 color: "var(--danger)",
                 margin: "0 0 12px",
               }}
@@ -274,7 +274,7 @@ export default function ApplicationActions({
                 <label
                   style={{
                     fontFamily: "var(--in)",
-                    fontSize: 11,
+                    fontSize: 13,
                     textTransform: "uppercase",
                     letterSpacing: "0.1em",
                     color: "var(--muted)",

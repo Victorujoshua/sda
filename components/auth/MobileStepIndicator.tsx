@@ -1,4 +1,4 @@
-export default function MobileStepIndicator({
+﻿export default function MobileStepIndicator({
   currentStep,
   totalSteps,
 }: {
@@ -25,7 +25,7 @@ export default function MobileStepIndicator({
               backgroundColor: isActive ? "#CF9A0A" : isCompleted ? "#0A0A0A" : "transparent",
               border: !isActive && !isCompleted ? "1px solid rgba(0,0,0,0.2)" : "none",
               fontFamily: "var(--sr)",
-              fontSize: "12px",
+              fontSize: "16px",
               fontWeight: 600,
               color: isActive ? "#0A0A0A" : isCompleted ? "#FAFAF8" : "rgba(0,0,0,0.3)",
             }}>

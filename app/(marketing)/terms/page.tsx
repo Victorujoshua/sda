@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Service — SDA",
@@ -17,7 +17,7 @@ export default function TermsPage() {
     <main style={{ padding: "120px 40px 80px", maxWidth: "720px" }}>
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "11px",
+        fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
         color: "rgba(255,255,255,0.3)",
@@ -38,7 +38,7 @@ export default function TermsPage() {
       </h1>
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "12px",
+        fontSize: "14px",
         color: "rgba(255,255,255,0.3)",
         marginBottom: "48px",
       }}>
@@ -93,7 +93,7 @@ export default function TermsPage() {
           <div key={heading}>
             <h2 style={{
               fontFamily: "var(--sr)",
-              fontSize: "16px",
+              fontSize: "18px",
               fontWeight: 400,
               color: "#FAFAF8",
               margin: "0 0 10px",
@@ -102,7 +102,7 @@ export default function TermsPage() {
             </h2>
             <p style={{
               fontFamily: "var(--in)",
-              fontSize: "14px",
+              fontSize: "16px",
               lineHeight: 1.7,
               color: "rgba(255,255,255,0.65)",
               margin: 0,

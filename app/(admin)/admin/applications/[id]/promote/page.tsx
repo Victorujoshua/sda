@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import PromoteForm from "@/components/admin/PromoteForm";
@@ -27,7 +27,7 @@ export default async function PromotePage({
         href={`/admin/applications/${id}`}
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           textDecoration: "none",
           display: "inline-block",
@@ -40,7 +40,7 @@ export default async function PromotePage({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "var(--muted)",
@@ -64,7 +64,7 @@ export default async function PromotePage({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 14,
+          fontSize: 16,
           color: "var(--muted)",
           margin: "0 0 40px",
           lineHeight: 1.6,

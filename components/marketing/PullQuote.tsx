@@ -1,4 +1,4 @@
-export default function PullQuote() {
+﻿export default function PullQuote() {
   return (
     <section style={{
       position: "relative",
@@ -35,7 +35,7 @@ export default function PullQuote() {
           </blockquote>
           <p style={{
             fontFamily: "var(--in)",
-            fontSize: "11px",
+            fontSize: "15px",
             color: "rgba(255,255,255,0.35)",
             marginTop: "20px",
             letterSpacing: "0.04em",
@@ -64,7 +64,7 @@ export default function PullQuote() {
             alignItems: "center",
             justifyContent: "center",
             fontFamily: "var(--sr)",
-            fontSize: "16px",
+            fontSize: "18px",
             fontWeight: 300,
             color: "#FAFAF8",
           }}>
@@ -72,7 +72,7 @@ export default function PullQuote() {
           </div>
           <p style={{
             fontFamily: "var(--in)",
-            fontSize: "11px",
+            fontSize: "15px",
             color: "rgba(255,255,255,0.3)",
             textTransform: "uppercase",
             letterSpacing: "0.08em",

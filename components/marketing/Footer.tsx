@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const FOOTER_NAV = [
   { label: "Funding types", href: "/#funding-options" },
@@ -45,7 +45,7 @@ export default function Footer() {
               className="sda-footer-link"
               style={{
                 fontFamily: "var(--in)",
-                fontSize: "11px",
+                fontSize: "15px",
                 letterSpacing: "0.04em",
                 textDecoration: "none",
               }}

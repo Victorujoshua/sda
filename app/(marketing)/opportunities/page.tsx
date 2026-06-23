@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
 function fmt(n: number | null) {
@@ -48,7 +48,7 @@ export default async function OpportunitiesPage({
     border: "1px solid var(--border)",
     padding: "8px 12px",
     fontFamily: "var(--in)",
-    fontSize: 13,
+    fontSize: 15,
     color: "var(--ink)",
     backgroundColor: "#fff",
     outline: "none",
@@ -69,7 +69,7 @@ export default async function OpportunitiesPage({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "var(--muted)",
@@ -94,7 +94,7 @@ export default async function OpportunitiesPage({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 15,
+            fontSize: 17,
             color: "var(--muted)",
             lineHeight: 1.7,
             margin: "0 0 48px",
@@ -121,7 +121,7 @@ export default async function OpportunitiesPage({
               style={{
                 display: "block",
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 color: "var(--muted)",
@@ -149,7 +149,7 @@ export default async function OpportunitiesPage({
               style={{
                 display: "block",
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 color: "var(--muted)",
@@ -174,7 +174,7 @@ export default async function OpportunitiesPage({
               style={{
                 display: "block",
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 color: "var(--muted)",
@@ -198,7 +198,7 @@ export default async function OpportunitiesPage({
             type="submit"
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.04em",
               padding: "9px 20px",
               backgroundColor: "var(--accent)",
@@ -215,7 +215,7 @@ export default async function OpportunitiesPage({
               href="/opportunities"
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 color: "var(--muted)",
                 textDecoration: "none",
                 padding: "9px 0",
@@ -230,7 +230,7 @@ export default async function OpportunitiesPage({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--muted)",
             margin: "0 0 24px",
           }}
@@ -261,7 +261,7 @@ export default async function OpportunitiesPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 14,
+                fontSize: 16,
                 color: "var(--muted)",
                 margin: 0,
               }}
@@ -329,7 +329,7 @@ export default async function OpportunitiesPage({
                 <p
                   style={{
                     fontFamily: "var(--in)",
-                    fontSize: 14,
+                    fontSize: 16,
                     color: "var(--muted)",
                     lineHeight: 1.7,
                     margin: "0 0 20px",
@@ -369,13 +369,13 @@ export default async function OpportunitiesPage({
                       <p
                         style={{
                           fontFamily: "var(--sr)",
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: 300,
                           color: "var(--ink)",
                           margin: 0,
                         }}
                       >
-                        {fmt(deal.funding_required)}
+                        <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.funding_required.toLocaleString("en-NG")}
                       </p>
                     </div>
                   )}
@@ -396,13 +396,13 @@ export default async function OpportunitiesPage({
                       <p
                         style={{
                           fontFamily: "var(--sr)",
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: 300,
                           color: "var(--ink)",
                           margin: 0,
                         }}
                       >
-                        {fmt(deal.revenue_to_date)}
+                        <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.revenue_to_date.toLocaleString("en-NG")}
                       </p>
                     </div>
                   )}
@@ -415,7 +415,7 @@ export default async function OpportunitiesPage({
                   style={{
                     display: "inline-block",
                     fontFamily: "var(--in)",
-                    fontSize: 12,
+                    fontSize: 14,
                     letterSpacing: "0.04em",
                     padding: "10px 20px",
                     backgroundColor: "var(--ink)",
@@ -447,7 +447,7 @@ export default async function OpportunitiesPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 14,
+              fontSize: 16,
               color: "var(--muted)",
               lineHeight: 1.6,
               margin: 0,
@@ -461,7 +461,7 @@ export default async function OpportunitiesPage({
               href="/login"
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 letterSpacing: "0.04em",
                 padding: "10px 20px",
                 backgroundColor: "transparent",
@@ -476,7 +476,7 @@ export default async function OpportunitiesPage({
               href="/signup/investor"
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 letterSpacing: "0.04em",
                 padding: "10px 20px",
                 backgroundColor: "var(--accent)",

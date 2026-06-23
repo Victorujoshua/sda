@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   padding: "8px 12px",
   fontFamily: "var(--in)",
-  fontSize: 14,
+  fontSize: 16,
   color: "var(--ink)",
   backgroundColor: "#fff",
   outline: "none",
@@ -106,7 +106,7 @@ function DealRow({ deal }: { deal: Deal }) {
             <span
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 15,
+                fontSize: 17,
                 color: "var(--ink)",
                 fontWeight: 500,
               }}
@@ -116,7 +116,7 @@ function DealRow({ deal }: { deal: Deal }) {
             <span
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 color: deal.is_active ? "var(--success)" : "var(--muted)",
@@ -129,7 +129,7 @@ function DealRow({ deal }: { deal: Deal }) {
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 color: "var(--muted)",
                 margin: "4px 0 0",
               }}
@@ -141,7 +141,7 @@ function DealRow({ deal }: { deal: Deal }) {
         <span
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             color: "var(--muted)",
           }}
         >
@@ -164,7 +164,7 @@ function DealRow({ deal }: { deal: Deal }) {
                 padding: "10px 14px",
                 marginBottom: 20,
                 fontFamily: "var(--in)",
-                fontSize: 13,
+                fontSize: 15,
                 color: "var(--danger)",
               }}
             >
@@ -177,7 +177,7 @@ function DealRow({ deal }: { deal: Deal }) {
               style={{
                 display: "block",
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 color: "var(--muted)",
@@ -199,7 +199,7 @@ function DealRow({ deal }: { deal: Deal }) {
               style={{
                 display: "block",
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 color: "var(--muted)",
@@ -229,7 +229,7 @@ function DealRow({ deal }: { deal: Deal }) {
                 style={{
                   display: "block",
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   color: "var(--muted)",
@@ -250,7 +250,7 @@ function DealRow({ deal }: { deal: Deal }) {
                 style={{
                   display: "block",
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   color: "var(--muted)",
@@ -273,7 +273,7 @@ function DealRow({ deal }: { deal: Deal }) {
                 style={{
                   display: "block",
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   color: "var(--muted)",
@@ -299,7 +299,7 @@ function DealRow({ deal }: { deal: Deal }) {
               disabled={isPending}
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 letterSpacing: "0.04em",
                 padding: "9px 20px",
                 backgroundColor: "var(--ink)",
@@ -316,7 +316,7 @@ function DealRow({ deal }: { deal: Deal }) {
               <span
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 13,
+                  fontSize: 15,
                   color: "var(--success)",
                 }}
               >
@@ -330,7 +330,7 @@ function DealRow({ deal }: { deal: Deal }) {
                 disabled={isPending}
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 12,
+                  fontSize: 14,
                   letterSpacing: "0.04em",
                   padding: "9px 20px",
                   backgroundColor: "transparent",
@@ -364,7 +364,7 @@ export default function DealsManager({ deals }: { deals: Deal[] }) {
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 15,
+              fontSize: 17,
               color: "var(--muted)",
               margin: 0,
             }}

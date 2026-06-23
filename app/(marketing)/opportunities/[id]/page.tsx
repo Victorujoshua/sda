@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ExpressInterestButton from "@/components/investor/ExpressInterestButton";
@@ -21,7 +21,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
       <span
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.08em",
           color: "var(--muted)",
@@ -35,7 +35,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
       <span
         style={{
           fontFamily: "var(--in)",
-          fontSize: 14,
+          fontSize: 16,
           color: "var(--ink)",
           lineHeight: 1.7,
           flex: 1,
@@ -98,7 +98,7 @@ export default async function OpportunityDetailPage({
             href="/opportunities"
             style={{
               fontFamily: "var(--in)",
-              fontSize: 13,
+              fontSize: 15,
               color: "var(--muted)",
               textDecoration: "none",
               display: "inline-block",
@@ -143,7 +143,7 @@ export default async function OpportunityDetailPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 15,
+              fontSize: 17,
               color: "var(--muted)",
               lineHeight: 1.7,
               margin: "0 0 32px",
@@ -184,7 +184,7 @@ export default async function OpportunityDetailPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 14,
+                fontSize: 16,
                 color: "var(--muted)",
                 lineHeight: 1.7,
                 margin: "0 0 24px",
@@ -195,10 +195,10 @@ export default async function OpportunityDetailPage({
             </p>
             <div style={{ display: "flex", gap: 12 }}>
               <Link
-                href={`/login?redirect=/opportunities/${id}`}
+                href={`/login?redirectTo=/opportunities/${id}`}
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 12,
+                  fontSize: 14,
                   letterSpacing: "0.04em",
                   padding: "10px 22px",
                   backgroundColor: "var(--accent)",
@@ -212,7 +212,7 @@ export default async function OpportunityDetailPage({
                 href="/signup/investor"
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 12,
+                  fontSize: 14,
                   letterSpacing: "0.04em",
                   padding: "10px 22px",
                   backgroundColor: "transparent",
@@ -275,7 +275,7 @@ export default async function OpportunityDetailPage({
             href="/opportunities"
             style={{
               fontFamily: "var(--in)",
-              fontSize: 13,
+              fontSize: 15,
               color: "var(--muted)",
               textDecoration: "none",
             }}
@@ -286,7 +286,7 @@ export default async function OpportunityDetailPage({
             href="/dashboard"
             style={{
               fontFamily: "var(--in)",
-              fontSize: 13,
+              fontSize: 15,
               color: "var(--muted)",
               textDecoration: "none",
             }}
@@ -362,7 +362,7 @@ export default async function OpportunityDetailPage({
                   letterSpacing: "-0.01em",
                 }}
               >
-                {fmt(deal.funding_required)}
+                <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.funding_required.toLocaleString("en-NG")}
               </p>
             </div>
           )}
@@ -390,7 +390,7 @@ export default async function OpportunityDetailPage({
                   letterSpacing: "-0.01em",
                 }}
               >
-                {fmt(deal.revenue_to_date)}
+                <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.revenue_to_date.toLocaleString("en-NG")}
               </p>
             </div>
           )}
@@ -401,7 +401,7 @@ export default async function OpportunityDetailPage({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.1em",
             color: "var(--muted)",
@@ -413,7 +413,7 @@ export default async function OpportunityDetailPage({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 15,
+            fontSize: 17,
             color: "var(--ink)",
             lineHeight: 1.8,
             margin: "0 0 40px",
@@ -428,7 +428,7 @@ export default async function OpportunityDetailPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 color: "var(--muted)",
@@ -447,7 +447,7 @@ export default async function OpportunityDetailPage({
               <p
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 15,
+                  fontSize: 17,
                   color: "var(--ink)",
                   lineHeight: 1.8,
                   margin: 0,
@@ -482,7 +482,7 @@ export default async function OpportunityDetailPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 14,
+              fontSize: 16,
               color: "var(--muted)",
               lineHeight: 1.7,
               margin: "0 0 24px",

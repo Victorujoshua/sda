@@ -38,6 +38,7 @@ next-env.d.ts
 # Claude Code local settings
 .claude/settings.local.json
 .claude/skills/
+.claude/worktrees/
 
 # Supabase CLI ephemeral state
 supabase/.temp/

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -44,7 +44,7 @@ export default function InvestorsPage() {
       {/* Header */}
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "11px",
+        fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
         color: "rgba(255,255,255,0.3)",
@@ -87,7 +87,7 @@ export default function InvestorsPage() {
             backgroundColor: "#CF9A0A",
             color: "#0A0A0A",
             fontFamily: "var(--in)",
-            fontSize: "12px",
+            fontSize: "14px",
             letterSpacing: "0.04em",
             padding: "12px 28px",
             textDecoration: "none",
@@ -102,7 +102,7 @@ export default function InvestorsPage() {
             border: "1px solid rgba(255,255,255,0.25)",
             color: "#FAFAF8",
             fontFamily: "var(--in)",
-            fontSize: "12px",
+            fontSize: "14px",
             letterSpacing: "0.04em",
             padding: "12px 28px",
             textDecoration: "none",
@@ -137,7 +137,7 @@ export default function InvestorsPage() {
           >
             <span style={{
               fontFamily: "var(--in)",
-              fontSize: "11px",
+              fontSize: "13px",
               color: "rgba(255,255,255,0.25)",
               letterSpacing: "0.04em",
               paddingTop: "3px",
@@ -147,7 +147,7 @@ export default function InvestorsPage() {
             <div>
               <p style={{
                 fontFamily: "var(--sr)",
-                fontSize: "16px",
+                fontSize: "18px",
                 fontWeight: 400,
                 color: "#FAFAF8",
                 margin: "0 0 8px",
@@ -156,7 +156,7 @@ export default function InvestorsPage() {
               </p>
               <p style={{
                 fontFamily: "var(--in)",
-                fontSize: "15px",
+                fontSize: "17px",
                 lineHeight: 1.65,
                 color: "rgba(255,255,255,0.65)",
                 margin: 0,
@@ -172,7 +172,7 @@ export default function InvestorsPage() {
       {/* Fee note */}
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "13px",
+        fontSize: "15px",
         lineHeight: 1.7,
         color: "rgba(255,255,255,0.4)",
         maxWidth: "520px",

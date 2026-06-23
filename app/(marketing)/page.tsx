@@ -2,10 +2,12 @@ import { Metadata } from "next";
 import Hero from "@/components/marketing/Hero";
 import TickerStrip from "@/components/marketing/TickerStrip";
 import Intro from "@/components/marketing/Intro";
+import WhatWeFund from "@/components/marketing/WhatWeFund";
 import FundingOptions from "@/components/marketing/FundingOptions";
 import WhatWeLookFor from "@/components/marketing/WhatWeLookFor";
 import ForInvestors from "@/components/marketing/ForInvestors";
 import PullQuote from "@/components/marketing/PullQuote";
+import HowItWorks from "@/components/marketing/HowItWorks";
 import PortfolioGrid from "@/components/marketing/PortfolioGrid";
 import PortfolioFeature from "@/components/marketing/PortfolioFeature";
 import HomeFAQ from "@/components/marketing/HomeFAQ";
@@ -37,10 +39,12 @@ export default function HomePage() {
       <Hero />
       <TickerStrip />
       <Intro />
+      <WhatWeFund />
       <FundingOptions />
       <WhatWeLookFor />
       <ForInvestors />
       <PullQuote />
+      <HowItWorks />
       <PortfolioGrid />
       <PortfolioFeature />
       <HomeFAQ />

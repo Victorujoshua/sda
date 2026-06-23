@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logout } from "@/app/actions/auth";
@@ -28,7 +28,7 @@ export default async function AdminLayout({
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") redirect("/dashboard");
+  if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/dashboard");
 
   return (
     <div
@@ -99,7 +99,7 @@ export default async function AdminLayout({
                 display: "block",
                 padding: "9px 24px",
                 fontFamily: "var(--in)",
-                fontSize: 14,
+                fontSize: 16,
                 color: "var(--ink)",
                 textDecoration: "none",
                 letterSpacing: "0.01em",
@@ -120,7 +120,7 @@ export default async function AdminLayout({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               color: "var(--muted)",
               margin: "0 0 6px",
               overflow: "hidden",
@@ -135,7 +135,7 @@ export default async function AdminLayout({
               type="submit"
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 background: "none",
                 border: "none",
                 color: "var(--muted)",

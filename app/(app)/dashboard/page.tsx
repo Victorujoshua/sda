@@ -1,7 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { logout } from "@/app/actions/auth";
 
 type Application = {
   id: string;
@@ -67,57 +66,13 @@ export default async function DashboardPage({
         fontFamily: "var(--in)",
       }}
     >
-      <header
-        style={{
-          borderBottom: "1px solid var(--border)",
-          padding: "0 40px",
-          height: 56,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--sr)",
-            fontSize: 18,
-            fontWeight: 600,
-            color: "var(--ink)",
-            textDecoration: "none",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          SDA
-        </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <form action={logout}>
-            <button
-              type="submit"
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
-                background: "none",
-                border: "none",
-                color: "var(--muted)",
-                cursor: "pointer",
-                padding: 0,
-                letterSpacing: "0.02em",
-              }}
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
-      </header>
-
       <div
         style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px" }}
       >
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "var(--muted)",
@@ -148,7 +103,7 @@ export default async function DashboardPage({
               padding: "16px 20px",
               marginBottom: 32,
               fontFamily: "var(--in)",
-              fontSize: 15,
+              fontSize: 17,
               color: "var(--success)",
               lineHeight: 1.6,
             }}
@@ -171,7 +126,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 15,
+            fontSize: 17,
             color: "var(--muted)",
             lineHeight: 1.7,
             margin: "0 0 32px",
@@ -185,7 +140,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
           style={{
             display: "inline-block",
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "10px 28px",
             backgroundColor: "var(--accent)",
@@ -218,7 +173,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.12em",
               color: "var(--muted)",
@@ -248,7 +203,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 15,
+            fontSize: 17,
             color: "var(--muted)",
             lineHeight: 1.7,
             margin: "0 0 24px",
@@ -261,7 +216,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
           style={{
             display: "inline-block",
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "10px 22px",
             backgroundColor: "var(--accent)",
@@ -322,7 +277,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 color: "var(--muted)",
@@ -334,7 +289,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 15,
+                fontSize: 17,
                 color: "var(--ink)",
                 lineHeight: 1.7,
                 margin: 0,
@@ -350,7 +305,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
             style={{
               display: "inline-block",
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
               backgroundColor: "var(--accent)",
@@ -401,7 +356,7 @@ function StatusCard({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: highlight ? "var(--success)" : "var(--muted)",
@@ -414,7 +369,7 @@ function StatusCard({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               color: "var(--muted)",
               margin: 0,
             }}
@@ -443,7 +398,7 @@ function StatusCard({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 15,
+          fontSize: 17,
           color: "var(--muted)",
           lineHeight: 1.7,
           margin: 0,

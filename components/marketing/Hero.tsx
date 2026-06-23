@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -28,7 +28,7 @@ export default function Hero() {
         position: "relative",
         zIndex: 1,
         padding: "80px 40px 64px",
-        maxWidth: "900px",
+        maxWidth: "1100px",
       }}>
 <h1 className="sda-hero-h1" style={{
           fontFamily: "var(--sr)",
@@ -40,8 +40,8 @@ export default function Hero() {
           whiteSpace: "normal",
           marginBottom: 0,
         }}>
-          Backing early-stage<br />
-          businesses with traction.
+          Capital for businesses<br />
+          that are already working.
         </h1>
 
         <p className="sda-hero-body" style={{
@@ -50,13 +50,12 @@ export default function Hero() {
           fontWeight: 400,
           lineHeight: 1.6,
           color: "rgba(255,255,255,0.65)",
-          maxWidth: "480px",
           marginTop: "24px",
           marginBottom: 0,
         }}>
-          We invest in businesses that are already operating, generating revenue,
-          serving customers, and ready to grow. We also connect investors to credible
-          businesses with real potential.
+          We connect vetted investors with revenuegenerating businesses through structured financing.<br />
+No speculation. No guesswork.<br />
+Just real businesses, real numbers, and disciplined capital.
         </p>
 
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "32px" }}>
@@ -65,7 +64,7 @@ export default function Hero() {
             className="sda-btn-primary"
             style={{
               fontFamily: "var(--in)",
-              fontSize: "12px",
+              fontSize: "16px",
               color: "#0A0A0A",
               padding: "10px 22px",
               textDecoration: "none",
@@ -80,7 +79,7 @@ export default function Hero() {
             className="sda-btn-ghost"
             style={{
               fontFamily: "var(--in)",
-              fontSize: "12px",
+              fontSize: "16px",
               color: "#FAFAF8",
               padding: "10px 22px",
               textDecoration: "none",
@@ -89,7 +88,7 @@ export default function Hero() {
               backgroundColor: "transparent",
             }}
           >
-            Explore opportunities →
+            Explore Investment opportunities →
           </Link>
         </div>
       </div>

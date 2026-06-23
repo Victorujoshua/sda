@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { PORTFOLIO_COMPANIES } from "@/lib/portfolio-data";
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default function PortfolioPage() {
       {/* Header */}
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "11px",
+        fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
         color: "rgba(255,255,255,0.3)",
@@ -60,7 +60,7 @@ export default function PortfolioPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 fontFamily: "var(--sr)",
-                fontSize: "14px",
+                fontSize: "16px",
                 fontWeight: 600,
                 color: "#FAFAF8",
                 flexShrink: 0,
@@ -81,7 +81,7 @@ export default function PortfolioPage() {
                 </h2>
                 <p style={{
                   fontFamily: "var(--in)",
-                  fontSize: "15px",
+                  fontSize: "17px",
                   lineHeight: 1.65,
                   color: "rgba(255,255,255,0.55)",
                   margin: "0 0 16px",
@@ -114,7 +114,7 @@ export default function PortfolioPage() {
               <div style={{ textAlign: "right", paddingTop: "4px" }}>
                 <p style={{
                   fontFamily: "var(--in)",
-                  fontSize: "11px",
+                  fontSize: "13px",
                   color: "rgba(255,255,255,0.35)",
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
@@ -124,7 +124,7 @@ export default function PortfolioPage() {
                 </p>
                 <p style={{
                   fontFamily: "var(--in)",
-                  fontSize: "11px",
+                  fontSize: "13px",
                   color: "rgba(255,255,255,0.25)",
                   margin: 0,
                 }}>

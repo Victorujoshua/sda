@@ -1,4 +1,4 @@
-import { HOMEPAGE_PORTFOLIO } from "@/lib/portfolio-data";
+﻿import { HOMEPAGE_PORTFOLIO } from "@/lib/portfolio-data";
 
 export default function PortfolioGrid() {
   const companies = HOMEPAGE_PORTFOLIO;
@@ -22,7 +22,6 @@ export default function PortfolioGrid() {
           lineHeight: 1,
           marginRight: "8px",
         }}>
-          ple
         </span>
         <span style={{
           fontFamily: "var(--sr)",
@@ -31,7 +30,7 @@ export default function PortfolioGrid() {
           color: "#FAFAF8",
           letterSpacing: "-0.02em",
         }}>
-          Meet our portfolio.
+          Our portfolio.
         </span>
       </div>
 
@@ -89,7 +88,7 @@ export default function PortfolioGrid() {
             <div style={{ padding: "20px 24px" }}>
               <p style={{
                 fontFamily: "var(--sr)",
-                fontSize: "16px",
+                fontSize: "18px",
                 fontWeight: 400,
                 color: "#FAFAF8",
                 marginBottom: "4px",
@@ -98,7 +97,7 @@ export default function PortfolioGrid() {
               </p>
               <p style={{
                 fontFamily: "var(--in)",
-                fontSize: "11px",
+                fontSize: "15px",
                 color: "rgba(255,255,255,0.4)",
                 marginBottom: "10px",
               }}>

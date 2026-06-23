@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const CRITERIA = [
   "At least 6 months of verifiable revenue",
@@ -15,7 +15,7 @@ export default function WhatWeLookFor() {
     }}>
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "13px",
+        fontSize: "17px",
         textTransform: "uppercase",
         letterSpacing: "0.12em",
         color: "rgba(255,255,255,0.3)",
@@ -43,7 +43,7 @@ export default function WhatWeLookFor() {
         <div>
           <p style={{
             fontFamily: "var(--in)",
-            fontSize: "15px",
+            fontSize: "17px",
             color: "rgba(255,255,255,0.65)",
             lineHeight: 1.7,
             marginBottom: "28px",
@@ -75,7 +75,7 @@ export default function WhatWeLookFor() {
                 }} />
                 <p style={{
                   fontFamily: "var(--in)",
-                  fontSize: "14px",
+                  fontSize: "18px",
                   color: "rgba(255,255,255,0.65)",
                   lineHeight: 1.5,
                   margin: 0,
@@ -93,7 +93,7 @@ export default function WhatWeLookFor() {
           }}>
             <p style={{
               fontFamily: "var(--in)",
-              fontSize: "14px",
+              fontSize: "18px",
               color: "rgba(255,255,255,0.5)",
               lineHeight: 1.6,
               marginBottom: "12px",
@@ -105,7 +105,7 @@ export default function WhatWeLookFor() {
               href="/apply"
               style={{
                 fontFamily: "var(--in)",
-                fontSize: "13px",
+                fontSize: "17px",
                 color: "#CF9A0A",
                 textDecoration: "none",
               }}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -22,7 +22,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   padding: "8px 12px",
   fontFamily: "var(--in)",
-  fontSize: 14,
+  fontSize: 16,
   color: "var(--ink)",
   backgroundColor: "#fff",
   outline: "none",
@@ -32,7 +32,7 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   display: "block",
   fontFamily: "var(--in)",
-  fontSize: 11,
+  fontSize: 13,
   textTransform: "uppercase",
   letterSpacing: "0.08em",
   color: "var(--muted)",
@@ -94,7 +94,7 @@ function CompanyRow({ company }: { company: Company }) {
           <span
             style={{
               fontFamily: "var(--in)",
-              fontSize: 15,
+              fontSize: 17,
               color: "var(--ink)",
               fontWeight: 500,
             }}
@@ -104,7 +104,7 @@ function CompanyRow({ company }: { company: Company }) {
           <span
             style={{
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.06em",
               color: company.is_published ? "var(--success)" : "var(--muted)",
@@ -115,7 +115,7 @@ function CompanyRow({ company }: { company: Company }) {
           <span
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               color: "var(--muted)",
             }}
           >
@@ -123,7 +123,7 @@ function CompanyRow({ company }: { company: Company }) {
           </span>
         </div>
         <span
-          style={{ fontFamily: "var(--in)", fontSize: 12, color: "var(--muted)" }}
+          style={{ fontFamily: "var(--in)", fontSize: 14, color: "var(--muted)" }}
         >
           {expanded ? "▲" : "▼"}
         </span>
@@ -138,7 +138,7 @@ function CompanyRow({ company }: { company: Company }) {
                 padding: "10px 14px",
                 marginBottom: 20,
                 fontFamily: "var(--in)",
-                fontSize: 13,
+                fontSize: 15,
                 color: "var(--danger)",
               }}
             >
@@ -214,7 +214,7 @@ function CompanyRow({ company }: { company: Company }) {
               <span
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 14,
+                  fontSize: 16,
                   color: "var(--ink)",
                 }}
               >
@@ -229,7 +229,7 @@ function CompanyRow({ company }: { company: Company }) {
               disabled={isPending}
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 letterSpacing: "0.04em",
                 padding: "9px 20px",
                 backgroundColor: "var(--ink)",
@@ -245,7 +245,7 @@ function CompanyRow({ company }: { company: Company }) {
               <span
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 13,
+                  fontSize: 15,
                   color: "var(--success)",
                 }}
               >
@@ -303,7 +303,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           fontWeight: 500,
           color: "var(--ink)",
           margin: "0 0 20px",
@@ -319,7 +319,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
             padding: "10px 14px",
             marginBottom: 16,
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--danger)",
           }}
         >
@@ -385,7 +385,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
             onChange={(e) => setIsPublished(e.target.checked)}
             style={{ width: 16, height: 16 }}
           />
-          <span style={{ fontFamily: "var(--in)", fontSize: 14, color: "var(--ink)" }}>
+          <span style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }}>
             Publish immediately
           </span>
         </label>
@@ -397,7 +397,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
           disabled={isPending}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
             backgroundColor: "var(--accent)",
@@ -414,7 +414,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
           onClick={onDone}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 16px",
             backgroundColor: "transparent",
@@ -444,7 +444,7 @@ export default function PortfolioManager({
           onClick={() => setAdding(true)}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
             backgroundColor: "var(--accent)",
@@ -471,7 +471,7 @@ export default function PortfolioManager({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 15,
+              fontSize: 17,
               color: "var(--muted)",
               margin: 0,
             }}

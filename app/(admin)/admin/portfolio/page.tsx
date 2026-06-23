@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 import PortfolioManager from "@/components/admin/PortfolioManager";
 
 export default async function AdminPortfolioPage() {
@@ -20,7 +20,7 @@ export default async function AdminPortfolioPage() {
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "var(--muted)",
@@ -44,7 +44,7 @@ export default async function AdminPortfolioPage() {
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           margin: "0 0 40px",
         }}

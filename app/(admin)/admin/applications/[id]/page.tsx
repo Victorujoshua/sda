@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -48,7 +48,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
       <span
         style={{
           fontFamily: "var(--in)",
-          fontSize: 12,
+          fontSize: 14,
           textTransform: "uppercase",
           letterSpacing: "0.08em",
           color: "var(--muted)",
@@ -61,7 +61,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
       <span
         style={{
           fontFamily: "var(--in)",
-          fontSize: 14,
+          fontSize: 16,
           color: "var(--ink)",
           lineHeight: 1.6,
           wordBreak: "break-word",
@@ -138,7 +138,7 @@ export default async function ApplicationDetailPage({
         href="/admin/applications"
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           textDecoration: "none",
           display: "inline-block",
@@ -162,7 +162,7 @@ export default async function ApplicationDetailPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.12em",
               color: STATUS_COLOR[app.status] ?? "var(--muted)",
@@ -187,7 +187,7 @@ export default async function ApplicationDetailPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 13,
+                fontSize: 15,
                 color: "var(--muted)",
                 margin: "8px 0 0",
               }}
@@ -204,7 +204,7 @@ export default async function ApplicationDetailPage({
             style={{
               display: "inline-block",
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.04em",
               padding: "9px 20px",
               backgroundColor: "var(--accent)",
@@ -232,7 +232,7 @@ export default async function ApplicationDetailPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               color: "var(--muted)",
@@ -257,7 +257,7 @@ export default async function ApplicationDetailPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               color: "var(--muted)",
@@ -282,7 +282,7 @@ export default async function ApplicationDetailPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               color: "var(--muted)",
@@ -295,7 +295,7 @@ export default async function ApplicationDetailPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 14,
+                fontSize: 16,
                 color: "var(--muted)",
               }}
             >
@@ -319,7 +319,7 @@ export default async function ApplicationDetailPage({
                     <p
                       style={{
                         fontFamily: "var(--in)",
-                        fontSize: 13,
+                        fontSize: 15,
                         color: "var(--ink)",
                         margin: 0,
                         textTransform: "capitalize",
@@ -332,7 +332,7 @@ export default async function ApplicationDetailPage({
                     <p
                       style={{
                         fontFamily: "var(--in)",
-                        fontSize: 11,
+                        fontSize: 13,
                         color: "var(--muted)",
                         margin: "3px 0 0",
                       }}
@@ -352,7 +352,7 @@ export default async function ApplicationDetailPage({
                       rel="noopener noreferrer"
                       style={{
                         fontFamily: "var(--in)",
-                        fontSize: 12,
+                        fontSize: 14,
                         letterSpacing: "0.04em",
                         padding: "7px 16px",
                         backgroundColor: "var(--surface)",
@@ -368,7 +368,7 @@ export default async function ApplicationDetailPage({
                     <span
                       style={{
                         fontFamily: "var(--in)",
-                        fontSize: 12,
+                        fontSize: 14,
                         color: "var(--muted)",
                       }}
                     >
@@ -392,7 +392,7 @@ export default async function ApplicationDetailPage({
               <p
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
                   color: "var(--danger)",
@@ -404,7 +404,7 @@ export default async function ApplicationDetailPage({
               <p
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 14,
+                  fontSize: 16,
                   color: "var(--ink)",
                   lineHeight: 1.6,
                   margin: 0,
@@ -428,7 +428,7 @@ export default async function ApplicationDetailPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 color: "var(--muted)",
@@ -440,7 +440,7 @@ export default async function ApplicationDetailPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 14,
+                fontSize: 16,
                 color: "var(--ink)",
                 margin: "0 0 4px",
               }}
@@ -451,7 +451,7 @@ export default async function ApplicationDetailPage({
               <p
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 12,
+                  fontSize: 14,
                   color: "var(--danger)",
                   margin: "4px 0 0",
                 }}
@@ -474,7 +474,7 @@ export default async function ApplicationDetailPage({
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 color: "var(--muted)",

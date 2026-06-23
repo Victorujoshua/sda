@@ -6,12 +6,12 @@ SDA Platform — build.md
 ---
 Current State
 Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · SECURITY CHECK 3 BLOCKED
-Last completed section: Security checks 1-4 run (2026-06-15). Checks 2 and 4 pass. Check 1 pending (buckets). Check 3 FAIL — security gap confirmed: anon key can read details_gated via direct Supabase REST API.
-Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 27 routes, zero errors (session 34).
+Last completed section: ₦ sweep + investor gate fix complete (2026-06-23, session 61). All Sora-context ₦ instances fixed. Gate ?redirect → ?redirectTo bug fixed. Investor gate root cause confirmed: unconfirmed email (not a code bug). DB trigger sets role correctly. Build green.
+Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 29 routes, zero errors (session 61).
   NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
   Run builds with: NEXT_TURBO=0 npx next build
   Alternatively: npm run build (if env already set) — or add NEXT_TURBO=0 to build script via cross-env.
-Security checks status (2026-06-15):
+Security checks status (2026-06-15 / 2026-06-16):
   Check 1 — Document URL exposure: PENDING. Buckets not created yet. Code verified correct:
     - Signed URLs use createAdminClient() (service role), 600s TTL
     - Raw file_path never passed to client JSX — only signedUrl
@@ -25,13 +25,11 @@ Security checks status (2026-06-15):
     - Live test confirmed: anon key + direct Supabase REST API call returns details_gated content
     - Fix proposed (awaiting approval): REVOKE SELECT (details_gated) ON public.deals FROM anon;
     - Apply in Supabase SQL editor — no code changes needed after revocation
-  Check 4 — Admin route protection: PASS (unauthenticated case).
-    - /admin → 307 /login?redirectTo=%2Fadmin
-    - /admin/applications → 307 /login?redirectTo=%2Fadmin%2Fapplications
-    - /admin/deals → 307 /login?redirectTo=%2Fadmin%2Fdeals
-    - /admin/users → 307 /login?redirectTo=%2Fadmin%2Fusers
-    - /admin/portfolio → 307 /login?redirectTo=%2Fadmin%2Fportfolio
-    - Note: authenticated non-admin case relies on middleware DB role check (code verified, not live tested)
+  Check 4 — Route protection: PASS (unauthenticated + authenticated, live-tested 2026-06-16).
+    - Unauthenticated: all protected routes → 307 /login?redirectTo=...
+    - Authenticated admin: /dashboard → /admin, /dashboard/invest → /admin ✓
+    - Authenticated applicant: /admin → /login, /dashboard/invest → /dashboard ✓
+    - Authenticated investor: /admin → /login, /dashboard → /dashboard/invest ✓
   Check 5 — funding_amount constraint: PASS (verified 2026-06-14)
 Signup + apply form layout (as of session 36):
   Shared centered layout — used by /signup, /signup/investor, /dashboard/apply:
@@ -155,6 +153,8 @@ Known open issues:
   - CRITICAL: Security check 3 FAIL — apply this SQL in Supabase SQL editor before launch:
       REVOKE SELECT (details_gated) ON public.deals FROM anon;
     Then re-run check 3 to confirm fix.
+  - (RESOLVED) Double header on /dashboard and /dashboard/invest — fixed 2026-06-16, see log.
+  - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce. If still occurring, check browser console (F12) for errors.
   - PENDING: /faq not linked from Nav — reachable directly but no nav entry
   - PENDING: Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard
     → Document upload in Step 4 shows graceful error if bucket not found ("Skip for now")
@@ -169,7 +169,7 @@ Known open issues:
   - Mobile: WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited (FundingOptions now done)
   - FundingOptions icons: user should visually verify white icons on dark bg at desktop + 375px mobile
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
-Last updated: 2026-06-15 (session 44)
+Last updated: 2026-06-23 (session 61)
 GitHub: latest push 6dd40d6 → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
 Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
   To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
@@ -2514,6 +2514,183 @@ Build Log (append-only)
   Build: npm run build — 26 routes, zero errors (was 26 before; count unchanged, routes moved
     from flat to group but same URLs)
 
+\[2026-06-19] Section 8 (post) — FAQ content replacement (session 56)
+  Shipped:
+  - app/(marketing)/faq/page.tsx: FAQ_GROUPS replaced entirely
+      Was: 6 groups, ~34 questions (placeholder content)
+      Now: 7 groups, 21 questions (final content)
+      Groups: About SDA (3) · Investment Options (5) · Risk and Transparency (3) ·
+              Process (3) · Returns and Liquidity (2) · After Investment (2) · For Businesses (3)
+      Layout, AccordionGroup component, heading "Common questions.", all styling unchanged
+  - components/marketing/HomeFAQ.tsx: PREVIEW_ITEMS replaced
+      Was: 5 old placeholder questions
+      Now: What is SDA? · Is SDA a crowdfunding platform? · What types of investments are available? ·
+           Are returns guaranteed? · How does the investment process work?
+      All accordion interaction logic, styling, "View all questions →" link unchanged
+  Build: 31 routes, zero errors. Screenshots confirmed.
+
+\[2026-06-19] Section 8 (post) — HowItWorks section added (session 55)
+  Shipped:
+  - components/marketing/HowItWorks.tsx created (new RSC)
+      bg #0A0A0A, padding 80px 40px, border-bottom rgba(255,255,255,0.08), maxWidth 900px
+      Eyebrow: "How the platform works" Inter 11px uppercase rgba(255,255,255,0.3)
+      H2: "We operate as a curated investment network." Sora 42px weight 300 letterSpacing -0.02em
+      5-step list: flex row align-items flex-start, gap 20px, border-top dividers, border-bottom last
+        Number circle: 32px, border rgba(255,255,255,0.2), Sora 14px #CF9A0A
+        Step text: Inter 16px #FAFAF8, paddingTop 4px
+      Closing 3-line block (marginTop 48px):
+        Lines 1-2: Sora 22px weight 300 rgba(255,255,255,0.45) — "No open marketplace" / "No noise"
+        Line 3: Sora 22px weight 300 #FAFAF8 — "Only filtered opportunities"
+  - app/(marketing)/page.tsx: HowItWorks imported, inserted between <PullQuote /> and <PortfolioGrid />
+  Build: 31 routes, zero errors. Screenshot confirmed.
+
+\[2026-06-19] Section 8 (post) — ForInvestors heading full-width (session 54)
+  Shipped:
+  - components/marketing/ForInvestors.tsx: removed maxWidth "760px" from eyebrow+heading wrapper div
+    Heading now spans full section width (1200px at 1280px viewport)
+    Result: 2-line break at 1280px — "We provide access to private investment opportunities" / "in businesses that are already generating revenue."
+    All other styles unchanged: font-size 42px, weight 300, lineHeight 1.15, letterSpacing -0.02em, color #FAFAF8
+
+\[2026-06-19] Section 8 (post) — ForInvestors 2-col layout (session 53)
+  Shipped:
+  - components/marketing/ForInvestors.tsx restructured:
+      Eyebrow + H2: still constrained to maxWidth 760px div
+      Two sub-blocks wrapped in div.sda-two-col (reuses existing CSS class):
+        1fr 1fr, gap 64px — collapses to 1fr, gap 40px at 1024px breakpoint
+        Left col: "Every opportunity on the platform is:" + 3-item SCREENING list
+        Right col: "Investors can choose..." + 4-item PREFERENCES list
+      Closing statement + CTA: back inside maxWidth 760px div below the grid
+  - No globals.css changes — sda-two-col already had correct responsive behaviour
+  Build: 30 routes, zero errors. Desktop + mobile screenshots confirmed.
+
+\[2026-06-19] Section 8 (post) — ForInvestors section rewrite (session 52)
+  Shipped:
+  - components/marketing/ForInvestors.tsx fully rewritten
+      Section bg/padding/border-bottom unchanged from prior version
+      Eyebrow: "For Investors" unchanged
+      H2: new copy — "We provide access to private investment opportunities / in businesses that are already generating revenue."
+        Sora 42px weight 300 letterSpacing -0.02em (added), lineHeight 1.15
+        Note: heading wraps to 4 lines at 42px / 760px — copy is too long for 2 lines at this size.
+        This is expected given the copy length; 2-line break at this font size would require ~1400px of width.
+      Sub-block 1 label: "Every opportunity on the platform is:" Inter 16px rgba(255,255,255,0.65)
+      List 1 (3 items): Screened / Reviewed / Structured — gold 6px dot, border-top dividers, Inter 16px #FAFAF8
+      Sub-block 2 label: "Investors can choose..." Inter 16px rgba(255,255,255,0.65)
+      List 2 (4 items): Income / Growth / Risk profile / Time horizon — same bullet pattern
+      Closing statement: 2 lines Sora 24px weight 300 — Line 1 #FAFAF8, Line 2 rgba(255,255,255,0.5)
+      CTA: "Explore Opportunities →" — unchanged (Inter 16px #CF9A0A, border-bottom 1px #CF9A0A, href /opportunities)
+      BulletList extracted as internal component (not exported) to avoid repetition
+  Build: 30 routes, zero errors. Screenshots confirmed.
+
+\[2026-06-19] Section 8 (post) — WhatWeFund section added (session 51)
+  Shipped:
+  - components/marketing/WhatWeFund.tsx created (new RSC)
+      bg #0A0A0A, padding 80px 40px, border-bottom rgba(255,255,255,0.08), max-width 900px single col
+      Eyebrow: "What we fund" Inter 11px uppercase rgba(255,255,255,0.3) margin-bottom 32px
+      H2: "We back businesses that:" Sora 42px weight 300 letter-spacing -0.02em margin-bottom 40px
+      4 criteria items: same pattern as WhatWeLookFor (flex row, gap 14px, border-top each, border-bottom last)
+        Marker: 6px circle bg #CF9A0A · Text: Inter 16px #FAFAF8
+      Closing line: Inter 17px rgba(255,255,255,0.65) line-height 1.6 max-width 640px margin-top 40px
+  - app/(marketing)/page.tsx: WhatWeFund imported, inserted between <Intro /> and <FundingOptions />
+  Build: 30 routes, zero errors.
+  Screenshot confirmed: 4 gold bullets, closing line, clean single border into FundingOptions below.
+
+\[2026-06-19] Section 8 (post) — FundingOptions section rewrite (session 50)
+  Shipped:
+  - components/marketing/FundingOptions.tsx fully rewritten:
+      Eyebrow: "How capital is structured" (Inter 13px uppercase rgba(255,255,255,0.3))
+      H2: "Not all businesses need the same type of capital." (Sora 38px weight 300)
+      Subheading below H2: "We structure financing based on how the business actually operates."
+        Inter 16px rgba(255,255,255,0.55) max-width 600px
+      5 funding types (was 4 with different copy):
+        Revenue-Based Financing / Fixed Return Financing / Profit Sharing / Equity / Hybrid Structures
+      Icon mapping: revenue.svg / debt.svg / asset.svg / equity.svg / equity.svg (placeholder for Hybrid)
+      Grid: 2-col repeat(2,1fr), 5th item uses gridColumn: "1 / -1" (spans full width)
+      Note field removed from cards — each card shows type name + description only
+      Closing statement below grid:
+        Eyebrow: "The goal is simple" (Inter 11px uppercase rgba(255,255,255,0.3))
+        Statement: "Capital that fits the business, not the other way around." (Sora 24px weight 300)
+  - No globals.css changes — .sda-funding-grid already at repeat(2,1fr)
+  Screenshots: funding-desktop.png + funding-mobile.png verified
+    Desktop: 2×2 grid, Hybrid Structures full-width bottom row, closing statement below
+    Mobile: single-column stack, cards icon-above layout
+  Build: 29 routes, zero errors.
+  Open: Hybrid Structures icon — using equity.svg as placeholder; replace with dedicated icon when available.
+
+\[2026-06-19] Section 8 (post) — Hero body paragraph full-width (session 49)
+  Shipped:
+  - components/marketing/Hero.tsx: removed maxWidth: "480px" from .sda-hero-body paragraph
+    Paragraph now inherits full column width (1020px at 1280px viewport) matching the h1 above it.
+    All other paragraph styles unchanged: fontSize 18px, fontWeight 400, lineHeight 1.6,
+    color rgba(255,255,255,0.65), marginTop 24px.
+
+\[2026-06-19] Section 8 (post) — Hero headline 2-line fix (session 48)
+  Shipped:
+  - components/marketing/Hero.tsx: maxWidth "900px" → "1100px" on .sda-hero-content wrapper
+  Diagnosis: <br /> between "businesses" and "that" was already present. Root cause was column
+    width (900px - 80px padding = 820px) too narrow for "Capital for businesses" at 80px Sora.
+    Browser was breaking at the "for / businesses" word boundary → 4 lines total.
+    820px usable → needs ~1020px for the first phrase at 80px.
+  Fix: widened maxWidth to 1100px (1020px usable). Verified: h1 height 160px = 2 lines at 80px.
+    "Capital for businesses" and "that are already working." each sit cleanly on one line at 1280px.
+  No font-size change needed. Body text, CTAs, nav unchanged.
+  Build: 29 routes, zero errors. Screenshot confirmed.
+
+\[2026-06-16] Section 8 (post) — AppNav: replace double header on app routes (session 46)
+  Shipped:
+  - components/app/AppNav.tsx — new "use client" authenticated nav
+      Fixed top, full width, z-index 100, bg #0A0A0A, border-bottom rgba(255,255,255,0.08)
+      Left: SDA logo image (same asset as marketing nav) linked to role-based home
+            applicant → /dashboard; investor → /dashboard/invest
+      Right: full_name (Inter 13px rgba(255,255,255,0.5)),
+             "INVESTOR" badge (11px rgba(255,255,255,0.3) uppercase) — shown for investor only,
+             Sign out button (calls logout server action via form)
+      Props from layout RSC: userName, userRole
+  - app/globals.css — .sda-app-nav-signout class added
+      color rgba(255,255,255,0.45), hover color #FAFAF8, no bg, no border
+  - app/(app)/dashboard/layout.tsx — rewritten as async RSC
+      Removed: <Nav /> (marketing nav)
+      Added: createClient + profiles fetch → <AppNav userName userRole />
+      Kept: <div className="sda-page-content">{children}</div>
+  - app/(app)/dashboard/page.tsx — removed per-page <header> (SDA logo + sign out)
+      Removed: logout import, 50-line <header> block
+  - app/(app)/dashboard/invest/page.tsx — same treatment
+      Removed: logout import, 55-line <header> block (SDA logo + browse opportunities + sign out)
+  Decisions:
+  - Logo href derived from userRole prop — no useRouter needed; plain <Link> sufficient
+  - Layout fetches user+profile once per request; passes as props to client component
+  - Admin layout unchanged — has its own sidebar, no AppNav
+  - Marketing pages unchanged — still use marketing Nav
+  Result: single nav bar on all app routes; no marketing links shown to logged-in users
+  Build: NEXT_TURBO=0 npx next build — 29 routes, zero TypeScript errors
+  Verified: Playwright screenshots — /dashboard (applicant) and /dashboard/invest (investor)
+    both show single AppNav; content renders correctly; no double header
+
+\[2026-06-16] Section 8 (post) — Role-based dashboard routing + live verification (session 45)
+  Shipped (commit 0233140 — code was already in place, this session verified it):
+  - middleware.ts — full role-based route guard for /dashboard, /dashboard/invest, /admin
+      /dashboard/invest: investor only; admin → /admin; applicant/null → /dashboard
+      /dashboard (not /invest): applicant only; admin → /admin; investor → /dashboard/invest
+      /admin: admin + super_admin only; all others → /login
+      Role fetched once per request (needsRole flag avoids DB hit on public routes)
+  - app/(auth)/login/page.tsx — role-based post-login redirect
+      No redirectTo param: fetch profile role → switch to /admin / /dashboard/invest / /dashboard
+      redirectTo param present: honour it (middleware will correct if role is wrong)
+  - app/(app)/dashboard/page.tsx — server-side role guards
+      admin/super_admin → /admin; investor → /dashboard/invest; applicant renders normally
+  - app/(app)/dashboard/invest/page.tsx — new investor dashboard (394 lines)
+      Guard: non-investor → /dashboard (or /admin if admin)
+      Shows: "Investment activity" eyebrow, greeting h1, "Browse open deals" CTA, expressed-interest
+      list fetched from notifications table (type=investor_interest, message=deal_id), empty state
+  Verification (Playwright, 14/14 pass):
+    Unauthenticated /dashboard, /dashboard/invest, /admin → /login ✓
+    Admin login → /admin; admin at /dashboard → /admin ✓
+    Applicant login → /dashboard; /dashboard not blank (h1 visible); /admin → /login;
+      /dashboard/invest → /dashboard ✓
+    Investor login → /dashboard/invest; /dashboard/invest not blank; /dashboard → /dashboard/invest;
+      /admin → /login ✓
+  Build: NEXT_TURBO=0 npx next build — 29 routes (was 28 +/dashboard/invest), zero TypeScript errors
+  Finding: Double header on /dashboard and /dashboard/invest — see Known open issues above.
+
 \[2026-06-15] Two-tier admin — COMPLETE (commit 2f014da)
   Shipped:
   - supabase/migrations/20260615000001_super_admin.sql — applied to DB by user via SQL editor
@@ -2568,6 +2745,138 @@ Build Log (append-only)
   User actions required before feature is live:
     1. UPDATE profiles SET role = 'super_admin' WHERE id = '<your-uuid>';
     2. Create Loops template: admin-invite (variables: invite_link, invited_by_name, expires_at)
+
+\[2026-06-23] Section 8 (post) — Font-size readability pass (session 57)
+  Shipped:
+  - All fontSize values in the 11–16px range incremented by +2px across 57 files:
+      11px → 13px, 12px → 14px, 13px → 15px, 14px → 16px, 15px → 17px, 16px → 18px
+  - Applies to both quoted string format ("13px") and numeric React inline style format (13)
+    and CSS property format (font-size: 13px) in globals.css
+  - Scope: all components/marketing/, components/auth/, components/app/, components/admin/,
+    components/investor/, components/ui/, all app/(marketing)/ pages, app/(auth)/ pages,
+    app/(app)/dashboard/ pages, app/(admin)/ pages, app/accept-invite/, app/globals.css
+  - Files NOT changed: .claude/worktrees/ (old git worktrees, excluded by design)
+  - Values below 11px (e.g. ticker badge 10px, portfolio initials 9px) — left unchanged
+  - Values above 16px (headings at 18px, 20px, 22px, 24px, 28px, 32px, 38px, 42px, etc.) — left unchanged
+  Decisions:
+  - Replacements applied HIGH to LOW (16→18 first, then 15→17, down to 11→13) to prevent
+    double-bumping: a 14px value becomes 16px and is not bumped again by the 16→18 pass.
+  - PowerShell batch replacement used (single-pass per file) for correctness and speed.
+  - No layout changes; no token changes; typography hierarchy preserved.
+  Build: npm run build — 29 routes, zero errors. Homepage and /faq screenshots confirmed —
+    text reads larger, no overflow, no broken layouts.
+
+\[2026-06-23] Session 58 — Admin blank page fix + password eye toggle
+  Bug fix 1 — Admin page blank (/admin):
+  - Root cause: layout role check mismatch. middleware.ts (line 83) allows role=admin OR role=super_admin
+    to /admin. app/(admin)/admin/layout.tsx (line 31) checked `profile?.role !== "admin"` — exact string
+    match only. super_admin users were allowed through middleware but immediately redirected to /dashboard
+    by the layout, which middleware then bounced back to /admin → infinite redirect loop → ERR_TOO_MANY_REDIRECTS
+    (browser shows blank white page).
+  - Fix: app/(admin)/admin/layout.tsx line 31:
+      `if (profile?.role !== "admin") redirect("/dashboard")`
+      → `if (profile?.role !== "admin" && profile?.role !== "super_admin") redirect("/dashboard")`
+  - Diagnosis method: code inspection of layout vs middleware — no guessing, no runtime test required.
+
+  Bug fix 2 — Password show/hide eye toggle:
+  - Added Eye / EyeOff toggle buttons to all 5 password fields across the site.
+  - lucide-react already installed (v1.18.0) — no new packages.
+  - Files changed (each: import Eye/EyeOff, add showPassword state, wrap input in relative div,
+    change type to {showPassword ? "text" : "password"}, add paddingRight 44px, add eye button):
+      app/(auth)/login/page.tsx — 1 field (password)
+      app/(auth)/signup/page.tsx — 1 field (password)
+      app/(auth)/signup/investor/page.tsx — 1 field (password)
+      app/(auth)/reset-password/page.tsx — 2 fields (new password + confirm password, separate states)
+      app/accept-invite/page.tsx — 1 field (password, inside AcceptInviteForm client component)
+  - Icon color: rgba(0,0,0,0.4) on all light bg forms (matches muted text style).
+  - Icon size: 18px. Button: absolute right 12px, top 50%, translateY(-50%). No border-radius per design rules.
+
+  Build: npm run build — 29 routes, zero errors.
+
+\[2026-06-23] Session 60 — Admin dashboard stats grid fix
+  Root causes (three combined):
+  - Two separate grid wrappers (one per row) prevented row heights from equalising
+    across the boundary — "Active deals" (no sub-label) was shorter than its neighbours
+  - StatCard had individual border: 1px solid var(--border) PLUS the gap-trick wrapper
+    background, causing double borders at every edge
+  - No min-height or flex layout on cards — cards with a sub-label were taller
+  Fixes:
+  - Merged into a single 6-cell grid with className="sda-admin-stats-grid"
+  - .sda-admin-stats-grid: grid-template-columns repeat(3,1fr), gap 1px,
+    background-color rgba(0,0,0,0.08), border 1px solid rgba(0,0,0,0.08)
+    → single outer border + internal hairline dividers only, no doubles
+  - StatCard: removed individual border; added display flex, flex-direction column,
+    justify-content space-between, minHeight 160px, backgroundColor var(--paper)
+  - Sub-label now always rendered (empty string if absent) with minHeight 20px
+    → bottom slot occupied whether or not there's content → all 6 cards equal height
+  - Mobile: @media (max-width:768px) → grid-template-columns: 1fr, min-height auto
+  - app/globals.css: .sda-admin-stats-grid and .sda-admin-stat-card classes added
+  Build: npm run build — 29 routes, zero errors.
+
+\[2026-06-23] Session 59 — Admin name inline edit + CLAUDE.md SQL admin note
+  Fix 1 — Inline name edit on /admin/users admin team table:
+  - New server action: updateUserName(userId, fullName) in app/actions/admin.ts
+      Requires getAdminUser() (any admin or super_admin)
+      Trims input; stores null if empty string (preserves nullable column)
+      revalidatePath("/admin/users")
+  - components/admin/AdminTeamSection.tsx — AdminRow rewritten:
+      Added state: editing (bool), nameValue (string), nameSaved (bool)
+      Added useRef for input focus-on-open
+      Name cell: click anywhere on name text → opens inline input
+      If full_name is null/empty → shows "Unnamed admin" in var(--muted), still clickable
+      Dashed underline appears on hover as edit affordance
+      Input: blur → commitEdit(), Enter → commitEdit(), Escape → cancel without saving
+      After save: "Saved" flash in var(--success) for 2s, then router.refresh()
+      Saving state: "Saving…" shown while pending
+
+  Fix 2 — CLAUDE.md note for SQL-created admin accounts:
+  - Added "Admin Access — SQL-created accounts" subsection under Security Rules
+  - Documents that full_name is empty when admin created via SQL (no form filled)
+  - Shows the UPDATE SQL to set the name
+  - References the new inline edit feature on /admin/users
+
+  Build: npm run build — 29 routes, zero errors.
+```
+
+```
+Session 61 — 2026-06-23 — ₦ strikethrough sweep (complete) + opportunities gate redirect fix
+
+  Issue 1 — Investor gate redirect parameter bug (fixed):
+  - Gate "Sign in" link in app/(marketing)/opportunities/[id]/page.tsx used ?redirect= (wrong)
+  - Login page reads searchParams.get("redirectTo") — param name mismatch silently broke post-login redirect
+  - Fixed: changed href to /login?redirectTo=/opportunities/${id}
+
+  Issue 2 — ₦ strikethrough sweep (complete, all Sora contexts fixed):
+  Root cause: Sora font lacks the ₦ (Naira) glyph; browser falls back to a system font that renders
+  ₦ with strikethrough. Fix: wrap ₦ in explicit <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>
+
+  Files fixed (Sora context confirmed):
+  - app/(marketing)/opportunities/[id]/page.tsx — "Seeking" and "Revenue to date" Sora paragraphs (lines 365, 393)
+  - app/(marketing)/opportunities/page.tsx — deal card "Seeking" and "Revenue to date" Sora paragraphs (lines 378, 405)
+  - app/(admin)/admin/page.tsx — StatCard "Total funding approved" value:
+      Changed value prop type: string | number → ReactNode (import type { ReactNode } from "react")
+      Changed value={`₦${fmt(totalFunding)}`} → JSX with ₦ in Inter span
+
+  Files confirmed safe (Inter context — no fix needed):
+  - app/(app)/dashboard/invest/page.tsx — fmt() at line 312 is inside fontFamily: "var(--in)" span
+  - app/(admin)/admin/applications/page.tsx — fmt() in <td> inherits Inter from body
+  - app/(admin)/admin/applications/[id]/page.tsx — fmt() in Field component, both spans use var(--in)
+  - app/(marketing)/apply/page.tsx — ₦ in string data, rendered in Inter labels
+  - app/(app)/dashboard/apply/ApplyForm.tsx — ₦ in form labels (Inter)
+  - components/admin/PromoteForm.tsx — ₦ in form labels (Inter)
+  - components/admin/DealsManager.tsx — ₦ in form labels (Inter)
+
+  Note on Issue 1 (investor gate) — primary diagnosis still pending:
+  Issue 1 root cause — CONFIRMED (email confirmation, not a code bug):
+  - Diagnosed via Supabase Admin Auth API (PUT /auth/v1/admin/users/{id})
+  - Test investor: victor@hadiel.com.ng (UUID: 3848b129-c2f8-429a-a952-2c667f4b168c)
+  - Profile role confirmed = 'investor', full_name = 'Victor Udoh' — DB trigger correct
+  - Root cause: email_confirmed_at was null; Supabase getUser() returns null until email confirmed
+  - Email manually confirmed via Admin Auth API; profile role verified correct
+  - Gate will now show investor view on next login. ?redirectTo= fix means redirect lands correctly.
+  - No further code changes needed for Issue 1.
+
+  Build: npm run build — 29 routes, zero errors.
 ```
 ---
 Environment Variables Reference

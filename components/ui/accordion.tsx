@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 
 interface AccordionItem {
@@ -18,7 +18,7 @@ export function AccordionGroup({ title, items }: AccordionGroupProps) {
     <div style={{ marginBottom: "48px" }}>
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "11px",
+        fontSize: "15px",
         textTransform: "uppercase",
         letterSpacing: "0.12em",
         color: "#CF9A0A",
@@ -43,7 +43,7 @@ export function AccordionGroup({ title, items }: AccordionGroupProps) {
                   border: "none",
                   cursor: "pointer",
                   fontFamily: "var(--in)",
-                  fontSize: "16px",
+                  fontSize: "18px",
                   fontWeight: 400,
                   color: isOpen ? "#CF9A0A" : "#FAFAF8",
                   textAlign: "left",
@@ -68,7 +68,7 @@ export function AccordionGroup({ title, items }: AccordionGroupProps) {
                 <div style={{
                   paddingBottom: "20px",
                   fontFamily: "var(--in)",
-                  fontSize: "15px",
+                  fontSize: "17px",
                   lineHeight: 1.7,
                   color: "rgba(255,255,255,0.65)",
                   maxWidth: "640px",

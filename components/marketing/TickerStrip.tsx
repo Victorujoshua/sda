@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 const TICKER_ITEMS: Array<{ text: string; tag?: string }> = [
   { text: "Fundora HQ",             tag: "Funded" },
@@ -16,7 +16,7 @@ function TickerItem({ text, tag }: { text: string; tag?: string }) {
     <span style={{ display: "inline-flex", alignItems: "center", padding: "0 32px" }}>
       <span style={{
         fontFamily: "var(--sr)",
-        fontSize: "12px",
+        fontSize: "16px",
         fontWeight: 300,
         color: "#FFFFFF",
       }}>
@@ -34,7 +34,7 @@ function TickerItem({ text, tag }: { text: string; tag?: string }) {
           {tag}
         </span>
       )}
-      <span style={{ color: "#FFFFFF", marginLeft: "32px", fontSize: "14px" }}>·</span>
+      <span style={{ color: "#FFFFFF", marginLeft: "32px", fontSize: "18px" }}>·</span>
     </span>
   );
 }

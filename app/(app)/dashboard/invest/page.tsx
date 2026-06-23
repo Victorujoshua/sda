@@ -1,7 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { logout } from "@/app/actions/auth";
 
 type InterestedDeal = {
   id: string;
@@ -68,67 +67,11 @@ export default async function InvestorDashboardPage() {
         fontFamily: "var(--in)",
       }}
     >
-      <header
-        style={{
-          borderBottom: "1px solid var(--border)",
-          padding: "0 40px",
-          height: 56,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--sr)",
-            fontSize: 18,
-            fontWeight: 600,
-            color: "var(--ink)",
-            textDecoration: "none",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          SDA
-        </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Link
-            href="/opportunities"
-            style={{
-              fontFamily: "var(--in)",
-              fontSize: 13,
-              color: "var(--muted)",
-              textDecoration: "none",
-              letterSpacing: "0.02em",
-            }}
-          >
-            Browse opportunities
-          </Link>
-          <form action={logout}>
-            <button
-              type="submit"
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
-                background: "none",
-                border: "none",
-                color: "var(--muted)",
-                cursor: "pointer",
-                padding: 0,
-                letterSpacing: "0.02em",
-              }}
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
-      </header>
-
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px" }}>
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "var(--muted)",
@@ -168,7 +111,7 @@ export default async function InvestorDashboardPage() {
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.12em",
                 color: "var(--muted)",
@@ -195,7 +138,7 @@ export default async function InvestorDashboardPage() {
             style={{
               display: "inline-block",
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
               backgroundColor: "var(--accent)",
@@ -212,7 +155,7 @@ export default async function InvestorDashboardPage() {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "var(--muted)",
@@ -225,7 +168,7 @@ export default async function InvestorDashboardPage() {
               style={{
                 marginLeft: 8,
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 color: "var(--ink)",
               }}
             >
@@ -257,7 +200,7 @@ export default async function InvestorDashboardPage() {
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 14,
+                fontSize: 16,
                 color: "var(--muted)",
                 lineHeight: 1.7,
                 margin: "0 0 24px",
@@ -271,7 +214,7 @@ export default async function InvestorDashboardPage() {
               style={{
                 display: "inline-block",
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 letterSpacing: "0.04em",
                 padding: "10px 22px",
                 backgroundColor: "var(--accent)",
@@ -315,7 +258,7 @@ export default async function InvestorDashboardPage() {
                     <p
                       style={{
                         fontFamily: "var(--sr)",
-                        fontSize: 15,
+                        fontSize: 17,
                         fontWeight: 300,
                         color: "var(--ink)",
                         margin: 0,
@@ -347,7 +290,7 @@ export default async function InvestorDashboardPage() {
                     <p
                       style={{
                         fontFamily: "var(--in)",
-                        fontSize: 13,
+                        fontSize: 15,
                         color: "var(--muted)",
                         margin: 0,
                         overflow: "hidden",
@@ -361,7 +304,7 @@ export default async function InvestorDashboardPage() {
                       <span
                         style={{
                           fontFamily: "var(--in)",
-                          fontSize: 12,
+                          fontSize: 14,
                           color: "var(--ink)",
                           flexShrink: 0,
                         }}
@@ -375,7 +318,7 @@ export default async function InvestorDashboardPage() {
                   href={`/opportunities/${deal.id}`}
                   style={{
                     fontFamily: "var(--in)",
-                    fontSize: 12,
+                    fontSize: 14,
                     letterSpacing: "0.04em",
                     color: "var(--accent)",
                     textDecoration: "none",

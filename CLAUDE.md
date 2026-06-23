@@ -202,6 +202,13 @@ After building the homepage, screenshot at 1280px and compare against `docs/bcv-
 - Blacklisted users (`is_blacklisted = true`) cannot insert new applications
 - This is enforced by a DB trigger AND checked in the server action — both layers
 
+### Admin Access — SQL-created accounts
+When creating an admin or super_admin directly via SQL (not through the invite flow), the `full_name` field will be empty since no sign-up form was filled. Set it manually:
+```sql
+UPDATE profiles SET full_name = 'Name Here' WHERE id = '<uuid>';
+```
+Or use the inline edit feature on `/admin/users` after creation — click the name cell (or the "Unnamed admin" placeholder) to edit in place.
+
 ---
 
 ## Database Rules

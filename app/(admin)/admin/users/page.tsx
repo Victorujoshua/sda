@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import UsersTable from "@/components/admin/UsersTable";
 import AdminTeamSection from "@/components/admin/AdminTeamSection";
@@ -52,7 +52,7 @@ export default async function AdminUsersPage({
     border: "1px solid var(--border)",
     padding: "8px 12px",
     fontFamily: "var(--in)",
-    fontSize: 13,
+    fontSize: 15,
     color: "var(--ink)",
     backgroundColor: "#fff",
     outline: "none",
@@ -64,7 +64,7 @@ export default async function AdminUsersPage({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "var(--muted)",
@@ -88,7 +88,7 @@ export default async function AdminUsersPage({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           margin: "0 0 32px",
         }}
@@ -118,7 +118,7 @@ export default async function AdminUsersPage({
             style={{
               display: "block",
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "var(--muted)",
@@ -141,7 +141,7 @@ export default async function AdminUsersPage({
             style={{
               display: "block",
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "var(--muted)",
@@ -165,7 +165,7 @@ export default async function AdminUsersPage({
           type="submit"
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
             backgroundColor: "var(--accent)",

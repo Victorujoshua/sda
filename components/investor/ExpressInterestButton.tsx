@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { expressInterest } from "@/app/actions/investor";
@@ -39,7 +39,7 @@ export default function ExpressInterestButton({
           border: "1px solid var(--success)",
           padding: "16px 24px",
           fontFamily: "var(--in)",
-          fontSize: 14,
+          fontSize: 16,
           color: "var(--success)",
           lineHeight: 1.6,
         }}
@@ -55,7 +55,7 @@ export default function ExpressInterestButton({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--danger)",
             margin: "0 0 12px",
           }}
@@ -68,7 +68,7 @@ export default function ExpressInterestButton({
         disabled={isPending}
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           letterSpacing: "0.04em",
           padding: "12px 28px",
           backgroundColor: "var(--accent)",
@@ -83,7 +83,7 @@ export default function ExpressInterestButton({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 12,
+          fontSize: 14,
           color: "var(--muted)",
           margin: "10px 0 0",
           lineHeight: 1.5,

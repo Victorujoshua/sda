@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -57,7 +57,7 @@ function UserRow({ user }: { user: User }) {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 14,
+            fontSize: 16,
             color: "var(--ink)",
             margin: 0,
             fontWeight: 500,
@@ -68,7 +68,7 @@ function UserRow({ user }: { user: User }) {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             color: "var(--muted)",
             margin: "3px 0 0",
           }}
@@ -81,7 +81,7 @@ function UserRow({ user }: { user: User }) {
         style={{
           padding: "14px 12px",
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           textTransform: "capitalize",
           verticalAlign: "top",
@@ -96,7 +96,7 @@ function UserRow({ user }: { user: User }) {
             <span
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 color: "var(--muted)",
@@ -109,7 +109,7 @@ function UserRow({ user }: { user: User }) {
             <span
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 color: "var(--danger)",
@@ -122,7 +122,7 @@ function UserRow({ user }: { user: User }) {
             <span
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 color: "var(--success)",
@@ -138,7 +138,7 @@ function UserRow({ user }: { user: User }) {
         style={{
           padding: "14px 12px",
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           whiteSpace: "nowrap",
           verticalAlign: "top",
@@ -153,7 +153,7 @@ function UserRow({ user }: { user: User }) {
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 color: "var(--danger)",
                 margin: 0,
               }}
@@ -170,7 +170,7 @@ function UserRow({ user }: { user: User }) {
                 disabled={isPending}
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   letterSpacing: "0.04em",
                   padding: "6px 12px",
                   backgroundColor: "transparent",
@@ -187,7 +187,7 @@ function UserRow({ user }: { user: User }) {
                 disabled={isPending}
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   letterSpacing: "0.04em",
                   padding: "6px 12px",
                   backgroundColor: "transparent",
@@ -207,7 +207,7 @@ function UserRow({ user }: { user: User }) {
                 disabled={isPending}
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   letterSpacing: "0.04em",
                   padding: "6px 12px",
                   backgroundColor: "transparent",
@@ -224,7 +224,7 @@ function UserRow({ user }: { user: User }) {
                 disabled={isPending}
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   letterSpacing: "0.04em",
                   padding: "6px 12px",
                   backgroundColor: "transparent",
@@ -251,7 +251,7 @@ function UserRow({ user }: { user: User }) {
                 style={{
                   display: "block",
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   color: "var(--muted)",
@@ -270,7 +270,7 @@ function UserRow({ user }: { user: User }) {
                   border: "1px solid var(--border)",
                   padding: "8px 12px",
                   fontFamily: "var(--in)",
-                  fontSize: 13,
+                  fontSize: 15,
                   color: "var(--ink)",
                   backgroundColor: "#fff",
                   outline: "none",
@@ -288,7 +288,7 @@ function UserRow({ user }: { user: User }) {
                   disabled={isPending || !blacklistReason.trim()}
                   style={{
                     fontFamily: "var(--in)",
-                    fontSize: 11,
+                    fontSize: 13,
                     letterSpacing: "0.04em",
                     padding: "7px 14px",
                     backgroundColor: "var(--danger)",
@@ -304,7 +304,7 @@ function UserRow({ user }: { user: User }) {
                   onClick={() => setShowBlacklist(false)}
                   style={{
                     fontFamily: "var(--in)",
-                    fontSize: 11,
+                    fontSize: 13,
                     padding: "7px 12px",
                     background: "none",
                     border: "1px solid var(--border)",
@@ -323,7 +323,7 @@ function UserRow({ user }: { user: User }) {
             <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 12,
+                fontSize: 14,
                 color: "var(--danger)",
                 margin: 0,
                 maxWidth: 320,
@@ -351,7 +351,7 @@ export default function UsersTable({ users }: { users: User[] }) {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 15,
+            fontSize: 17,
             color: "var(--muted)",
             margin: 0,
           }}
@@ -368,7 +368,7 @@ export default function UsersTable({ users }: { users: User[] }) {
         width: "100%",
         borderCollapse: "collapse",
         fontFamily: "var(--in)",
-        fontSize: 13,
+        fontSize: 15,
       }}
     >
       <thead>
@@ -380,7 +380,7 @@ export default function UsersTable({ users }: { users: User[] }) {
                 textAlign: "left",
                 padding: "10px 12px",
                 fontFamily: "var(--in)",
-                fontSize: 11,
+                fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 color: "var(--muted)",

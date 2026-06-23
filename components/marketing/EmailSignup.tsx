@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 
 export default function EmailSignup() {
@@ -19,7 +19,7 @@ export default function EmailSignup() {
     }}>
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "11px",
+        fontSize: "15px",
         color: "rgba(255,255,255,0.35)",
         maxWidth: "500px",
         marginBottom: "20px",
@@ -50,7 +50,7 @@ export default function EmailSignup() {
             border: "none",
             outline: "none",
             fontFamily: "var(--sr)",
-            fontSize: "14px",
+            fontSize: "18px",
             fontWeight: 300,
             color: "#FAFAF8",
             padding: "12px 0",

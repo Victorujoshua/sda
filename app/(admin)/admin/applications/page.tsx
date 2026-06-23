@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+﻿import { createAdminClient } from "@/lib/supabase/admin";
 import Link from "next/link";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -73,7 +73,7 @@ export default async function ApplicationsPage({
     border: "1px solid var(--border)",
     padding: "8px 12px",
     fontFamily: "var(--in)",
-    fontSize: 13,
+    fontSize: 15,
     color: "var(--ink)",
     backgroundColor: "#fff",
     outline: "none",
@@ -85,7 +85,7 @@ export default async function ApplicationsPage({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "var(--muted)",
@@ -123,7 +123,7 @@ export default async function ApplicationsPage({
             style={{
               display: "block",
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "var(--muted)",
@@ -146,7 +146,7 @@ export default async function ApplicationsPage({
             style={{
               display: "block",
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "var(--muted)",
@@ -174,7 +174,7 @@ export default async function ApplicationsPage({
             style={{
               display: "block",
               fontFamily: "var(--in)",
-              fontSize: 11,
+              fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "var(--muted)",
@@ -200,7 +200,7 @@ export default async function ApplicationsPage({
           type="submit"
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
             backgroundColor: "var(--accent)",
@@ -217,7 +217,7 @@ export default async function ApplicationsPage({
             href="/admin/applications"
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               color: "var(--muted)",
               textDecoration: "none",
               padding: "9px 0",
@@ -232,7 +232,7 @@ export default async function ApplicationsPage({
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           margin: "0 0 16px",
         }}
@@ -253,7 +253,7 @@ export default async function ApplicationsPage({
           <p
             style={{
               fontFamily: "var(--in)",
-              fontSize: 15,
+              fontSize: 17,
               color: "var(--muted)",
               margin: 0,
             }}
@@ -267,7 +267,7 @@ export default async function ApplicationsPage({
             width: "100%",
             borderCollapse: "collapse",
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
           }}
         >
           <thead>
@@ -286,7 +286,7 @@ export default async function ApplicationsPage({
                     textAlign: "left",
                     padding: "10px 12px",
                     fontFamily: "var(--in)",
-                    fontSize: 11,
+                    fontSize: 13,
                     textTransform: "uppercase",
                     letterSpacing: "0.08em",
                     color: "var(--muted)",
@@ -309,7 +309,7 @@ export default async function ApplicationsPage({
                     href={`/admin/applications/${app.id}`}
                     style={{
                       fontFamily: "var(--in)",
-                      fontSize: 14,
+                      fontSize: 16,
                       color: "var(--ink)",
                       textDecoration: "none",
                       fontWeight: 500,
@@ -320,7 +320,7 @@ export default async function ApplicationsPage({
                   <p
                     style={{
                       fontFamily: "var(--in)",
-                      fontSize: 12,
+                      fontSize: 14,
                       color: "var(--muted)",
                       margin: "2px 0 0",
                     }}
@@ -353,7 +353,7 @@ export default async function ApplicationsPage({
                   <span
                     style={{
                       fontFamily: "var(--in)",
-                      fontSize: 11,
+                      fontSize: 13,
                       color: STATUS_COLOR[app.status] ?? "var(--muted)",
                       textTransform: "uppercase",
                       letterSpacing: "0.06em",

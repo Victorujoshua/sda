@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About — SDA",
@@ -20,7 +20,7 @@ export default function AboutPage() {
       {/* Eyebrow */}
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "11px",
+        fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
         color: "rgba(255,255,255,0.3)",
@@ -116,7 +116,7 @@ export default function AboutPage() {
             </p>
             <p style={{
               fontFamily: "var(--in)",
-              fontSize: "12px",
+              fontSize: "14px",
               color: "rgba(255,255,255,0.35)",
               margin: 0,
               textTransform: "uppercase",

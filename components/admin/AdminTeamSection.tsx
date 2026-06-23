@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { inviteAdmin, removeAdmin } from "@/app/actions/admin";
+import { inviteAdmin, removeAdmin, updateUserName } from "@/app/actions/admin";
 
 type AdminMember = {
   id: string;
@@ -13,7 +13,7 @@ type AdminMember = {
 
 const btnBase: React.CSSProperties = {
   fontFamily: "var(--in)",
-  fontSize: 11,
+  fontSize: 13,
   letterSpacing: "0.04em",
   padding: "6px 12px",
   border: "1px solid var(--border)",
@@ -51,6 +51,35 @@ function AdminRow({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  // Inline name edit state
+  const [editing, setEditing] = useState(false);
+  const [nameValue, setNameValue] = useState(member.full_name ?? "");
+  const [nameSaved, setNameSaved] = useState(false);
+  const [namePending, startNameTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function startEdit() {
+    setEditing(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function commitEdit() {
+    setEditing(false);
+    startNameTransition(async () => {
+      const result = await updateUserName(member.id, nameValue);
+      if (!result.error) {
+        setNameSaved(true);
+        setTimeout(() => setNameSaved(false), 2000);
+        router.refresh();
+      }
+    });
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") { e.preventDefault(); commitEdit(); }
+    if (e.key === "Escape") { setNameValue(member.full_name ?? ""); setEditing(false); }
+  }
+
   function handleRemove() {
     setError(null);
     startTransition(async () => {
@@ -63,20 +92,61 @@ function AdminRow({
     });
   }
 
+  const hasName = nameValue.trim().length > 0;
+
   return (
     <tr style={{ borderBottom: "1px solid var(--border)" }}>
       <td style={{ padding: "14px 12px", verticalAlign: "middle" }}>
-        <p
-          style={{
-            fontFamily: "var(--in)",
-            fontSize: 14,
-            color: "var(--ink)",
-            margin: 0,
-            fontWeight: 500,
-          }}
-        >
-          {member.full_name ?? "—"}
-        </p>
+        {editing ? (
+          <input
+            ref={inputRef}
+            value={nameValue}
+            onChange={(e) => setNameValue(e.target.value)}
+            onBlur={commitEdit}
+            onKeyDown={handleKeyDown}
+            style={{
+              fontFamily: "var(--in)",
+              fontSize: 16,
+              fontWeight: 500,
+              color: "var(--ink)",
+              border: "1px solid var(--border)",
+              padding: "4px 8px",
+              outline: "none",
+              width: "100%",
+              boxSizing: "border-box",
+              backgroundColor: "#fff",
+            }}
+          />
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              onClick={startEdit}
+              title="Click to edit name"
+              style={{
+                fontFamily: "var(--in)",
+                fontSize: 16,
+                fontWeight: hasName ? 500 : 400,
+                color: hasName ? "var(--ink)" : "var(--muted)",
+                cursor: "pointer",
+                borderBottom: "1px dashed transparent",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderBottomColor = "var(--muted)")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderBottomColor = "transparent")}
+            >
+              {hasName ? nameValue : "Unnamed admin"}
+            </span>
+            {nameSaved && (
+              <span style={{ fontFamily: "var(--in)", fontSize: 13, color: "var(--success)" }}>
+                Saved
+              </span>
+            )}
+            {namePending && (
+              <span style={{ fontFamily: "var(--in)", fontSize: 13, color: "var(--muted)" }}>
+                Saving…
+              </span>
+            )}
+          </div>
+        )}
       </td>
       <td style={{ padding: "14px 12px", verticalAlign: "middle" }}>
         <RoleBadge role={member.role} />
@@ -85,7 +155,7 @@ function AdminRow({
         style={{
           padding: "14px 12px",
           fontFamily: "var(--in)",
-          fontSize: 13,
+          fontSize: 15,
           color: "var(--muted)",
           verticalAlign: "middle",
           whiteSpace: "nowrap",
@@ -111,7 +181,7 @@ function AdminRow({
               <p
                 style={{
                   fontFamily: "var(--in)",
-                  fontSize: 12,
+                  fontSize: 14,
                   color: "var(--danger)",
                   margin: "6px 0 0",
                 }}
@@ -157,7 +227,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
       <p
         style={{
           fontFamily: "var(--in)",
-          fontSize: 11,
+          fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.08em",
           color: "var(--muted)",
@@ -171,7 +241,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--success)",
             margin: "0 0 12px",
           }}
@@ -183,7 +253,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--danger)",
             margin: "0 0 12px",
           }}
@@ -207,7 +277,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
             border: "1px solid var(--border)",
             padding: "9px 12px",
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--ink)",
             backgroundColor: "#fff",
             outline: "none",
@@ -218,7 +288,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
           disabled={isPending}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
             backgroundColor: "var(--accent)",
@@ -235,7 +305,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
           onClick={onDone}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             padding: "9px 14px",
             background: "none",
             border: "1px solid var(--border)",
@@ -274,7 +344,7 @@ export default function AdminTeamSection({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "var(--muted)",
@@ -288,7 +358,7 @@ export default function AdminTeamSection({
             onClick={() => setShowInvite((v) => !v)}
             style={{
               fontFamily: "var(--in)",
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: "0.04em",
               padding: "7px 16px",
               backgroundColor: "#CF9A0A",
@@ -318,7 +388,7 @@ export default function AdminTeamSection({
                   textAlign: "left",
                   padding: "10px 12px",
                   fontFamily: "var(--in)",
-                  fontSize: 11,
+                  fontSize: 13,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   color: "var(--muted)",
@@ -338,7 +408,7 @@ export default function AdminTeamSection({
                 style={{
                   padding: "24px 12px",
                   fontFamily: "var(--in)",
-                  fontSize: 14,
+                  fontSize: 16,
                   color: "var(--muted)",
                   textAlign: "center",
                 }}

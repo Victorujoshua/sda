@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   padding: "10px 14px",
   fontFamily: "var(--in)",
-  fontSize: 14,
+  fontSize: 16,
   color: "var(--ink)",
   backgroundColor: "#fff",
   outline: "none",
@@ -20,7 +20,7 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   display: "block",
   fontFamily: "var(--in)",
-  fontSize: 11,
+  fontSize: 13,
   textTransform: "uppercase",
   letterSpacing: "0.1em",
   color: "var(--muted)",
@@ -99,7 +99,7 @@ export default function PromoteForm({
             padding: "12px 16px",
             marginBottom: 28,
             fontFamily: "var(--in)",
-            fontSize: 14,
+            fontSize: 16,
             color: "var(--danger)",
           }}
         >
@@ -114,7 +114,7 @@ export default function PromoteForm({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             color: "var(--muted)",
             margin: "0 0 8px",
             lineHeight: 1.5,
@@ -138,7 +138,7 @@ export default function PromoteForm({
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             color: "var(--muted)",
             margin: "0 0 8px",
             lineHeight: 1.5,
@@ -220,7 +220,7 @@ export default function PromoteForm({
           <span
             style={{
               fontFamily: "var(--in)",
-              fontSize: 14,
+              fontSize: 16,
               color: "var(--ink)",
             }}
           >
@@ -235,7 +235,7 @@ export default function PromoteForm({
           disabled={isPending}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "11px 28px",
             backgroundColor: "var(--accent)",
@@ -254,7 +254,7 @@ export default function PromoteForm({
           disabled={isPending}
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             letterSpacing: "0.04em",
             padding: "11px 20px",
             backgroundColor: "transparent",

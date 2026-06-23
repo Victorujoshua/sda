@@ -3,13 +3,14 @@
 import { useState, useTransition, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { acceptAdminInvite } from "@/app/actions/admin";
+import { Eye, EyeOff } from "lucide-react";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
   border: "1px solid rgba(0,0,0,0.15)",
   padding: "12px 14px",
   fontFamily: "var(--in)",
-  fontSize: 14,
+  fontSize: 16,
   color: "var(--ink)",
   backgroundColor: "#fff",
   outline: "none",
@@ -19,7 +20,7 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   display: "block",
   fontFamily: "var(--in)",
-  fontSize: 12,
+  fontSize: 14,
   fontWeight: 500,
   color: "var(--ink)",
   marginBottom: 6,
@@ -34,12 +35,13 @@ function AcceptInviteForm() {
 
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   if (!token) {
     return (
-      <p style={{ fontFamily: "var(--in)", fontSize: 14, color: "var(--danger)" }}>
+      <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--danger)" }}>
         This invite link is invalid or has expired.
       </p>
     );
@@ -66,7 +68,7 @@ function AcceptInviteForm() {
             border: "1px solid var(--danger)",
             padding: "10px 14px",
             fontFamily: "var(--in)",
-            fontSize: 13,
+            fontSize: 15,
             color: "var(--danger)",
           }}
         >
@@ -88,19 +90,29 @@ function AcceptInviteForm() {
 
       <div>
         <label style={labelStyle}>Password</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-          autoComplete="new-password"
-          style={inputStyle}
-        />
+        <div style={{ position: "relative" }}>
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            autoComplete="new-password"
+            style={{ ...inputStyle, padding: "12px 44px 12px 14px" }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "rgba(0,0,0,0.4)", padding: "4px", display: "flex", alignItems: "center" }}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 12,
+            fontSize: 14,
             color: "var(--muted)",
             margin: "6px 0 0",
           }}
@@ -114,7 +126,7 @@ function AcceptInviteForm() {
         disabled={isPending}
         style={{
           fontFamily: "var(--sr)",
-          fontSize: 15,
+          fontSize: 17,
           fontWeight: 600,
           padding: "14px 32px",
           backgroundColor: isPending ? "rgba(10,10,10,0.5)" : "#0A0A0A",
@@ -146,7 +158,7 @@ export default function AcceptInvitePage() {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 11,
+            fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "var(--muted)",
@@ -170,7 +182,7 @@ export default function AcceptInvitePage() {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: 14,
+            fontSize: 16,
             color: "var(--muted)",
             margin: "0 0 36px",
             lineHeight: 1.6,
