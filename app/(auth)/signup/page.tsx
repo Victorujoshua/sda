@@ -91,7 +91,7 @@ export default function SignupPage() {
           ) : (
             <div style={{ maxWidth: 440 }}>
               <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "#0A0A0A", margin: "0 0 8px" }}>
-                Join SDA as an Applicant
+                Apply for funding
               </h1>
               <p style={{ fontFamily: "var(--in)", fontSize: "18px", color: "rgba(0,0,0,0.5)", margin: "0 0 40px" }}>
                 Create an account to apply for funding.

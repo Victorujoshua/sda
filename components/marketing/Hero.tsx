@@ -7,7 +7,7 @@ export default function Hero() {
       width: "100%",
       minHeight: "100vh",
       marginTop: "-80px",
-      backgroundImage: "url('/images/hero_bg.jpg')",
+      backgroundImage: "url('/images/hero.png')",
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",

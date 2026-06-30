@@ -5,8 +5,8 @@ SDA Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · SECURITY CHECK 3 BLOCKED
-Last completed section: ₦ sweep + investor gate fix complete (2026-06-23, session 61). All Sora-context ₦ instances fixed. Gate ?redirect → ?redirectTo bug fixed. Investor gate root cause confirmed: unconfirmed email (not a code bug). DB trigger sets role correctly. Build green.
+Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · SECURITY CHECK 3 UNCONFIRMED
+Last completed section: Production deploy (2026-06-23, session 62). Commit dd2e7cb pushed to github.com/Victorujoshua/sda master. Vercel auto-deploy triggered — check vercel.com dashboard to confirm build green and get production URL. Env vars must be set in Vercel dashboard before deploy is functional.
 Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 29 routes, zero errors (session 61).
   NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
   Run builds with: NEXT_TURBO=0 npx next build
@@ -19,12 +19,11 @@ Security checks status (2026-06-15 / 2026-06-16):
   Check 2 — Cross-user application access: PASS.
     - RLS policy USING (user_id = auth.uid()) verified in migration SQL
     - Live test: anon key returns [] for applications, application_documents, audit_log
-  Check 3 — details_gated leakage: FAIL — FIX REQUIRED BEFORE LAUNCH.
+  Check 3 — details_gated leakage: UNCONFIRMED (was FAIL — migration written but not confirmed applied).
     - App code correct: /opportunities and /opportunities/[id] never select details_gated for anon/non-investor
-    - SECURITY GAP: deals_anon_read_active RLS policy allows anon to read ALL columns
-    - Live test confirmed: anon key + direct Supabase REST API call returns details_gated content
-    - Fix proposed (awaiting approval): REVOKE SELECT (details_gated) ON public.deals FROM anon;
-    - Apply in Supabase SQL editor — no code changes needed after revocation
+    - Migration SQL written: supabase/migrations/20260615000003_revoke_details_gated_anon.sql (commit 6dd1367)
+    - REVOKE SELECT (details_gated) ON public.deals FROM anon; — must be run in Supabase SQL editor
+    - Until confirmed applied and re-tested, treat as FAIL.
   Check 4 — Route protection: PASS (unauthenticated + authenticated, live-tested 2026-06-16).
     - Unauthenticated: all protected routes → 307 /login?redirectTo=...
     - Authenticated admin: /dashboard → /admin, /dashboard/invest → /admin ✓
@@ -138,39 +137,45 @@ Live URL: — (Vercel deploy still pending — set env vars in Vercel dashboard 
 Seed first admin before testing Section 4 (SQL below):
   UPDATE profiles SET role = 'admin' WHERE id = '<your-user-uuid>';
 Loops setup required before emails fire (user actions):
-  1. Go to loops.so → Transactional → create 5 templates:
+  1. Go to loops.so → Transactional → create 6 templates:
      application-submitted       → variables: applicant_name, business_name, submitted_date
      application-approved        → variables: applicant_name, business_name
      application-rejected        → variables: applicant_name, business_name, rejection_reason
      application-under-review    → variables: applicant_name, business_name
      new-application-admin       → variables: applicant_name, business_name,
                                               funding_amount, submitted_date, admin_link
-  2. Add to .env.local:
-     LOOPS_API_KEY=<your-loops-api-key>
-     LOOPS_ADMIN_EMAIL=<admin inbox address>
+     admin-invite                → variables: invite_link, invited_by_name, expires_at
+  2. Env vars — LOOPS_API_KEY is set in .env.local. LOOPS_ADMIN_EMAIL is EMPTY — must be filled.
+     Also set in Vercel dashboard: LOOPS_API_KEY, LOOPS_ADMIN_EMAIL, SUPABASE_SERVICE_ROLE_KEY,
+     NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_APP_URL=https://sda.ng
   3. Test one real send per template before going live
 Known open issues:
-  - CRITICAL: Security check 3 FAIL — apply this SQL in Supabase SQL editor before launch:
-      REVOKE SELECT (details_gated) ON public.deals FROM anon;
-    Then re-run check 3 to confirm fix.
-  - (RESOLVED) Double header on /dashboard and /dashboard/invest — fixed 2026-06-16, see log.
-  - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce. If still occurring, check browser console (F12) for errors.
-  - PENDING: /faq not linked from Nav — reachable directly but no nav entry
-  - PENDING: Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard
+  - CRITICAL: Security check 3 — REVOKE migration written (20260615000003_revoke_details_gated_anon.sql)
+    but NOT CONFIRMED applied to Supabase. Run in SQL editor then re-test with anon REST call.
+  - CRITICAL: LOOPS_ADMIN_EMAIL is empty in .env.local — admin new-application alerts will not fire.
+  - CRITICAL: Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard
     → Document upload in Step 4 shows graceful error if bucket not found ("Skip for now")
     → Security check 1 cannot be completed until buckets + real documents exist
-  - Section 7 emails: wired in server actions but TEMPLATES IDs are placeholder slugs — paste real Loops IDs when templates created
-  - Loops admin-invite template: create in Loops dashboard (variables: invite_link, invited_by_name, expires_at)
+  - CRITICAL: NEXT_PUBLIC_APP_URL set to http://localhost:3000 in .env.local — admin invite links in
+    emails will point to localhost. Must be https://sda.ng in Vercel env vars.
+  - Investor-interest email: app/actions/investor.ts:44 still console.log stub — admin never notified.
+  - Newsletter signup: components/marketing/EmailSignup.tsx still console.log stub — not wired to Loops.
+  - Loops templates: all 6 must be created in Loops dashboard and tested with real sends before go-live.
   - Section 0 Vercel deploy still pending — import GitHub repo at vercel.com, set env vars
   - Supabase project ref: mxuvbjjunajthrtlxrbr (eu-west-1)
   - supabase login interactive OAuth does not work in Claude Code; use SUPABASE_ACCESS_TOKEN env var
   - docs/bcv-reference.png missing from repo — screenshot comparison still pending
   - Remaining placeholder assets: pull quote photo, portfolio card photos, founder quote
-  - Mobile: WhatWeLookFor, PullQuote, ForInvestors, EmailSignup, Footer not yet mobile-audited (FundingOptions now done)
+  - Mobile — Footer: all inline styles, no responsive rules — 120px logotype will overflow at 375px. NOT DONE.
+  - Mobile — EmailSignup: no responsive rules at all. NOT DONE.
+  - Mobile — WhatWeLookFor, PullQuote, ForInvestors: column stacking works via sda-two-col /
+    sda-pull-quote-grid CSS classes (breakpoint 1024px), but no font-size or padding mobile pass. PARTIAL.
   - FundingOptions icons: user should visually verify white icons on dark bg at desktop + 375px mobile
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
-Last updated: 2026-06-23 (session 61)
-GitHub: latest push 6dd40d6 → master (github.com/Victorujoshua/sda) — pushed 2026-06-15
+  - /faq not linked from Nav — reachable directly but no nav entry
+  - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce.
+Last updated: 2026-06-30 (session 69)
+GitHub: latest push dd2e7cb → master (github.com/Victorujoshua/sda) — pushed 2026-06-23 (was stale: 6dd40d6)
 Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
   To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
              (B) run `vercel --prod` from your own terminal, OR
@@ -194,9 +199,10 @@ Tailwind CSS + shadcn/ui
 React Hook Form + Zod
 Loops (transactional email)
 Vercel (hosting + edge functions)
+Paystack (investor membership fee only — client-authorized exception)
 Scope hard boundaries (V1)
-No payment processing. "Accept investment" = recording an offline commitment. No Paystack, no Flutterwave, no escrow. If a payment requirement appears during the build, stop and flag it as V2.
-Out of V1: payments/escrow, founder↔investor messaging, investor KYC verification, SMS, blog, multi-currency, native app.
+CLIENT-AUTHORIZED EXCEPTION: Investor membership fee via Paystack is IN SCOPE — see 'Investor Membership Fee' section below for full spec. This overrides the no-payments rule for this one specific flow only. 'Accept investment' still = recording an offline commitment — the membership fee is NOT investment capital, it's a one-time platform access fee. No money moves for the actual investment/deal itself.
+Out of V1: escrow on actual deal/investment capital, founder↔investor messaging, investor KYC verification, SMS, blog, multi-currency, native app. (Paystack itself is partially in V1 — see the membership fee exception above. Only escrow on the investment capital remains fully out of scope.)
 Architecture must leave room for all of the above without rework.
 Two client assumptions — confirm before Section 1
 "Accept investment" = recording an offline commitment, not money movement.
@@ -2878,6 +2884,106 @@ Session 61 — 2026-06-23 — ₦ strikethrough sweep (complete) + opportunities
 
   Build: npm run build — 29 routes, zero errors.
 ```
+
+```
+Session 66 — 2026-06-29 — Profile picture + deal image feature proposal (spec only, NOT built)
+  No code written this session.
+  User requested two features:
+    1. Applicant profile picture upload during/after registration
+    2. Admin can add image/logo when creating or editing a deal; visible to investors
+  Proposal made, awaiting approval + two open questions before implementation:
+    Q1: Profile picture — on signup page itself (uploads immediately after account creation)
+        or on applicant dashboard after first login?
+    Q2: Deal images — logo only, or multiple images per deal?
+  Proposed approach:
+    - New column: profiles.avatar_url (text, nullable)
+    - New column: deals.logo_path (text, nullable)
+    - New public Storage bucket: avatars (profile photos — not sensitive, public URL appropriate)
+    - New public Storage bucket: deal-images (deal logos — shown publicly on /opportunities)
+    - PromoteForm + DealsManager: add image upload field
+    - /opportunities + /opportunities/[id]: render deal logo where present
+  Migration SQL drafted (not yet shown to user for approval):
+    ALTER TABLE profiles ADD COLUMN avatar_url text;
+    ALTER TABLE deals ADD COLUMN logo_path text;
+  Open issues: awaiting answers to Q1 and Q2 before building
+```
+
+```
+Session 65 — 2026-06-26 — Investor membership fee scope addition (spec only, NOT built)
+  No code written this session.
+  Client authorized a one-time ₦10,000 investor membership fee via Paystack — full spec
+  written into build.md "Investor Membership Fee" section: schema (has_paid_membership,
+  membership_payments table), Paystack Inline JS approach, webhook as source of truth,
+  3-state gating logic update for /opportunities/[id], admin revoke/refund action,
+  audit vocabulary additions (membership.paid, membership.revoked).
+  This is a deliberate, scoped exception to the "no payments in V1" rule — confirmed
+  with client. Next priority after Security Check 3 SQL fix is applied.
+  Open question flagged for client: is the ₦10,000 fee the same as the existing
+  "diligence and administrative fees" mentioned in FAQ copy, or a separate charge?
+```
+
+```
+Session 64 — 2026-06-26 — Signup page copy tweak
+
+  Changed:
+  - app/(auth)/signup/page.tsx line 94: h1 heading changed from "Join SDA as an Applicant"
+    to "Apply for funding" — aligns with CTA language used across marketing pages
+
+  Decisions: none — straightforward copy change, no structural changes
+  Open issues: none introduced
+```
+
+```
+Session 63 — 2026-06-26 — Hero image update
+
+  Changed:
+  - components/marketing/Hero.tsx: backgroundImage updated from '/images/hero_bg.jpg'
+    to '/images/hero.png' (Nigerian fashion designer with sketch board — client-provided photo)
+  - public/images/hero.png: new asset added (was already untracked in git; now in use)
+
+  Decisions:
+  - Image renders behind existing gradient overlay (rgba black fade bottom-up) — no overlay changes needed
+  - Gradient overlay preserved as-is: text legibility maintained
+  - Placeholder log in CLAUDE.md "Hero right panel — awaiting client photo" remains applicable
+    until client confirms this is the final hero image
+
+  Open issues: none introduced
+```
+
+```
+Session 62 — 2026-06-23 — Production deploy
+
+  Pre-deploy checks:
+  - npm run build: 29 routes, zero errors ✓
+  - npx tsc --noEmit: zero errors ✓
+
+  Git:
+  - Staged 68 files (all uncommitted work since last push on 2026-06-15)
+  - Added .claude/worktrees/ to .gitignore (embedded git repo must not be committed)
+  - Commit: dd2e7cb — "Two-tier admin system, signup milestone progress, dashboard grid fix,
+    Naira symbol fix, investor gate redirect fix, font size readability pass"
+  - Pushed to: github.com/Victorujoshua/sda master (0233140..dd2e7cb)
+
+  Vercel:
+  - CLI requires interactive browser login — cannot run headlessly in this environment
+  - GitHub push should have triggered auto-deploy if Vercel is connected to the repo
+  - ACTION REQUIRED: verify build at vercel.com dashboard → Deployments tab
+  - ACTION REQUIRED: confirm all env vars set in Vercel → Settings → Environment Variables → Production:
+      NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY,
+      NEXT_PUBLIC_APP_URL, LOOPS_API_KEY, LOOPS_ADMIN_EMAIL
+
+  Includes (since last push 2026-06-15):
+  - Two-tier admin system (admin / super_admin roles, invite flow, remove admin, inline name edit)
+  - Signup milestone progress sidebar + mobile step indicator
+  - Role-based dashboard routing (3 separate dashboards per role)
+  - Admin dashboard stats grid (unified 3×2, equal-height cards, hairline dividers)
+  - Naira symbol fix across all Sora-font contexts (₦ wrapped in Inter span)
+  - Investor gate ?redirect → ?redirectTo redirect param fix
+  - Eye icon show/hide on all password fields
+  - Font size readability pass across all pages
+  - HowItWorks + WhatWeFund marketing components
+  - AppNav component
+```
 ---
 Environment Variables Reference
 These must exist before the relevant section runs. Never commit values to the repo.
@@ -2887,8 +2993,13 @@ NEXT\_PUBLIC\_SUPABASE\_URL=
 NEXT\_PUBLIC\_SUPABASE\_ANON\_KEY=
 SUPABASE\_SERVICE\_ROLE\_KEY=        # server-side only, never exposed to client
 
-# ZeptoMail
-ZEPTO\_MAIL\_API\_KEY=               # confirm key name matches ZeptoMail dashboard
+# Loops
+LOOPS\_API\_KEY=                    # from Loops dashboard → Settings → API keys
+LOOPS\_ADMIN\_EMAIL=                # admin inbox for new-application alerts
+
+# Paystack (investor membership fee — not yet built)
+PAYSTACK\_SECRET\_KEY=              # server-side only
+NEXT\_PUBLIC\_PAYSTACK\_PUBLIC\_KEY=
 
 # App
 NEXT\_PUBLIC\_APP\_URL=              # https://sda.ng in production
@@ -2896,7 +3007,7 @@ NEXT\_PUBLIC\_APP\_URL=              # https://sda.ng in production
 ---
 V2 Backlog (do not build in V1)
 Things that were explicitly deferred. Architecture should not block these.
-Payment processing / escrow (Paystack or equivalent)
+Escrow on actual deal/investment capital (Paystack is now used for the membership fee only — see Investor Membership Fee section; escrow on investment capital itself remains V2)
 Investor KYC verification flow
 Founder ↔ investor direct messaging
 SMS notifications
@@ -2906,7 +3017,7 @@ Native mobile app
 Admin → investor introduction flow
 ---
 Standing Reminders
-No payments in V1. If it appears, flag it.
+No payments in V1 outside the authorized investor membership fee. Anything else, flag it.
 Private documents, signed URLs only, admin-only.
 All writes through server actions.
 Update this file after every session. Stale build.md is a bug.
