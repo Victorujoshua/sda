@@ -21,7 +21,9 @@ type AuditAction =
   | "portfolio.updated"
   | "admin.invited"
   | "admin.accepted_invite"
-  | "admin.removed";
+  | "admin.removed"
+  | "membership.paid"
+  | "membership.revoked";
 
 async function getAdminUser() {
   const supabase = await createClient();
@@ -589,6 +591,60 @@ export async function updateUserName(
     .update({ full_name: trimmed || null })
     .eq("id", userId);
   if (error) return { error: error.message };
+  revalidatePath("/admin/users");
+  return {};
+}
+
+// ── Membership ───────────────────────────────────────────────────────────────
+
+export async function revokeMembership(
+  userId: string,
+  reason: string
+): Promise<{ error?: string }> {
+  if (!reason.trim()) return { error: "Revocation reason is required." };
+
+  const actor = await getSuperAdminUser();
+  const db = createAdminClient();
+
+  const { data: target } = await db
+    .from("profiles")
+    .select("role, has_paid_membership")
+    .eq("id", userId)
+    .single();
+
+  if (!target) return { error: "User not found." };
+  if (target.role !== "investor") return { error: "User is not an investor." };
+  if (!target.has_paid_membership) return { error: "No active membership to revoke." };
+
+  const { error } = await db
+    .from("profiles")
+    .update({ has_paid_membership: false })
+    .eq("id", userId);
+  if (error) return { error: error.message };
+
+  // Mark the most recent successful payment as refunded
+  const { data: latestPayment } = await db
+    .from("membership_payments")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("status", "success")
+    .order("paid_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (latestPayment) {
+    await db
+      .from("membership_payments")
+      .update({
+        status: "refunded",
+        refunded_at: new Date().toISOString(),
+        refund_reason: reason.trim(),
+      })
+      .eq("id", latestPayment.id);
+  }
+
+  await writeAudit(actor.id, "membership.revoked", "user", userId, { reason });
+
   revalidatePath("/admin/users");
   return {};
 }

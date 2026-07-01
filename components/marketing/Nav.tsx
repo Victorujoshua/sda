@@ -1,8 +1,10 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { createClient } from "@/lib/supabase/client";
+import NavAuthSlot from "./NavAuthSlot";
 
 const NAV_LINKS = [
   { label: "Funding types", href: "/#funding-options" },
@@ -13,9 +15,22 @@ const NAV_LINKS = [
   { label: "Contact",       href: "#" },
 ];
 
+const ROLE_DESTINATIONS: Record<string, { label: string; href: string }> = {
+  applicant:   { label: "Dashboard",     href: "/dashboard" },
+  investor:    { label: "Opportunities", href: "/opportunities" },
+  admin:       { label: "Admin",         href: "/admin" },
+  super_admin: { label: "Admin",         href: "/admin" },
+};
+
+type AuthState =
+  | { status: "loading" }
+  | { status: "out" }
+  | { status: "in"; role: string | null; email: string; initial: string };
+
 export default function Nav() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [auth, setAuth] = useState<AuthState>({ status: "loading" });
   const pathname = usePathname();
   const isHomepage = pathname === "/";
 
@@ -26,9 +41,54 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isHomepage]);
 
+  useEffect(() => {
+    const supabase = createClient();
+
+    async function resolve(userId: string, userEmail: string) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
+      const initial = (userEmail[0] ?? "?").toUpperCase();
+      setAuth({ status: "in", role: data?.role ?? null, email: userEmail, initial });
+    }
+
+    // Hydrate from existing session immediately on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        resolve(session.user.id, session.user.email ?? "");
+      } else {
+        setAuth({ status: "out" });
+      }
+    });
+
+    // Stay reactive to login / logout events regardless of layout cache
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        resolve(session.user.id, session.user.email ?? "");
+      } else {
+        setAuth({ status: "out" });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const isDark = !isHomepage || scrolled;
   const navBg = isDark ? "#0A0A0A" : "transparent";
   const navShadow = isDark ? "0 1px 0 rgba(255,255,255,0.08)" : "none";
+
+  const mobileDest =
+    auth.status === "in" && auth.role
+      ? (ROLE_DESTINATIONS[auth.role] ?? { label: "Dashboard", href: "/dashboard" })
+      : null;
+
+  async function handleMobileLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
 
   return (
     <>
@@ -58,7 +118,7 @@ export default function Nav() {
           />
         </Link>
 
-        {/* Desktop nav links + CTA — hidden on mobile */}
+        {/* Desktop nav links + auth slot — hidden on mobile */}
         <div className="sda-nav-desktop" style={{
           display: "flex",
           alignItems: "center",
@@ -89,21 +149,12 @@ export default function Nav() {
               </li>
             ))}
           </ul>
-          <Link
-            href="/signup"
-            className="sda-btn-nav-cta"
-            style={{
-              fontFamily: "var(--in)",
-              fontSize: "16px",
-              color: "#FAFAF8",
-              padding: "9px 20px",
-              textDecoration: "none",
-              letterSpacing: "0.04em",
-              display: "inline-block",
-            }}
-          >
-            Apply Now
-          </Link>
+          <NavAuthSlot
+            role={auth.status === "in" ? auth.role : null}
+            email={auth.status === "in" ? auth.email : null}
+            initial={auth.status === "in" ? auth.initial : ""}
+            loading={auth.status === "loading"}
+          />
         </div>
 
         {/* Hamburger button — visible only on mobile via CSS */}
@@ -158,6 +209,7 @@ export default function Nav() {
                     fontFamily: "var(--sr)",
                     fontSize: "32px",
                     fontWeight: 300,
+                    fontStyle: "normal",
                     color: "#FAFAF8",
                     textDecoration: "none",
                     padding: "20px 0",
@@ -171,25 +223,67 @@ export default function Nav() {
           </ul>
         </nav>
 
-        {/* Apply CTA at bottom */}
-        <div style={{ marginTop: "40px" }}>
-          <Link
-            href="/signup"
-            onClick={() => setIsOpen(false)}
-            className="sda-btn-nav-cta"
-            style={{
-              display: "block",
-              textAlign: "center",
-              fontFamily: "var(--in)",
-              fontSize: "18px",
-              color: "#FAFAF8",
-              padding: "14px 20px",
-              textDecoration: "none",
-              letterSpacing: "0.04em",
-            }}
-          >
-            Apply Now
-          </Link>
+        {/* Mobile CTA — loading: spacer; out: Apply Now; in: role button + Log out */}
+        <div style={{ marginTop: "40px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {auth.status === "loading" && (
+            <div style={{ height: 54 }} />
+          )}
+          {auth.status === "out" && (
+            <Link
+              href="/signup"
+              onClick={() => setIsOpen(false)}
+              className="sda-btn-nav-cta"
+              style={{
+                display: "block",
+                textAlign: "center",
+                fontFamily: "var(--in)",
+                fontSize: "18px",
+                color: "#FAFAF8",
+                padding: "14px 20px",
+                textDecoration: "none",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Apply Now
+            </Link>
+          )}
+          {auth.status === "in" && mobileDest && (
+            <>
+              <Link
+                href={mobileDest.href}
+                onClick={() => setIsOpen(false)}
+                className="sda-btn-nav-cta"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  fontFamily: "var(--in)",
+                  fontSize: "18px",
+                  color: "#FAFAF8",
+                  padding: "14px 20px",
+                  textDecoration: "none",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {mobileDest.label}
+              </Link>
+              <button
+                onClick={handleMobileLogout}
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "16px",
+                  color: "rgba(255,255,255,0.45)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "8px 0",
+                  textAlign: "center",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Log out
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>

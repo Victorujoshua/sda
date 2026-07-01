@@ -95,6 +95,11 @@ const FAQ_GROUPS = [
           "The process has five steps: investors apply and are onboarded, opportunities are shared privately, investors review deal details and structure, investment commitments are made, then funds are deployed and tracked.",
       },
       {
+        question: "Is there a fee to access full deal details?",
+        answer:
+          "Yes. After your investor account is approved, a one-time diligence and administrative fee of ₦10,000 unlocks permanent access to full gated deal details across all active opportunities on the platform. This fee covers deal sourcing, vetting, documentation, and ongoing operational support. You are never charged again.",
+      },
+      {
         question: "Can I choose which businesses to invest in?",
         answer:
           "Yes. Investors decide which opportunities to participate in. There is no obligation to invest in every deal.",

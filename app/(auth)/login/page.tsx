@@ -1,13 +1,12 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Eye, EyeOff } from "lucide-react";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
 
@@ -32,9 +31,10 @@ function LoginForm() {
     }
 
     // Honour an explicit redirectTo param (middleware sent them here from a protected route).
+    // Hard navigation bypasses the Next.js Router Cache — prevents stale pre-login RSC payload
+    // from being served when the destination was visited unauthenticated before this login.
     if (searchParams.get("redirectTo")) {
-      router.push(redirectTo);
-      router.refresh();
+      window.location.href = redirectTo;
       return;
     }
 
@@ -47,17 +47,16 @@ function LoginForm() {
     switch (profile?.role) {
       case "super_admin":
       case "admin":
-        router.push("/admin");
+        window.location.href = "/admin";
         break;
       case "investor":
-        router.push("/dashboard/invest");
+        window.location.href = "/dashboard/invest";
         break;
       case "applicant":
       default:
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
         break;
     }
-    router.refresh();
   }
 
   return (

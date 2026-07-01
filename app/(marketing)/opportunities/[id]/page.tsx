@@ -2,6 +2,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ExpressInterestButton from "@/components/investor/ExpressInterestButton";
+import PathCUnlockView from "@/components/investor/PathCUnlockView";
 
 function fmt(n: number | null) {
   if (!n) return "—";
@@ -60,17 +61,18 @@ export default async function OpportunityDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let profile: { role: string } | null = null;
+  let profile: { role: string; has_paid_membership: boolean } | null = null;
   if (user) {
     const { data } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, has_paid_membership")
       .eq("id", user.id)
       .single();
     profile = data;
   }
 
   const isInvestor = profile?.role === "investor";
+  const hasPaidMembership = profile?.has_paid_membership ?? false;
 
   // Path A — no session or non-investor: NEVER select details_gated
   if (!user || !isInvestor) {
@@ -230,7 +232,23 @@ export default async function OpportunityDetailPage({
     );
   }
 
-  // Path B — authenticated investor: fetch WITH details_gated
+  // Path C — investor without membership: NEVER select details_gated
+  if (isInvestor && !hasPaidMembership) {
+    const { data: deal } = await supabase
+      .from("deals")
+      .select(
+        "id, business_name, industry, revenue_to_date, funding_required, summary_public, created_at"
+      )
+      .eq("id", id)
+      .eq("is_active", true)
+      .single();
+
+    if (!deal) notFound();
+
+    return <PathCUnlockView deal={deal} />;
+  }
+
+  // Path B — authenticated investor with membership: fetch WITH details_gated
   const { data: deal } = await supabase
     .from("deals")
     .select(

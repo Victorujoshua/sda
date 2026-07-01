@@ -29,7 +29,7 @@ export default async function AdminUsersPage({
   // Main user table — applicants and investors only
   let query = db
     .from("profiles")
-    .select("id, full_name, role, is_active, is_blacklisted, blacklist_reason, created_at")
+    .select("id, full_name, role, is_active, is_blacklisted, blacklist_reason, has_paid_membership, created_at")
     .in("role", ["applicant", "investor"] as never[])
     .order("created_at", { ascending: false })
     .limit(300);
@@ -178,7 +178,7 @@ export default async function AdminUsersPage({
         </button>
       </form>
 
-      <UsersTable users={users ?? []} />
+      <UsersTable users={users ?? []} actorRole={actorRole} />
     </div>
   );
 }

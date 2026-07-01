@@ -322,11 +322,56 @@ export type Database = {
         }
         Relationships: []
       }
+      membership_payments: {
+        Row: {
+          id: string
+          user_id: string
+          paystack_reference: string
+          amount_kobo: number
+          status: "pending" | "success" | "failed" | "refunded"
+          paid_at: string | null
+          refunded_at: string | null
+          refund_reason: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          paystack_reference: string
+          amount_kobo: number
+          status: "pending" | "success" | "failed" | "refunded"
+          paid_at?: string | null
+          refunded_at?: string | null
+          refund_reason?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          paystack_reference?: string
+          amount_kobo?: number
+          status?: "pending" | "success" | "failed" | "refunded"
+          paid_at?: string | null
+          refunded_at?: string | null
+          refund_reason?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           blacklist_reason: string | null
           created_at: string
           full_name: string | null
+          has_paid_membership: boolean
           id: string
           is_active: boolean
           is_blacklisted: boolean
@@ -337,6 +382,7 @@ export type Database = {
           blacklist_reason?: string | null
           created_at?: string
           full_name?: string | null
+          has_paid_membership?: boolean
           id: string
           is_active?: boolean
           is_blacklisted?: boolean
@@ -347,6 +393,7 @@ export type Database = {
           blacklist_reason?: string | null
           created_at?: string
           full_name?: string | null
+          has_paid_membership?: boolean
           id?: string
           is_active?: boolean
           is_blacklisted?: boolean

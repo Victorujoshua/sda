@@ -6,11 +6,11 @@ SDA Platform — build.md
 ---
 Current State
 Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · SECURITY CHECK 3 UNCONFIRMED
-Last completed section: Production deploy (2026-06-23, session 62). Commit dd2e7cb pushed to github.com/Victorujoshua/sda master. Vercel auto-deploy triggered — check vercel.com dashboard to confirm build green and get production URL. Env vars must be set in Vercel dashboard before deploy is functional.
-Build: Next.js 16.2.9 — GREEN. npm run build (webpack): 29 routes, zero errors (session 61).
+Last completed: /opportunities CTA gate fix (2026-07-01, session 79). Footer "Sign in / Create account" CTA now hidden for all authenticated users regardless of role. See Build Log.
+Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 32 routes, zero errors (session 79).
+  Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
   Run builds with: NEXT_TURBO=0 npx next build
-  Alternatively: npm run build (if env already set) — or add NEXT_TURBO=0 to build script via cross-env.
 Security checks status (2026-06-15 / 2026-06-16):
   Check 1 — Document URL exposure: PENDING. Buckets not created yet. Code verified correct:
     - Signed URLs use createAdminClient() (service role), 600s TTL
@@ -150,9 +150,11 @@ Loops setup required before emails fire (user actions):
      NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_APP_URL=https://sda.ng
   3. Test one real send per template before going live
 Known open issues:
+  - CRITICAL: Paystack TEST keys set in .env.local (sk_test_.../pk_test_...) — payment flow usable locally. Must also add PAYSTACK_SECRET_KEY + NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY to Vercel env vars before production works.
+  - CRITICAL: Membership fee migration (20260701000001_membership_fee.sql) must be applied in Supabase SQL editor — has_paid_membership column and membership_payments table do not exist until then.
+  - CRITICAL: Paystack webhook URL must be registered in Paystack dashboard → Settings → Webhooks: https://sda.ng/api/webhooks/paystack — also add PAYSTACK_SECRET_KEY to Vercel env vars.
   - CRITICAL: Security check 3 — REVOKE migration written (20260615000003_revoke_details_gated_anon.sql)
     but NOT CONFIRMED applied to Supabase. Run in SQL editor then re-test with anon REST call.
-  - CRITICAL: LOOPS_ADMIN_EMAIL is empty in .env.local — admin new-application alerts will not fire.
   - CRITICAL: Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard
     → Document upload in Step 4 shows graceful error if bucket not found ("Skip for now")
     → Security check 1 cannot be completed until buckets + real documents exist
@@ -174,8 +176,21 @@ Known open issues:
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
   - /faq not linked from Nav — reachable directly but no nav entry
   - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce.
-Last updated: 2026-06-30 (session 69)
-GitHub: latest push dd2e7cb → master (github.com/Victorujoshua/sda) — pushed 2026-06-23 (was stale: 6dd40d6)
+Last updated: 2026-07-01 (session 79)
+Build Log — Session 79 (2026-07-01)
+  Bug fixed: /opportunities footer CTA ("Full deal details and investment terms are available to
+    registered investors. [Sign in] [Create account]") was visible to all users including
+    authenticated ones. Should only appear to unauthenticated visitors.
+  Fix: app/(marketing)/opportunities/page.tsx — added `const { data: { user } } = await
+    supabase.auth.getUser()` after existing supabase client init. Wrapped the "Login nudge at
+    bottom" block (previously lines 438–494) in `{!user && (...)}`. The page was already a
+    Server Component with `createClient()` in scope — zero client-side complexity required.
+  Audit: app/(marketing)/investors/page.tsx line 111 "Create account" button is a hero acquisition
+    CTA paired with "Explore Opportunities" — not a gate block. Not a sign-in prompt. Left alone.
+  Build: 32 routes, zero errors. /opportunities correctly stays ƒ (Dynamic) — it runs getUser()
+    on every request. All other marketing pages remain ○ (Static).
+  Files changed: app/(marketing)/opportunities/page.tsx
+GitHub: latest push a548b48 → master (github.com/Victorujoshua/sda) — pushed 2026-06-30 (portfolio redesign + membership fee not yet pushed)
 Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
   To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
              (B) run `vercel --prod` from your own terminal, OR
@@ -2948,6 +2963,386 @@ Session 63 — 2026-06-26 — Hero image update
     until client confirms this is the final hero image
 
   Open issues: none introduced
+```
+
+```
+Session 78 — 2026-07-01 — Marketing nav auth: client-side reactive via onAuthStateChange (layout cache fix)
+
+  Root cause (identified by user after session 77 manual testing):
+  Marketing layout was rendered as a Server Component. Next.js App Router caches layouts across
+  <Link> navigations within the same layout tree. When a logged-in user navigated from an app-tree
+  route (/dashboard/invest) to a marketing-tree route (/opportunities/[id]) via a <Link>, the
+  cached logged-out marketing layout RSC payload was served — the server-side auth check never re-ran
+  and the nav showed "Apply Now" instead of the role button.
+
+  Fix approach: move auth state out of the server-rendered layout entirely. Nav.tsx now owns auth
+  state via supabase.auth.onAuthStateChange() — reactive on the client regardless of what RSC
+  payload the layout cache serves. Nav mounts, fetches current session, re-renders correctly.
+
+  Files changed:
+  - components/marketing/Nav.tsx — auth props removed; owns auth state internally
+      Added: AuthState type { status: "loading" | "out" | "in"; role; email; initial }
+      Added: useEffect → supabase.auth.getSession() (initial hydration) + onAuthStateChange
+             (stays reactive to login/logout anywhere in the app)
+      Passes: role/email/initial/loading to NavAuthSlot from auth state
+      Mobile drawer: uses auth.status ("loading" spacer / "out" Apply Now / "in" role + Log out)
+  - components/marketing/NavAuthSlot.tsx — added loading prop + neutral spacer
+      loading=true renders a 100×38px invisible spacer matching "Apply Now" button dimensions
+      Prevents wrong-state ("Apply Now") flash for logged-in users during session hydration
+  - app/(marketing)/layout.tsx — reverted to simple sync layout (no auth fetch, no async)
+      Marketing pages restored to ○ (Static) pre-rendering in Next.js build
+
+  Side effect resolved: marketing pages are back to ○ (Static) — were ƒ (Dynamic) in session 77
+  because the async layout forced all child routes to be dynamic. Now the layout is sync again,
+  and only pages with their own server-side data calls are dynamic.
+
+  Trade-off (acceptable):
+  On first paint, the nav auth slot shows a neutral spacer (~100ms while getSession() resolves).
+  This is better than flashing "Apply Now" for logged-in users, which was the original bug.
+  The spacer matches the "Apply Now" button height/width so the layout does not jump.
+
+  Build: NEXT_TURBO=0 npx next build — 32 routes, zero errors. Static pages restored.
+
+  Manual test required (document result):
+  1. Log in as investor
+  2. From /dashboard/invest click into a deal → confirm marketing nav shows "Opportunities" + avatar
+  3. Navigate between marketing pages via <Link> → nav stays in logged-in state throughout
+  4. Log out via avatar dropdown → confirm hard-nav to /, nav shows "Apply Now"
+  5. Log in as applicant/admin → confirm correct role button appears
+  Note: brief spacer visible on initial mount before session resolves — this is expected behaviour.
+```
+
+```
+Session 77 — 2026-07-01 — Nav auth state: role-based button + avatar dropdown (marketing); Log out (app-side)
+
+  Files created:
+  - components/marketing/NavAuthSlot.tsx — "use client" auth slot for marketing nav
+      Props: role, email, initial (all server-fetched, passed from layout)
+      Logged-out: renders "Apply Now" link (identical to previous behaviour)
+      Logged-in: role button + 32px avatar circle (dark navy #0f2744, gold initial, Sora) + dropdown
+      Role → button mapping:
+        applicant   → "Dashboard"     → /dashboard
+        investor    → "Opportunities" → /opportunities
+        admin       → "Admin"         → /admin
+        super_admin → "Admin"         → /admin
+      Avatar dropdown (~180px, white bg, 4px radius, shadow):
+        - Email (muted, non-clickable, truncated)
+        - "Log out" button → supabase.auth.signOut() + window.location.href = "/"
+      Click-outside: useEffect + document.addEventListener("mousedown")
+
+  Files changed:
+  - app/(marketing)/layout.tsx — converted to async server component
+      Fetches: supabase.auth.getUser() + profiles.select("role, full_name")
+      Derives userInitial from full_name[0] or email[0], uppercased
+      Passes userRole, userEmail, userInitial to Nav as props
+      Graceful when user is null (logged out) — no redirect, no error
+  - components/marketing/Nav.tsx — accepts optional auth props, renders NavAuthSlot
+      Props added: userRole?, userEmail?, userInitial? (all default null/"")
+      Desktop: NavAuthSlot replaces hardcoded "Apply Now" link
+      Mobile drawer: logged out → "Apply Now"; logged in → role button + "Log out" button
+      Mobile logout calls supabase.auth.signOut() + window.location.href = "/" (same pattern)
+      All existing scroll/hamburger/drawer logic unchanged
+  - components/app/AppNav.tsx — client-side logout replaces server action form
+      Removed: import { logout } from "@/app/actions/auth" + <form action={logout}>
+      Added: import { createClient } from "@/lib/supabase/client"
+      handleLogout: supabase.auth.signOut() + window.location.href = "/"
+      Button text: "Log out" (was "Sign out")
+  - app/globals.css — updated .sda-app-nav-signout + added .sda-nav-dropdown-logout
+      sda-app-nav-signout: Sora 14px, gold #CF9A0A outline button, hover fills gold
+      sda-nav-dropdown-logout: Inter 14px, full-width left-aligned, hover bg #F2F1EC
+
+  Side effect — marketing pages now dynamic:
+  Marketing layout reads auth cookie on every request → Next.js marks all marketing
+  routes as ƒ (Dynamic). Previously several were ○ (Static). Expected and acceptable —
+  auth state must be per-request for nav to reflect login state on first paint.
+
+  Build: NEXT_TURBO=0 npx next build — 32 routes, zero errors.
+
+  Manual test required (document results in next session if tested):
+  1. Visit / logged out → "Apply Now" shows in nav ✓ (if not, RSC cache issue)
+  2. Log in as applicant → "Dashboard" button + avatar appear on / and all marketing pages
+  3. Log in as investor → "Opportunities" button appears
+  4. Log in as admin/super_admin → "Admin" button appears
+  5. Click avatar → dropdown shows email (muted, truncated) + "Log out"
+  6. Log out from marketing nav → hard nav to /, logged-out nav restored
+  7. Visit /dashboard (or /dashboard/invest) → "Log out" button (gold outline) visible
+  8. Log out from app-side nav → hard nav to /, logged-out state on marketing pages
+  Note: if "Apply Now" still shows on the same marketing page immediately after step 2
+  login (without a page refresh), flag as Known Open Issue — RSC cache still stale.
+```
+
+```
+Session 76 — 2026-07-01 — Auth gate cache bug fixed (login/reset-password hard navigation)
+
+  Root cause (diagnosed session 75):
+  After an unauthenticated user visited /opportunities/[id], Next.js Router Cache stored the
+  unauthenticated RSC payload (~30s TTL). On login, router.push(redirectTo) consumed the stale
+  cache before router.refresh() could invalidate it. router.refresh() also targeted /login (current
+  segment), not the destination. Result: investor saw the "Sign in" gate block after logging in.
+
+  Files changed:
+  - app/(auth)/login/page.tsx
+      Lines 35-38: router.push(redirectTo) + router.refresh() → window.location.href = redirectTo
+      Lines 47-60: role-based switch router.push() calls + trailing router.refresh()
+                   → window.location.href per case, router.refresh() removed entirely
+      useRouter import removed (no longer used in this file)
+  - app/(auth)/reset-password/page.tsx
+      Lines 34-35: router.push("/dashboard") + router.refresh() → window.location.href = "/dashboard"
+      useRouter import removed (no longer used in this file)
+
+  Files audited, no change needed:
+  - app/(auth)/signup/page.tsx — sets done=true state after signUp, no router.push
+  - app/(auth)/signup/investor/page.tsx — same
+  - app/(auth)/forgot-password/page.tsx — sets done=true state, no router.push
+  - app/auth/callback/route.ts — server route handler, uses redirect() not router.push
+
+  Why hard navigation:
+  window.location.href triggers a full browser navigation, bypassing the Next.js Router Cache
+  entirely. The browser makes a fresh HTTP request, middleware runs, and the server component
+  re-executes with the new session cookie — correctly rendering Path B or C.
+
+  Build: NEXT_TURBO=0 npx next build — 32 routes, zero errors.
+
+  Manual test required (cannot be done in Claude Code — no browser):
+  1. Log out. Visit /opportunities/[some-id] while logged out. Confirm "Sign in" gate visible.
+  2. Click "Sign in", complete login. Confirm landing on /opportunities/[some-id] showing
+     the correct authenticated state (paywall for unpaid investor, full detail for paid investor)
+     — NOT the "sign in" gate.
+  3. Repeat with /reset-password: complete password reset, confirm redirect to /dashboard lands
+     on real dashboard (not a stale logged-out view).
+  Bug moved from Known open issues to this Build Log entry — resolved.
+```
+
+```
+Session 74 — 2026-07-01 — Membership payment converted from redirect to inline modal
+
+  Files created:
+  - components/investor/MembershipModal.tsx — "use client" overlay modal
+      Props: isOpen, onClose, onSuccess?, transparentBackdrop?, initialError?
+      Loads Paystack v2 inline.js via useEffect on mount (not on open — so script is ready when Pay clicked)
+      ESC to close (blocked during loading state)
+      Scroll lock via document.body.style.overflow (skipped when transparentBackdrop=true)
+      Paystack flow: POST /api/payments/init → window.PaystackPop().newTransaction() →
+        onSuccess: POST /api/payments/verify → if ok: call onSuccess prop → close via parent
+        onCancel: reset loading, keep SDA modal open
+      Loading state: spinner (CSS @keyframes sda-spin) + "Confirming payment…" — close blocked
+      Error state: inline banner + "Try again" button → re-calls handlePay()
+      Buttons: Pay ₦10,000 (gold #CF9A0A, zero border-radius) + Maybe later (ghost)
+      Card: border-radius 8px (per spec), gold 2px top border, max-w 480px
+      Backdrop: rgba(0,0,0,0.6) or transparent when transparentBackdrop=true
+      Close X hidden during loading state
+  - components/investor/PathCUnlockView.tsx — "use client" full Path C view
+      Props: deal (id, business_name, industry, revenue_to_date, funding_required, summary_public)
+      Renders full deal header, stats row, overview — identical to Path B structure (no details_gated)
+      Locked "Full details" section: blurred placeholder bars (aria-hidden) + semi-transparent overlay
+        with "Unlock full details" gold CTA button → opens MembershipModal
+      onSuccess: router.refresh() → page re-renders as Path B (has_paid_membership now true)
+      MembershipModal always in DOM (so Paystack script loads on mount, not just on modal open)
+  - app/(investor)/membership/MembershipFallbackView.tsx — "use client" fallback wrapper
+      Renders MembershipModal with transparentBackdrop=true, isOpen=true
+      onClose + onSuccess → router.push("/opportunities")
+      Used by /membership page for direct-link / email-link access
+
+  Files changed:
+  - app/(investor)/membership/page.tsx — simplified to server auth checks + render MembershipFallbackView
+      Removed: all page UI (fee card, PayButton, link nav)
+      Kept: redirect guards (no auth → /login, not investor → /dashboard, already paid → /opportunities)
+      Error message from ?error= searchParam passed as initialError to MembershipFallbackView
+  - app/(marketing)/opportunities/[id]/page.tsx — Path C block replaced with PathCUnlockView
+      Was: 120-line paywall block with Link href="/membership"
+      Now: single line return <PathCUnlockView deal={deal} />
+      Import added: PathCUnlockView from @/components/investor/PathCUnlockView
+      No change to query (details_gated still never selected in Path C) ✓
+      No server-side changes ✓
+
+  Files deleted:
+  - app/(investor)/membership/PayButton.tsx — replaced by MembershipModal
+
+  Security invariants preserved:
+  - details_gated never selected for unpaid investors — PathCUnlockView never receives it
+  - The blurred visual is dressing over data that was NEVER fetched
+  - Verify still required server-side before has_paid_membership flips
+  - Webhook still authoritative source of truth
+
+  UX flow:
+  1. Investor visits /opportunities/[id] → Path C renders (public deal + blurred locked section)
+  2. Investor clicks "Unlock full details" → MembershipModal opens in place
+  3. Investor clicks "Pay ₦10,000" → Paystack popup opens on top of SDA modal
+  4. Investor pays → Paystack success callback → verify endpoint → onSuccess → router.refresh()
+  5. Page re-renders → profile now has has_paid_membership=true → Path B renders → full details visible
+  Fallback: /membership direct URL → same modal with transparent backdrop
+
+  Build: NEXT_TURBO=0 npx next build — 32 routes, zero TypeScript errors.
+  Not yet pushed to GitHub.
+```
+
+```
+Session 73 — 2026-07-01 — Investor Membership Fee (Paystack ₦10,000 — TEST mode)
+
+  Files created:
+  - supabase/migrations/20260701000001_membership_fee.sql
+      ALTER TABLE profiles ADD COLUMN has_paid_membership boolean NOT NULL DEFAULT false;
+      CREATE TABLE membership_payments (id, user_id, paystack_reference UNIQUE, amount_kobo,
+        status CHECK (pending|success|failed|refunded), paid_at, refunded_at, refund_reason, created_at)
+      RLS: investors can SELECT own rows; no client INSERT/UPDATE/DELETE (service role only)
+  - app/(investor)/layout.tsx — AppNav + sda-page-content (mirrors (app)/dashboard/layout.tsx)
+  - app/(investor)/membership/PayButton.tsx — "use client", loads Paystack v2 inline.js dynamically,
+      POST /api/payments/init → open PaystackPop.newTransaction → onSuccess: POST /api/payments/verify
+      → router.push /opportunities (success) or /membership?error=verification_failed (failure)
+  - app/(investor)/membership/page.tsx — server component, auth check → /login, role check → /dashboard,
+      paid check → /opportunities, fee summary card, error banner from ?error= searchParam, <PayButton />
+  - app/api/payments/init/route.ts — POST, investor+unpaid guard, inserts pending row, returns
+      { reference: sda_mem_{userId}_{ts}, publicKey: NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY, amountKobo: 1_000_000, email }
+  - app/api/payments/verify/route.ts — POST, auth guard, Paystack /transaction/verify/{ref} call,
+      amount check (1_000_000 kobo), idempotent, updates payment row + profiles.has_paid_membership,
+      writes membership.paid audit log entry
+  - app/api/webhooks/paystack/route.ts — POST, HMAC-SHA512 PAYSTACK_SECRET_KEY sig verification
+      (timingSafeEqual), charge.success handler, idempotent (checks status !== 'success' before update),
+      updates payment row + profiles.has_paid_membership, writes membership.paid audit log
+
+  Files changed:
+  - app/(marketing)/opportunities/[id]/page.tsx
+      Profile query: select("role") → select("role, has_paid_membership")
+      Added Path C between Path A and Path B:
+        isInvestor && !hasPaidMembership → public summary query (NO details_gated), paywall block
+        with ₦10,000 CTA → /membership. details_gated NEVER selected in Path C.
+      Path B now only reached when isInvestor && hasPaidMembership.
+  - app/actions/admin.ts
+      AuditAction extended: "membership.paid" | "membership.revoked"
+      Added revokeMembership(userId, reason) — getSuperAdminUser() guard, confirms investor +
+        has_paid_membership, flips to false, finds latest success payment → sets refunded + refund_reason,
+        writes membership.revoked audit entry, revalidatePath /admin/users
+  - components/admin/UsersTable.tsx
+      User type: added has_paid_membership: boolean
+      UserRow: added actorRole prop, revokeReason + showRevoke state
+      Status column: "Paid"/"Unpaid" badge on investor rows (success/muted colour)
+      Actions column: "Revoke membership" button — visible only when actorRole === "super_admin"
+        AND user.role === "investor" AND user.has_paid_membership. Inline form with reason field.
+      UsersTable: added actorRole prop, passes to each UserRow
+  - app/(admin)/admin/users/page.tsx
+      Query: added has_paid_membership to select string
+      UsersTable call: added actorRole={actorRole} prop
+  - app/(marketing)/faq/page.tsx
+      Added FAQ item to "Process" group: "Is there a fee to access full deal details?"
+      Answer names ₦10,000, one-time nature, permanent access. ₦ rendered in Inter (answer is already
+      Inter via accordion CSS — no span needed).
+  - lib/database.types.ts
+      profiles Row/Insert/Update: added has_paid_membership: boolean
+      Added membership_payments table type (Row/Insert/Update/Relationships)
+  - .env.local
+      Added PAYSTACK_SECRET_KEY and NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY with placeholder values
+
+  Security decisions:
+  - has_paid_membership NEVER flipped from client callback alone — both verify route AND webhook
+    independently flip it after Paystack server-side confirmation.
+  - Webhook uses PAYSTACK_SECRET_KEY for HMAC-SHA512 (no separate webhook secret — Paystack v2 spec).
+  - details_gated column is NEVER selected in Path C — query is identical to Path A.
+  - revokeMembership is getSuperAdminUser() only — regular admin cannot revoke.
+
+  User actions required to make this work:
+  1. Apply migration 20260701000001_membership_fee.sql in Supabase SQL editor.
+  2. Get Paystack TEST keys from dashboard.paystack.com → Settings → API Keys.
+     Replace placeholders in .env.local:
+       PAYSTACK_SECRET_KEY=sk_test_...
+       NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_...
+  3. Register webhook in Paystack dashboard → Settings → Webhooks:
+       URL: https://sda.ng/api/webhooks/paystack
+  4. Add PAYSTACK_SECRET_KEY + NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY to Vercel env vars.
+
+  Build: NEXT_TURBO=0 npx next build — 32 routes, zero TypeScript errors.
+  Not yet pushed to GitHub.
+```
+
+```
+Session 72 — 2026-07-01 — /portfolio card grid + modal (BMW i Ventures card pattern)
+
+  Files changed:
+  - app/(marketing)/portfolio/PortfolioView.tsx — full rewrite of list layout → card grid + modal
+  - app/globals.css — replaced old sda-pf-row/logo/expanded rules with sda-pf-grid + sda-pf-card
+
+  What shipped:
+  - Card grid: 4 columns desktop (≥1100px), 3 at 1100px, 2 on mobile (≤768px).
+    Each card is a <button> with aspect-ratio 4/3, bg #1C1A18, 1px rgba(255,255,255,0.1) border.
+    Hover: border lightens to rgba(255,255,255,0.28), bg shifts to #252220.
+    Badge top-right: Inter 10px uppercase — funding type for Active, "EXITED" for Exited.
+    Initials centered: Sora 40px weight 300 rgba(255,255,255,0.8).
+  - Modal: fixed overlay, rgba(0,0,0,0.72) + backdrop-filter blur(6px).
+    Content panel: bg #14171A, border 1px #2A2E32, max-width 560px.
+    Header: business name (Sora 24px weight 300) + location + × close button.
+    Body: industry / funding type / status tags, full description (Inter 15px), funding
+    amount (Inter 22px weight 500 #CF9A0A).
+    Closes on ×, overlay click, or ESC key. Scroll lock via document.body.style.overflow.
+  - Hero and filter bar: unchanged from session 71.
+  - Data (6 companies): unchanged.
+
+  Decisions:
+  - Reference image (BMW i Ventures screenshot) showed tight 1px-gap grid with card-fills.
+    Adapted to SDA dark theme with 16px gap + individual card borders — cleaner at this scale.
+  - Card bg #1C1A18 (slightly warm dark) chosen to distinguish cards from #14171A page bg
+    without introducing a new brand color.
+  - Badge shows funding type (not generic "ACTIVE") for active companies — mirrors the
+    reference pattern where outcome/type labels (IPO, ACQUIRED BY X) are more informative
+    than a generic status.
+  - Pill border-radius on filter buttons retained from session 71 (user-specified, overrides
+    zero-radius rule for this page only).
+  - useCallback + useEffect for modal ESC/scroll-lock — avoids stale closure warnings.
+
+  Build: NEXT_TURBO=0 npx next build — 29 routes, zero errors.
+  Not yet pushed to GitHub.
+```
+
+```
+Session 71 — 2026-07-01 — /portfolio page redesign (BMW i Ventures layout)
+
+  Files changed:
+  - app/(marketing)/portfolio/PortfolioView.tsx — NEW client component ("use client")
+  - app/(marketing)/portfolio/page.tsx — now RSC wrapper only; metadata + <PortfolioView />
+  - app/globals.css — appended portfolio-specific CSS (sda-pf-* classes, mobile breakpoints)
+
+  What shipped:
+  - Hero: dark navy #14171A, Sora 48px weight 600, Inter subtext, 2px #CF9A0A gold divider
+  - Filter bar: pill buttons for 7 industries (All / Food & Beverage / Retail / Agribusiness /
+    Manufacturing / Services / Technology). Active pill: #CF9A0A bg / #14171A text.
+    Inactive: transparent bg / #CF9A0A border + text. Clear filter link outside scroll area.
+    Horizontal scroll on mobile via sda-pf-filter-wrap (scrollbar hidden).
+  - Portfolio list: 6 hardcoded businesses, full-width rows, 1px #2A2E32 bottom border.
+    Row grid desktop: 100px logo | 1fr centre | auto right.
+    Centre: industry tag (bordered, muted) · short description (truncated) · status dot
+      (gold = Active, muted = Exited).
+    Right: funding type tag (gold bordered) + animated chevron.
+  - Expanded panel: click row to toggle. 2-col (240px photo placeholder | details).
+    Details: location, full description, funding amount (Inter, #CF9A0A).
+    Chevron rotates 180° on open.
+  - Empty state: "No businesses in this category yet." shown when filter yields 0 results.
+
+  6 placeholder businesses (TypeScript array in PortfolioView.tsx):
+    Fundora HQ        Technology       Equity           Lagos   ₦3,500,000  Active
+    Kidcode           Technology       Revenue-based    Abuja   ₦2,000,000  Active
+    Rent & Rig Ltd    Services         Debt             Lagos   ₦4,500,000  Active
+    My Little Big...  Retail           Equity           Lagos   ₦1,500,000  Active
+    AgriPrime Foods   Agribusiness     Asset Financing  Kano    ₦5,000,000  Active
+    Maidstone Bakery  Food & Beverage  Debt             Lagos   ₦2,500,000  Exited
+
+  Decisions:
+  - Pill border-radius 999px used for filter buttons — deliberate deviation from zero-radius
+    rule; user explicitly specified "pill buttons" for this page's filter bar.
+  - lib/portfolio-data.ts not modified — new self-contained data shape in PortfolioView.tsx.
+    The old PORTFOLIO_COMPANIES array is still used by PortfolioGrid and PortfolioFeature
+    on the homepage; those components are untouched.
+  - Manufacturing industry included in filter with no current matches → shows empty state.
+    Intentional: leaves room for future additions without a filter bar change.
+  - ₦ rendered in Inter throughout expanded panel per project convention.
+
+  Mobile behaviour:
+  - Logo column hidden (sda-pf-logo display:none at ≤768px)
+  - Row grid collapses to 1fr auto (content | chevron)
+  - Centre div: flex column, labels wrap
+  - Expanded grid: single column
+  - Hero padding: 24px horizontal at ≤768px
+
+  Build: NEXT_TURBO=0 npx next build — 29 routes, zero errors.
+
+  Open issues: none introduced. Supabase wire-up deferred (placeholder data intentional).
 ```
 
 ```

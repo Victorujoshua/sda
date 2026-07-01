@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
-import { logout } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   userName: string | null;
@@ -12,6 +12,12 @@ type Props = {
 export default function AppNav({ userName, userRole }: Props) {
   const logoHref =
     userRole === "investor" ? "/dashboard/invest" : "/dashboard";
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
 
   return (
     <nav
@@ -67,11 +73,9 @@ export default function AppNav({ userName, userRole }: Props) {
           </span>
         )}
 
-        <form action={logout}>
-          <button type="submit" className="sda-app-nav-signout">
-            Sign out
-          </button>
-        </form>
+        <button onClick={handleLogout} className="sda-app-nav-signout">
+          Log out
+        </button>
       </div>
     </nav>
   );

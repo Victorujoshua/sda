@@ -97,17 +97,38 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 .sda-nav-link:hover { color: #FAFAF8; }
 
 .sda-app-nav-signout {
+  font-family: var(--sr);
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  color: #CF9A0A;
+  background: none;
+  border: 1px solid #CF9A0A;
+  padding: 7px 16px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background-color 150ms, color 150ms;
+}
+.sda-app-nav-signout:hover {
+  background-color: #CF9A0A;
+  color: #0A0A0A;
+}
+
+.sda-nav-dropdown-logout {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
   font-family: var(--in);
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 14px;
+  color: #0A0A0A;
   background: none;
   border: none;
-  padding: 0;
   cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: color 150ms;
+  letter-spacing: 0.01em;
+  transition: background-color 150ms;
 }
-.sda-app-nav-signout:hover { color: #FAFAF8; }
+.sda-nav-dropdown-logout:hover { background-color: #F2F1EC; }
 
 .sda-btn-nav-cta {
   background-color: #CF9A0A;
@@ -379,4 +400,48 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 @media (max-width: 768px) {
   .sda-admin-stats-grid { grid-template-columns: 1fr; }
   .sda-admin-stat-card { min-height: auto !important; }
+}
+
+/* ── Portfolio page ──────────────────────────────────────────────────── */
+
+.sda-pf-filter-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.sda-pf-filter-wrap::-webkit-scrollbar { display: none; }
+
+.sda-pf-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: max-content;
+}
+
+.sda-pf-card {
+  transition: border-color 150ms, background-color 150ms;
+}
+.sda-pf-card:hover {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  background-color: #252220 !important;
+}
+
+.sda-pf-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .sda-pf-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sda-pf-hero { padding-left: 24px !important; padding-right: 24px !important; padding-top: 120px !important; }
+  .sda-pf-filter-outer { padding: 16px 24px !important; }
+  .sda-pf-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+
+@media (max-width: 480px) {
+  .sda-pf-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }

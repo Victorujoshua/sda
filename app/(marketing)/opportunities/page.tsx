@@ -33,6 +33,10 @@ export default async function OpportunitiesPage({
 
   const { data: deals } = await query;
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   // Collect distinct industries for filter dropdown
   const { data: allDeals } = await supabase
     .from("deals")
@@ -431,63 +435,65 @@ export default async function OpportunitiesPage({
           </div>
         )}
 
-        {/* Login nudge at bottom */}
-        <div
-          style={{
-            marginTop: 56,
-            borderTop: "1px solid var(--border)",
-            paddingTop: 32,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 24,
-            flexWrap: "wrap",
-          }}
-        >
-          <p
+        {/* Login nudge at bottom — only for unauthenticated visitors */}
+        {!user && (
+          <div
             style={{
-              fontFamily: "var(--in)",
-              fontSize: 16,
-              color: "var(--muted)",
-              lineHeight: 1.6,
-              margin: 0,
+              marginTop: 56,
+              borderTop: "1px solid var(--border)",
+              paddingTop: 32,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 24,
+              flexWrap: "wrap",
             }}
           >
-            Full deal details and investment terms are available to registered
-            investors.
-          </p>
-          <div style={{ display: "flex", gap: 12 }}>
-            <Link
-              href="/login"
+            <p
               style={{
                 fontFamily: "var(--in)",
-                fontSize: 14,
-                letterSpacing: "0.04em",
-                padding: "10px 20px",
-                backgroundColor: "transparent",
-                color: "var(--ink)",
-                textDecoration: "none",
-                border: "1px solid var(--border)",
+                fontSize: 16,
+                color: "var(--muted)",
+                lineHeight: 1.6,
+                margin: 0,
               }}
             >
-              Sign in
-            </Link>
-            <Link
-              href="/signup/investor"
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 14,
-                letterSpacing: "0.04em",
-                padding: "10px 20px",
-                backgroundColor: "var(--accent)",
-                color: "#FAFAF8",
-                textDecoration: "none",
-              }}
-            >
-              Create account
-            </Link>
+              Full deal details and investment terms are available to registered
+              investors.
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <Link
+                href="/login"
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 14,
+                  letterSpacing: "0.04em",
+                  padding: "10px 20px",
+                  backgroundColor: "transparent",
+                  color: "var(--ink)",
+                  textDecoration: "none",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup/investor"
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 14,
+                  letterSpacing: "0.04em",
+                  padding: "10px 20px",
+                  backgroundColor: "var(--accent)",
+                  color: "#FAFAF8",
+                  textDecoration: "none",
+                }}
+              >
+                Create account
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

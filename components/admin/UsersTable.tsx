@@ -7,6 +7,7 @@ import {
   unblacklistUser,
   deactivateUser,
   reactivateUser,
+  revokeMembership,
 } from "@/app/actions/admin";
 
 type User = {
@@ -16,6 +17,7 @@ type User = {
   is_active: boolean;
   is_blacklisted: boolean;
   blacklist_reason: string | null;
+  has_paid_membership: boolean;
   created_at: string;
 };
 
@@ -27,13 +29,15 @@ function fmtDate(s: string) {
   });
 }
 
-function UserRow({ user }: { user: User }) {
+function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [expanded, setExpanded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [blacklistReason, setBlacklistReason] = useState("");
   const [showBlacklist, setShowBlacklist] = useState(false);
+  const [revokeReason, setRevokeReason] = useState("");
+  const [showRevoke, setShowRevoke] = useState(false);
 
   function run(fn: () => Promise<{ error?: string }>) {
     setError(null);
@@ -129,6 +133,19 @@ function UserRow({ user }: { user: User }) {
               }}
             >
               Active
+            </span>
+          )}
+          {user.role === "investor" && (
+            <span
+              style={{
+                fontFamily: "var(--in)",
+                fontSize: 13,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: user.has_paid_membership ? "var(--success)" : "var(--muted)",
+              }}
+            >
+              {user.has_paid_membership ? "Paid" : "Unpaid"}
             </span>
           )}
         </div>
@@ -238,6 +255,104 @@ function UserRow({ user }: { user: User }) {
             )}
           </div>
 
+            {/* Revoke membership — super_admin only, investors with paid membership */}
+            {actorRole === "super_admin" &&
+              user.role === "investor" &&
+              user.has_paid_membership && (
+                <button
+                  onClick={() => setShowRevoke((v) => !v)}
+                  disabled={isPending}
+                  style={{
+                    fontFamily: "var(--in)",
+                    fontSize: 13,
+                    letterSpacing: "0.04em",
+                    padding: "6px 12px",
+                    backgroundColor: "transparent",
+                    color: "var(--warning)",
+                    border: "1px solid var(--border)",
+                    cursor: isPending ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Revoke membership
+                </button>
+              )}
+
+          {/* Inline revoke form */}
+          {showRevoke && (
+            <div
+              style={{
+                border: "1px solid var(--border)",
+                padding: "14px",
+                maxWidth: 320,
+              }}
+            >
+              <label
+                style={{
+                  display: "block",
+                  fontFamily: "var(--in)",
+                  fontSize: 13,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "var(--muted)",
+                  marginBottom: 8,
+                }}
+              >
+                Reason (required)
+              </label>
+              <textarea
+                value={revokeReason}
+                onChange={(e) => setRevokeReason(e.target.value)}
+                rows={2}
+                placeholder="Reason for revocation…"
+                style={{
+                  width: "100%",
+                  border: "1px solid var(--border)",
+                  padding: "8px 12px",
+                  fontFamily: "var(--in)",
+                  fontSize: 15,
+                  color: "var(--ink)",
+                  backgroundColor: "#fff",
+                  outline: "none",
+                  resize: "vertical",
+                  boxSizing: "border-box",
+                }}
+              />
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                <button
+                  onClick={() => run(() => revokeMembership(user.id, revokeReason))}
+                  disabled={isPending || !revokeReason.trim()}
+                  style={{
+                    fontFamily: "var(--in)",
+                    fontSize: 13,
+                    letterSpacing: "0.04em",
+                    padding: "7px 14px",
+                    backgroundColor: "var(--warning)",
+                    color: "#FAFAF8",
+                    border: "none",
+                    cursor: !revokeReason.trim() ? "not-allowed" : "pointer",
+                    opacity: !revokeReason.trim() ? 0.5 : 1,
+                  }}
+                >
+                  Confirm revoke
+                </button>
+                <button
+                  onClick={() => setShowRevoke(false)}
+                  style={{
+                    fontFamily: "var(--in)",
+                    fontSize: 13,
+                    padding: "7px 12px",
+                    background: "none",
+                    border: "1px solid var(--border)",
+                    color: "var(--muted)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Inline blacklist form */}
           {showBlacklist && (
             <div
@@ -338,7 +453,13 @@ function UserRow({ user }: { user: User }) {
   );
 }
 
-export default function UsersTable({ users }: { users: User[] }) {
+export default function UsersTable({
+  users,
+  actorRole,
+}: {
+  users: User[];
+  actorRole: string;
+}) {
   if (users.length === 0) {
     return (
       <div
@@ -394,7 +515,7 @@ export default function UsersTable({ users }: { users: User[] }) {
       </thead>
       <tbody>
         {users.map((u) => (
-          <UserRow key={u.id} user={u} />
+          <UserRow key={u.id} user={u} actorRole={actorRole} />
         ))}
       </tbody>
     </table>
