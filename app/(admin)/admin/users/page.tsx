@@ -1,4 +1,4 @@
-﻿import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import UsersTable from "@/components/admin/UsersTable";
 import AdminTeamSection from "@/components/admin/AdminTeamSection";
@@ -49,12 +49,12 @@ export default async function AdminUsersPage({
   const inactive = users?.filter((u) => !u.is_active).length ?? 0;
 
   const inputStyle: React.CSSProperties = {
-    border: "1px solid var(--border)",
+    border: "1px solid var(--hairline)",
     padding: "8px 12px",
     fontFamily: "var(--in)",
     fontSize: 15,
     color: "var(--ink)",
-    backgroundColor: "#fff",
+    backgroundColor: "var(--cream)",
     outline: "none",
     width: 200,
   };
@@ -168,8 +168,8 @@ export default async function AdminUsersPage({
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             border: "none",
             cursor: "pointer",
           }}

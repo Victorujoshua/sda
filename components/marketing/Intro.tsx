@@ -1,8 +1,10 @@
+import IntroAnimation from "@/components/marketing/IntroAnimation";
+
 export default function Intro() {
   return (
-    <section className="sda-intro-section" style={{
-      backgroundColor: "#0A0A0A",
-      borderBottom: "1px solid rgba(255,255,255,0.08)",
+    <section className="imani-intro-section" style={{
+      backgroundColor: "var(--cream)",
+      borderBottom: "1px solid var(--hairline)",
       display: "grid",
       gridTemplateColumns: "1fr 1fr",
       gap: 0,
@@ -10,16 +12,16 @@ export default function Intro() {
       minHeight: "500px",
     }}>
       {/* Left column — text content */}
-      <div className="sda-intro-left" style={{ padding: "80px 48px" }}>
+      <div className="imani-intro-left" style={{ padding: "80px 48px" }}>
         <p style={{
           fontFamily: "var(--in)",
           fontSize: "18px",
           fontWeight: 400,
           lineHeight: 1.8,
-          color: "rgba(255,255,255,0.65)",
+          color: "rgba(17,17,17,0.65)",
           marginBottom: "32px",
         }}>
-          SDA is a private capital platform built for MSMEs that are already in motion.
+          Imani Ventures is a private capital platform built for MSMEs that are already in motion.
 We focus on businesses with proven traction, clear financial visibility, and the capacity to grow
 with the right capital structure.
         </p>
@@ -30,7 +32,7 @@ with the right capital structure.
             fontSize: "48px",
             fontWeight: 300,
             lineHeight: 1.1,
-            color: "#FAFAF8",
+            color: "var(--ink)",
             margin: 0,
           }}>
             This is not a marketplace for ideas.
@@ -40,7 +42,7 @@ with the right capital structure.
             fontSize: "48px",
             fontWeight: 300,
             lineHeight: 1.1,
-            color: "#FAFAF8",
+            color: "var(--ink)",
             margin: 0,
           }}>
             It is access to businesses
@@ -50,7 +52,7 @@ with the right capital structure.
             fontSize: "48px",
             fontWeight: 300,
             lineHeight: 1.1,
-            color: "#CF9A0A",
+            color: "var(--crimson)",
             margin: 0,
           }}>
              with evidence.
@@ -59,32 +61,13 @@ with the right capital structure.
 
       </div>
 
-      {/* Right column — video */}
-      <div className="sda-intro-video-col" style={{
+      {/* Right column — Remotion: reel with white bg removed, subject crimson */}
+      <div className="imani-intro-video-col" style={{
         position: "relative",
         overflow: "hidden",
+        backgroundColor: "#F8EDEB",
       }}>
-        <video
-          src="/videos/sda_reel.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            position: "absolute",
-            inset: 0,
-          }}
-        />
-        {/* Light overlay */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(0,0,0,0.3)",
-          zIndex: 1,
-        }} />
+        <IntroAnimation />
       </div>
     </section>
   );

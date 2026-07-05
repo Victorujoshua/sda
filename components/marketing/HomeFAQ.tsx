@@ -1,23 +1,23 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 
 const PREVIEW_ITEMS = [
   {
-    question: "What is SDA?",
+    question: "What is Imani Ventures?",
     answer:
-      "SDA is a private capital platform connecting vetted investors with revenue-generating businesses through structured financing. We focus on businesses that are already operating and generating revenue, not early-stage ideas.",
+      "Imani Ventures is a private capital platform connecting vetted investors with revenue-generating businesses through structured financing. We focus on businesses that are already operating and generating revenue, not early-stage ideas.",
   },
   {
-    question: "Is SDA a crowdfunding platform?",
+    question: "Is Imani Ventures a crowdfunding platform?",
     answer:
-      "No. SDA does not operate as a public crowdfunding platform. All opportunities are offered privately to approved participants within our network.",
+      "No. Imani Ventures does not operate as a public crowdfunding platform. All opportunities are offered privately to approved participants within our network.",
   },
   {
     question: "What types of investments are available?",
     answer:
-      "SDA offers different structures depending on the business and investor preference: revenue-based financing, fixed return financing, profit-sharing agreements, equity investments, and hybrid structures combining income and upside.",
+      "Imani Ventures offers different structures depending on the business and investor preference: revenue-based financing, fixed return financing, profit-sharing agreements, equity investments, and hybrid structures combining income and upside.",
   },
   {
     question: "Are returns guaranteed?",
@@ -37,9 +37,9 @@ export default function HomeFAQ() {
   return (
     <section
       style={{
-        backgroundColor: "#0A0A0A",
+        backgroundColor: "var(--cream)",
         padding: "80px 40px",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        borderBottom: "1px solid var(--hairline)",
       }}
     >
       <div style={{ maxWidth: "860px", margin: "0 auto" }}>
@@ -49,7 +49,7 @@ export default function HomeFAQ() {
             fontSize: "15px",
             textTransform: "uppercase",
             letterSpacing: "0.12em",
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(17,17,17,0.35)",
             marginBottom: "32px",
           }}
         >
@@ -61,7 +61,7 @@ export default function HomeFAQ() {
             fontFamily: "var(--sr)",
             fontSize: "42px",
             fontWeight: 300,
-            color: "#FAFAF8",
+            color: "var(--ink)",
             letterSpacing: "-0.02em",
             lineHeight: 1.12,
             marginBottom: "48px",
@@ -76,7 +76,7 @@ export default function HomeFAQ() {
             return (
               <div
                 key={i}
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+                style={{ borderBottom: "1px solid var(--hairline)" }}
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : i)}
@@ -98,7 +98,7 @@ export default function HomeFAQ() {
                       fontFamily: "var(--in)",
                       fontSize: "18px",
                       fontWeight: 400,
-                      color: isOpen ? "#CF9A0A" : "#FAFAF8",
+                      color: isOpen ? "var(--crimson)" : "var(--ink)",
                     }}
                   >
                     {item.question}
@@ -107,7 +107,7 @@ export default function HomeFAQ() {
                     style={{
                       fontFamily: "var(--in)",
                       fontSize: "20px",
-                      color: "#CF9A0A",
+                      color: "var(--crimson)",
                       flexShrink: 0,
                       lineHeight: 1,
                     }}
@@ -121,7 +121,7 @@ export default function HomeFAQ() {
                       fontFamily: "var(--in)",
                       fontSize: "17px",
                       lineHeight: 1.75,
-                      color: "rgba(255,255,255,0.65)",
+                      color: "rgba(17,17,17,0.65)",
                       paddingBottom: "20px",
                       maxWidth: "720px",
                     }}
@@ -142,9 +142,9 @@ export default function HomeFAQ() {
             fontFamily: "var(--in)",
             fontSize: "18px",
             fontWeight: 500,
-            color: "#CF9A0A",
+            color: "var(--crimson)",
             textDecoration: "none",
-            borderBottom: "1px solid #CF9A0A",
+            borderBottom: "1px solid var(--crimson)",
             paddingBottom: "2px",
           }}
         >

@@ -1,14 +1,14 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Risk Disclosure — SDA",
+  title: "Risk Disclosure — Imani Ventures",
   description:
-    "Important risk information for investors and applicants on the SDA platform. Early-stage investment carries significant risk of loss.",
+    "Important risk information for investors and applicants on the Imani Ventures platform. Early-stage investment carries significant risk of loss.",
   openGraph: {
-    title: "Risk Disclosure — SDA",
-    description: "Important risk disclosure for SDA investors.",
-    url: "https://sda.ng/risk-disclosure",
-    siteName: "SDA",
+    title: "Risk Disclosure — Imani Ventures",
+    description: "Important risk disclosure for Imani Ventures investors.",
+    url: "https://imaniventures.org/risk-disclosure",
+    siteName: "Imani Ventures",
     type: "website",
   },
 };
@@ -21,7 +21,7 @@ export default function RiskDisclosurePage() {
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "20px",
       }}>
         Legal
@@ -32,7 +32,7 @@ export default function RiskDisclosurePage() {
         fontWeight: 300,
         lineHeight: 1.12,
         letterSpacing: "-0.02em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "12px",
       }}>
         Risk Disclosure
@@ -40,16 +40,16 @@ export default function RiskDisclosurePage() {
       <p style={{
         fontFamily: "var(--in)",
         fontSize: "14px",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "48px",
       }}>
         Last updated: June 2025
       </p>
 
-      {/* Warning callout */}
+      {/* Warning callout — danger red, not gold */}
       <div style={{
         border: "1px solid rgba(153,27,27,0.4)",
-        backgroundColor: "rgba(153,27,27,0.08)",
+        backgroundColor: "rgba(153,27,27,0.06)",
         padding: "20px 24px",
         marginBottom: "48px",
       }}>
@@ -57,7 +57,7 @@ export default function RiskDisclosurePage() {
           fontFamily: "var(--in)",
           fontSize: "15px",
           lineHeight: 1.65,
-          color: "rgba(255,180,180,0.85)",
+          color: "rgba(153,27,27,0.9)",
           margin: 0,
         }}>
           <strong>Important:</strong> Early-stage investment is high risk. You may lose
@@ -70,7 +70,7 @@ export default function RiskDisclosurePage() {
         display: "flex",
         flexDirection: "column",
         gap: "32px",
-        borderTop: "1px solid rgba(255,255,255,0.1)",
+        borderTop: "1px solid var(--hairline)",
         paddingTop: "40px",
       }}>
         {[
@@ -88,11 +88,11 @@ export default function RiskDisclosurePage() {
           },
           {
             heading: "4. Currency and macroeconomic risk",
-            body: "All SDA investments are in Nigerian businesses. Naira devaluation, inflation, regulatory change, or macroeconomic shocks specific to Nigeria could impair the value of your investment regardless of the underlying business performance.",
+            body: "All Imani Ventures investments are in Nigerian businesses. Naira devaluation, inflation, regulatory change, or macroeconomic shocks specific to Nigeria could impair the value of your investment regardless of the underlying business performance.",
           },
           {
             heading: "5. Information risk",
-            body: "The information provided by applicants is self-reported and not independently audited at the application stage. SDA conducts screening and review but cannot guarantee the accuracy of all information. Invest only after conducting your own due diligence.",
+            body: "The information provided by applicants is self-reported and not independently audited at the application stage. Imani Ventures conducts screening and review but cannot guarantee the accuracy of all information. Invest only after conducting your own due diligence.",
           },
           {
             heading: "6. Regulatory risk",
@@ -104,7 +104,7 @@ export default function RiskDisclosurePage() {
           },
           {
             heading: "8. Diversification",
-            body: "SDA strongly recommends that any investment through this platform represents only a small portion of a diversified portfolio. Do not concentrate your savings in early-stage investments.",
+            body: "Imani Ventures strongly recommends that any investment through this platform represents only a small portion of a diversified portfolio. Do not concentrate your savings in early-stage investments.",
           },
         ].map(({ heading, body }) => (
           <div key={heading}>
@@ -112,7 +112,7 @@ export default function RiskDisclosurePage() {
               fontFamily: "var(--sr)",
               fontSize: "18px",
               fontWeight: 400,
-              color: "#FAFAF8",
+              color: "var(--ink)",
               margin: "0 0 10px",
             }}>
               {heading}
@@ -121,7 +121,7 @@ export default function RiskDisclosurePage() {
               fontFamily: "var(--in)",
               fontSize: "16px",
               lineHeight: 1.7,
-              color: "rgba(255,255,255,0.65)",
+              color: "rgba(17,17,17,0.65)",
               margin: 0,
             }}>
               {body}

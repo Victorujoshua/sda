@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ExpressInterestButton from "@/components/investor/ExpressInterestButton";
@@ -13,7 +13,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div
       style={{
-        borderBottom: "1px solid var(--border)",
+        borderBottom: "1px solid var(--hairline)",
         padding: "14px 0",
         display: "flex",
         gap: 24,
@@ -91,7 +91,7 @@ export default async function OpportunityDetailPage({
       <div
         style={{
           minHeight: "100vh",
-          backgroundColor: "var(--paper)",
+          backgroundColor: "var(--cream)",
           color: "var(--ink)",
         }}
       >
@@ -118,7 +118,7 @@ export default async function OpportunityDetailPage({
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 color: "var(--muted)",
-                border: "1px solid var(--border)",
+                border: "1px solid var(--hairline)",
                 padding: "3px 8px",
                 display: "inline-block",
                 marginBottom: 16,
@@ -154,7 +154,7 @@ export default async function OpportunityDetailPage({
             {deal.summary_public}
           </p>
 
-          <div style={{ borderTop: "1px solid var(--border)", marginBottom: 40 }}>
+          <div style={{ borderTop: "1px solid var(--hairline)", marginBottom: 40 }}>
             {deal.funding_required && (
               <Field label="Seeking" value={fmt(deal.funding_required)} />
             )}
@@ -166,9 +166,9 @@ export default async function OpportunityDetailPage({
           {/* Login gate */}
           <div
             style={{
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "32px",
-              backgroundColor: "var(--surface)",
+              backgroundColor: "rgba(17,17,17,0.04)",
             }}
           >
             <p
@@ -203,7 +203,7 @@ export default async function OpportunityDetailPage({
                   fontSize: 14,
                   letterSpacing: "0.04em",
                   padding: "10px 22px",
-                  backgroundColor: "var(--accent)",
+                  backgroundColor: "var(--crimson)",
                   color: "#FAFAF8",
                   textDecoration: "none",
                 }}
@@ -220,7 +220,7 @@ export default async function OpportunityDetailPage({
                   backgroundColor: "transparent",
                   color: "var(--ink)",
                   textDecoration: "none",
-                  border: "1px solid var(--border)",
+                  border: "1px solid var(--hairline)",
                 }}
               >
                 Create investor account
@@ -275,7 +275,7 @@ export default async function OpportunityDetailPage({
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
       }}
     >
@@ -321,7 +321,7 @@ export default async function OpportunityDetailPage({
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               color: "var(--muted)",
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "3px 8px",
               display: "inline-block",
               marginBottom: 16,
@@ -352,7 +352,7 @@ export default async function OpportunityDetailPage({
             gap: 32,
             marginBottom: 40,
             paddingBottom: 32,
-            borderBottom: "1px solid var(--border)",
+            borderBottom: "1px solid var(--hairline)",
             flexWrap: "wrap",
           }}
         >
@@ -380,7 +380,7 @@ export default async function OpportunityDetailPage({
                   letterSpacing: "-0.01em",
                 }}
               >
-                <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.funding_required.toLocaleString("en-NG")}
+                <span style={{ fontFamily: "'Aileron', system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.funding_required.toLocaleString("en-NG")}
               </p>
             </div>
           )}
@@ -408,7 +408,7 @@ export default async function OpportunityDetailPage({
                   letterSpacing: "-0.01em",
                 }}
               >
-                <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.revenue_to_date.toLocaleString("en-NG")}
+                <span style={{ fontFamily: "'Aileron', system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.revenue_to_date.toLocaleString("en-NG")}
               </p>
             </div>
           )}
@@ -457,9 +457,9 @@ export default async function OpportunityDetailPage({
             </p>
             <div
               style={{
-                border: "1px solid var(--border)",
+                border: "1px solid var(--hairline)",
                 padding: "28px 32px",
-                backgroundColor: "var(--surface)",
+                backgroundColor: "rgba(17,17,17,0.04)",
               }}
             >
               <p
@@ -481,7 +481,7 @@ export default async function OpportunityDetailPage({
         {/* Express interest */}
         <div
           style={{
-            borderTop: "1px solid var(--border)",
+            borderTop: "1px solid var(--hairline)",
             paddingTop: 40,
           }}
         >

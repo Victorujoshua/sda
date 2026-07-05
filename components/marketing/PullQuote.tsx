@@ -19,7 +19,7 @@
       }} />
 
       {/* Content above overlay */}
-      <div className="sda-pull-quote-grid" style={{ position: "relative", zIndex: 1 }}>
+      <div className="imani-pull-quote-grid" style={{ position: "relative", zIndex: 1 }}>
         <div>
           <blockquote style={{
             fontFamily: "var(--sr)",
@@ -41,7 +41,7 @@
             letterSpacing: "0.04em",
             textTransform: "uppercase",
           }}>
-            SDA · Micro Angel Investing Platform · Nigeria
+            Imani Ventures · Micro Angel Investing Platform · Nigeria
           </p>
         </div>
 
@@ -68,7 +68,7 @@
             fontWeight: 300,
             color: "#FAFAF8",
           }}>
-            SDA
+            IV
           </div>
           <p style={{
             fontFamily: "var(--in)",

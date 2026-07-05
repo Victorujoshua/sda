@@ -26,7 +26,7 @@ export async function POST() {
   }
 
   const email = user.email!;
-  const reference = `sda_mem_${user.id}_${Date.now()}`;
+  const reference = `imani_mem_${user.id}_${Date.now()}`;
   const amountKobo = 1_000_000;
 
   const db = createAdminClient();

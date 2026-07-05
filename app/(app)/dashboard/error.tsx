@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -18,14 +18,14 @@ export default function AppError({
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
         fontFamily: "var(--in)",
       }}
     >
       <header
         style={{
-          borderBottom: "1px solid var(--border)",
+          borderBottom: "1px solid var(--hairline)",
           padding: "0 40px",
           height: 56,
           display: "flex",
@@ -43,7 +43,7 @@ export default function AppError({
             letterSpacing: "-0.01em",
           }}
         >
-          SDA
+          Imani Ventures
         </Link>
       </header>
 
@@ -93,8 +93,8 @@ export default function AppError({
               fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
-              backgroundColor: "var(--accent)",
-              color: "#FAFAF8",
+              backgroundColor: "var(--crimson)",
+              color: "var(--cream)",
               border: "none",
               cursor: "pointer",
             }}
@@ -109,7 +109,7 @@ export default function AppError({
               letterSpacing: "0.04em",
               padding: "10px 22px",
               color: "var(--ink)",
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               textDecoration: "none",
             }}
           >

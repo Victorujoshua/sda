@@ -1,4 +1,4 @@
-﻿import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -11,14 +11,6 @@ const STATUS_LABEL: Record<string, string> = {
   under_review: "Under review",
   approved: "Approved",
   rejected: "Rejected",
-};
-
-const STATUS_COLOR: Record<string, string> = {
-  draft: "var(--muted)",
-  pending: "var(--warning)",
-  under_review: "var(--accent)",
-  approved: "var(--success)",
-  rejected: "var(--danger)",
 };
 
 function fmt(n: number | null) {
@@ -39,7 +31,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div
       style={{
-        borderBottom: "1px solid var(--border)",
+        borderBottom: "1px solid var(--hairline)",
         padding: "14px 0",
         display: "flex",
         gap: 24,
@@ -165,7 +157,7 @@ export default async function ApplicationDetailPage({
               fontSize: 13,
               textTransform: "uppercase",
               letterSpacing: "0.12em",
-              color: STATUS_COLOR[app.status] ?? "var(--muted)",
+              color: "var(--muted)",
               margin: "0 0 10px",
             }}
           >
@@ -207,8 +199,8 @@ export default async function ApplicationDetailPage({
               fontSize: 14,
               letterSpacing: "0.04em",
               padding: "9px 20px",
-              backgroundColor: "var(--accent)",
-              color: "#FAFAF8",
+              backgroundColor: "var(--crimson)",
+              color: "var(--cream)",
               textDecoration: "none",
               flexShrink: 0,
             }}
@@ -241,7 +233,7 @@ export default async function ApplicationDetailPage({
           >
             Business information
           </p>
-          <div style={{ borderTop: "1px solid var(--border)" }}>
+          <div style={{ borderTop: "1px solid var(--hairline)" }}>
             <Field label="Business name" value={app.business_name} />
             <Field label="Founder" value={app.founder_name} />
             <Field label="Contact email" value={app.contact_email} />
@@ -266,7 +258,7 @@ export default async function ApplicationDetailPage({
           >
             Funding ask
           </p>
-          <div style={{ borderTop: "1px solid var(--border)" }}>
+          <div style={{ borderTop: "1px solid var(--hairline)" }}>
             <Field label="Amount requested" value={fmt(app.funding_amount)} />
             <Field
               label="Structure"
@@ -307,7 +299,7 @@ export default async function ApplicationDetailPage({
                 <div
                   key={doc.id}
                   style={{
-                    border: "1px solid var(--border)",
+                    border: "1px solid var(--hairline)",
                     padding: "12px 16px",
                     display: "flex",
                     alignItems: "center",
@@ -355,10 +347,10 @@ export default async function ApplicationDetailPage({
                         fontSize: 14,
                         letterSpacing: "0.04em",
                         padding: "7px 16px",
-                        backgroundColor: "var(--surface)",
+                        backgroundColor: "rgba(17,17,17,0.04)",
                         color: "var(--ink)",
                         textDecoration: "none",
-                        border: "1px solid var(--border)",
+                        border: "1px solid var(--hairline)",
                         flexShrink: 0,
                       }}
                     >
@@ -384,7 +376,8 @@ export default async function ApplicationDetailPage({
           {app.status === "rejected" && app.rejection_reason && (
             <div
               style={{
-                border: "1px solid var(--danger)",
+                border: "1px solid rgba(178,35,41,0.3)",
+                backgroundColor: "rgba(178,35,41,0.06)",
                 padding: "16px 20px",
                 marginTop: 32,
               }}
@@ -395,7 +388,7 @@ export default async function ApplicationDetailPage({
                   fontSize: 13,
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
-                  color: "var(--danger)",
+                  color: "var(--maroon)",
                   margin: "0 0 8px",
                 }}
               >
@@ -421,7 +414,7 @@ export default async function ApplicationDetailPage({
           {/* Applicant info */}
           <div
             style={{
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "20px",
             }}
           >
@@ -452,7 +445,7 @@ export default async function ApplicationDetailPage({
                 style={{
                   fontFamily: "var(--in)",
                   fontSize: 14,
-                  color: "var(--danger)",
+                  color: "var(--maroon)",
                   margin: "4px 0 0",
                 }}
               >
@@ -467,7 +460,7 @@ export default async function ApplicationDetailPage({
           {/* Actions */}
           <div
             style={{
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "20px",
             }}
           >
@@ -502,7 +495,7 @@ export default async function ApplicationDetailPage({
           {/* Admin notes */}
           <div
             style={{
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "20px",
             }}
           >

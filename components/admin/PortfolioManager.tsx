@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -19,12 +19,12 @@ type Company = {
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  border: "1px solid var(--border)",
+  border: "1px solid var(--hairline)",
   padding: "8px 12px",
   fontFamily: "var(--in)",
   fontSize: 16,
   color: "var(--ink)",
-  backgroundColor: "#fff",
+  backgroundColor: "var(--cream)",
   outline: "none",
   boxSizing: "border-box",
 };
@@ -37,6 +37,17 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: "0.08em",
   color: "var(--muted)",
   marginBottom: 6,
+};
+
+const pillBase: React.CSSProperties = {
+  display: "inline-block",
+  fontFamily: "var(--sr)",
+  fontSize: 11,
+  fontWeight: 500,
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+  padding: "4px 10px",
+  borderRadius: "100px",
 };
 
 function CompanyRow({ company }: { company: Company }) {
@@ -79,7 +90,7 @@ function CompanyRow({ company }: { company: Company }) {
   }
 
   return (
-    <div style={{ border: "1px solid var(--border)", marginBottom: 10 }}>
+    <div style={{ border: "1px solid var(--hairline)", marginBottom: 10 }}>
       <div
         style={{
           display: "flex",
@@ -103,11 +114,11 @@ function CompanyRow({ company }: { company: Company }) {
           </span>
           <span
             style={{
-              fontFamily: "var(--in)",
-              fontSize: 13,
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
-              color: company.is_published ? "var(--success)" : "var(--muted)",
+              ...pillBase,
+              backgroundColor: company.is_published
+                ? "rgba(17,17,17,0.06)"
+                : "rgba(17,17,17,0.06)",
+              color: company.is_published ? "var(--ink)" : "rgba(17,17,17,0.65)",
             }}
           >
             {company.is_published ? "Published" : "Draft"}
@@ -130,16 +141,17 @@ function CompanyRow({ company }: { company: Company }) {
       </div>
 
       {expanded && (
-        <div style={{ borderTop: "1px solid var(--border)", padding: "20px" }}>
+        <div style={{ borderTop: "1px solid var(--hairline)", padding: "20px" }}>
           {error && (
             <div
               style={{
-                border: "1px solid var(--danger)",
+                border: "1px solid rgba(178,35,41,0.3)",
+                backgroundColor: "rgba(178,35,41,0.06)",
                 padding: "10px 14px",
                 marginBottom: 20,
                 fontFamily: "var(--in)",
                 fontSize: 15,
-                color: "var(--danger)",
+                color: "var(--maroon)",
               }}
             >
               {error}
@@ -233,7 +245,7 @@ function CompanyRow({ company }: { company: Company }) {
                 letterSpacing: "0.04em",
                 padding: "9px 20px",
                 backgroundColor: "var(--ink)",
-                color: "#FAFAF8",
+                color: "var(--cream)",
                 border: "none",
                 cursor: isPending ? "not-allowed" : "pointer",
                 opacity: isPending ? 0.7 : 1,
@@ -246,7 +258,7 @@ function CompanyRow({ company }: { company: Company }) {
                 style={{
                   fontFamily: "var(--in)",
                   fontSize: 15,
-                  color: "var(--success)",
+                  color: "var(--ink)",
                 }}
               >
                 Saved
@@ -295,7 +307,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
     <form
       onSubmit={handleSubmit}
       style={{
-        border: "1px solid var(--accent)",
+        border: "1px solid var(--hairline)",
         padding: "24px",
         marginBottom: 24,
       }}
@@ -315,12 +327,13 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
       {error && (
         <div
           style={{
-            border: "1px solid var(--danger)",
+            border: "1px solid rgba(178,35,41,0.3)",
+            backgroundColor: "rgba(178,35,41,0.06)",
             padding: "10px 14px",
             marginBottom: 16,
             fontFamily: "var(--in)",
             fontSize: 15,
-            color: "var(--danger)",
+            color: "var(--maroon)",
           }}
         >
           {error}
@@ -337,7 +350,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
       >
         <div>
           <label style={labelStyle}>
-            Company name <span style={{ color: "var(--danger)" }}>*</span>
+            Company name <span style={{ color: "var(--maroon)" }}>*</span>
           </label>
           <input
             type="text"
@@ -400,8 +413,8 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             border: "none",
             cursor: isPending ? "not-allowed" : "pointer",
             opacity: isPending ? 0.7 : 1,
@@ -419,7 +432,7 @@ function AddCompanyForm({ onDone }: { onDone: () => void }) {
             padding: "9px 16px",
             backgroundColor: "transparent",
             color: "var(--muted)",
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             cursor: "pointer",
           }}
         >
@@ -447,8 +460,8 @@ export default function PortfolioManager({
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             border: "none",
             cursor: "pointer",
             marginBottom: 24,
@@ -463,7 +476,7 @@ export default function PortfolioManager({
       {companies.length === 0 && !adding ? (
         <div
           style={{
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             padding: "48px 32px",
             textAlign: "center",
           }}

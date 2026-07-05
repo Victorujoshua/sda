@@ -1,15 +1,31 @@
-SDA Platform — build.md
+Imani Ventures Platform — build.md
 > \*\*This file is the living source of truth for the build.\*\*
 > Claude Code MUST update the \*\*Current State\*\* block and append to the \*\*Build Log\*\*
 > at the end of every section, no exceptions.
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Section 8 — IN PROGRESS · BUILD GREEN · DEPLOY PENDING · SECURITY CHECK 3 UNCONFIRMED
-Last completed: /opportunities CTA gate fix (2026-07-01, session 79). Footer "Sign in / Create account" CTA now hidden for all authenticated users regardless of role. See Build Log.
-Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 32 routes, zero errors (session 79).
+Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
+Last completed: Removed AgriPrime Foods and Maidstone Bakery from portfolio page. Portfolio now shows 4 companies: Fundora HQ, Kidcode, Rent & Rig Limited, My Little Big Surprise (2026-07-05).
+Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
+Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
+Known open issues:
+  - Portfolio images (portfolio-fundora.png, portfolio-Kidcode.png, portfolio-rent and rig.png) may still be broken (<1KB each). Real image files must be placed in public/images/ with those exact names, then restart dev server to clear Next.js image cache.
+  - Phase 4 DEFERRED: Loops email templates still SDA-branded. Will be re-done in Imani palette in a later phase.
+  - Contact emails in Terms (legal@sda.ng) and Privacy (privacy@sda.ng) still point to sda.ng — update once @imaniventures.org mailboxes are live.
+  - OG image asset (/og-image.png) not yet created — placeholder reference added to metadata. Drop a 1200×630 cream/ink/crimson image into /public/og-image.png.
+  - Favicon (/favicon.ico) and Apple touch icon (/apple-touch-icon.png) not yet created — placeholder references added. Drop into /public/.
+  - Security check 3 (details_gated REVOKE) unconfirmed applied — treat as FAIL until re-tested.
+  - Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard.
+  - Membership fee migration (20260701000001_membership_fee.sql) not yet applied.
+  - Paystack webhook URL must be registered at https://imaniventures.org/api/webhooks/paystack in Paystack dashboard.
+  - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
+  - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
+  - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
+Last updated: 2026-07-05.
+Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
-  NOTE: Turbopack build fails (next/font/google cannot reach Google Fonts in this environment).
+  NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
   Run builds with: NEXT_TURBO=0 npx next build
 Security checks status (2026-06-15 / 2026-06-16):
   Check 1 — Document URL exposure: PENDING. Buckets not created yet. Code verified correct:
@@ -176,7 +192,755 @@ Known open issues:
   - middleware.ts deprecation warning: "middleware" file convention deprecated in Next.js 16, rename to "proxy" when ready
   - /faq not linked from Nav — reachable directly but no nav entry
   - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce.
-Last updated: 2026-07-01 (session 79)
+Last updated: 2026-07-03 (session 80)
+Build Log — Rebrand Phase 1 (2026-07-03)
+  Objective: Foundation-only token + font swap. No page copy, no component styling.
+  
+  Font loading:
+    Removed next/font/google (Sora + Inter). Replaced with <link> CDN tags in app/layout.tsx:
+      Satoshi — https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap (Fontshare)
+      Aileron — https://fonts.cdnfonts.com/css/aileron (CDNfonts)
+    This also resolves the Turbopack font-fetch failure at the source — fonts no longer need
+    a network request at build time. Both next/font/google imports and their CSS variables
+    (--font-sora, --font-inter) are gone. --sr and --in now point directly to font-family strings.
+  
+  Design tokens (globals.css):
+    Old SDA token block preserved with label "Old SDA tokens kept for reference — remove after Phase 2 sign-off."
+    Old SDA tokens remain ACTIVE so existing components (admin portal, signup forms) don't visually break.
+    New Imani Ventures token block added:
+      --cream: #F8EDEB  --ink: #111111  --crimson: #B22329
+      --maroon: #6D1626  --terracotta: #C16B3A  --hairline: rgba(17,17,17,0.12)
+    Note: --ink was #0A0A0A (SDA) → now #111111 (Imani). Slight value change visible in text.
+  
+  Tailwind config:
+    Added: cream, crimson, maroon, terracotta color tokens.
+    Added: satoshi, aileron font family keys.
+    Kept: all existing sora/inter/SDA keys — point to new fonts via --sr/--in. Phase 2 will rename.
+  
+  Wordmark component: components/brand/Wordmark.tsx
+    Renders "Imani Ventures" in Satoshi 700, links to /.
+    Props: variant="default"|"inverse" (inverse = cream on dark bg), size?: number (default 20px).
+  
+  Logo replacements:
+    components/marketing/Nav.tsx — both desktop logo and mobile drawer logo replaced with <Wordmark variant="inverse" />
+    components/app/AppNav.tsx — logo replaced with <Wordmark variant="inverse" />
+      Note: old logo linked to role-specific dashboard (/dashboard/invest for investors).
+      Wordmark links to / per spec. App users navigate to dashboard via other nav elements.
+    app/(admin)/admin/layout.tsx — sidebar "SDA" text replaced with <Wordmark /> (default, light bg).
+    Footer (components/marketing/Footer.tsx) — NOT touched. "SDA" logotype is page copy, Phase 2+.
+  
+  Naira glyph (₦):
+    Satoshi's ₦ coverage unconfirmed — requires visual browser test.
+    Convention update: use font-aileron for ₦ spans as safe fallback until Phase 2 visually confirms.
+Build Log — 2026-07-05 Portfolio company removal
+  User request: remove AgriPrime Foods and Maidstone Bakery from the portfolio page.
+
+  app/(marketing)/portfolio/PortfolioView.tsx:
+    - Removed AgriPrime Foods object from COMPANIES array (Agribusiness, Asset Financing, Kano).
+    - Removed Maidstone Bakery object from COMPANIES array (Food & Beverage, Debt/Exited, Lagos).
+    - INDUSTRIES tuple trimmed from 7 to 4 entries: ["All", "Retail", "Services", "Technology"].
+      "Food & Beverage", "Agribusiness", and "Manufacturing" removed — no remaining companies in
+      those categories. type Industry auto-updates via (typeof INDUSTRIES)[number].
+
+  Portfolio page now shows 4 companies: Fundora HQ, Kidcode, Rent & Rig Limited, My Little Big Surprise.
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-05).
+
+Build Log — 2026-07-05 Portfolio image investigation — no code changes
+  User request: "change the images on portfolio section to the new images I just added."
+  Investigation: all three portfolio image files in public/images/ are under 1KB — broken/empty.
+    portfolio-fundora.png      — 0.2KB
+    portfolio-Kidcode.png      — 0.3KB
+    portfolio-rent and rig.png — 0.3KB
+  The code paths in portfolio-data.ts, PortfolioGrid.tsx, PortfolioFeature.tsx, and
+  PortfolioView.tsx are already correct and require no changes. No new files were found
+  anywhere in public/ with different names.
+  Action required by user: place the actual image files into public/images/ using the exact
+  filenames above (note capital K in Kidcode), then restart the dev server.
+  No code written this session.
+
+Build Log — 2026-07-05 Portfolio images — logo-free photo update
+  User replaced portfolio images with logo-free versions (same filenames, new content).
+  No path changes needed. Adjusted presentation to identify companies without embedded logos.
+
+  components/marketing/PortfolioGrid.tsx:
+    Added dark gradient overlay (linear-gradient to top, rgba(0,0,0,0.65) → transparent)
+    above each photo so sector badge at bottom-left remains legible against any image.
+    Gradient zIndex:1, sector badge zIndex:2. Company name already in info area below — no
+    additional text overlay added to the photo panel.
+
+  app/(marketing)/portfolio/PortfolioView.tsx:
+    Added same gradient overlay (rgba(0,0,0,0.72) → transparent) on image cards.
+    Added company name label pinned bottom-left (Satoshi 16px, #FAFAF8, zIndex:2) — required
+    because without logos the card has no visual identifier.
+    Funding badge (top-right) given zIndex:2 so it renders above the gradient.
+    Initials placeholder cards unchanged.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-05).
+
+Build Log — 2026-07-05 Portfolio company images
+  User added three images to public/images/:
+    portfolio-fundora.png     → Fundora HQ
+    portfolio-Kidcode.png     → Kidcode
+    portfolio-rent and rig.png → Rent & Rig Limited
+  My Little Big Surprise, AgriPrime Foods, Maidstone Bakery: no images, initials placeholder kept.
+
+  lib/portfolio-data.ts:
+    Added image?: string to PortfolioCompany interface.
+    Added image paths to Fundora HQ, Kidcode, Rent & Rig Limited entries.
+
+  components/marketing/PortfolioGrid.tsx (homepage 3-col grid):
+    Added import Image from "next/image".
+    Photo area: if company.image → <Image fill objectFit="cover"> else initials circle.
+    Added overflow:hidden + zIndex:1 on sector badge (sits above image).
+
+  components/marketing/PortfolioFeature.tsx (homepage company list, dark column):
+    Added import Image from "next/image".
+    32px circle avatar: if company.image → <Image fill objectFit="cover"> else initials text.
+    Added overflow:hidden + position:relative to the avatar div.
+
+  app/(marketing)/portfolio/PortfolioView.tsx (portfolio page card grid):
+    Added import Image from "next/image".
+    Added image?: string to local Company interface.
+    Added image paths to Fundora HQ, Kidcode, Rent & Rig in COMPANIES array.
+    Card: if company.image → <Image fill objectFit="cover" opacity:0.85> else initials div.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-05).
+
+Build Log — 2026-07-04 Post-rebrand cleanup — Intro gold artifact + full gold sweep
+  User report: right column of Intro section showing SDA-era yellow/gold background.
+
+  Root cause (not a hardcoded hex):
+    The gold was NOT from a leftover #CF9A0A value — full grep confirmed zero such values.
+    It was produced by the CSS filter chain applied to the video:
+      invert(1) converts black video bg → white.
+      sepia(1) + saturate(12) on white → strong yellow (H≈60°, high saturation).
+      hue-rotate(330°) shifts H to 30° → amber/gold.
+      multiply blend with cream (#F8EDEB) → gold-on-cream = visible gold artifact.
+    The filter chain was designed for the subject (dark pixels) but also ran on the
+    background (inverted-white) pixels, producing an unintended gold tone.
+
+  Fix — components/marketing/IntroAnimation.tsx:
+    Removed: CSS filter chain (invert/grayscale/contrast/sepia/saturate/hue-rotate)
+    Removed: mixBlendMode "multiply"
+    Result: plain <video autoPlay muted loop playsInline> on #F8EDEB container.
+    The video now plays as-is. The #F8EDEB background div is the sole background.
+
+  Grep sweep results (marketing components + globals.css):
+    #CF9A0A / #B8880A / #E8B910 / #D4A017 / #F0A500 and variants → 0 matches ✓
+    bg-gold / bg-yellow / text-gold / border-gold / bg-amber and variants → 0 matches ✓
+    --accent / --warning / --success / #1A3D2F / #2D6A4F / #B45309 in marketing → 0 matches ✓
+    Only hit: .agents/skills/remotion-best-practices/.../charts-bar-chart.tsx — skill example
+    file, not project code. Not touched.
+
+  Conclusion: no SDA gold values remain in the marketing codebase.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-04).
+
+Build Log — 2026-07-04 Intro section — drop Remotion Player, plain video on cream
+  User request: "let the background be #F8EDEB" — background still appearing black.
+
+  Root cause: Remotion <Player> injects its own internal CSS (background: black) on its canvas
+  wrapper div. No inline style — on the Player, on the AbsoluteFill, or on the outer wrapper —
+  can reliably override this injected stylesheet rule.
+
+  Fix — components/marketing/IntroAnimation.tsx rewritten:
+    - Removed: Player, AbsoluteFill, Video imports from remotion/@remotion/player
+    - Removed: useEffect/useState mount guard (no longer needed)
+    - Replaced with: plain HTML <video> element inside a single wrapper div
+    - Wrapper div: position absolute, inset 0, backgroundColor "#F8EDEB" — guaranteed cream
+    - Video: autoPlay muted loop playsInline, objectFit cover, same filter chain retained:
+        filter: invert(1) grayscale(1) contrast(1.8) sepia(1) saturate(12) hue-rotate(330deg)
+        mixBlendMode: "multiply"
+    - remotion + @remotion/player packages remain installed (not removed from package.json)
+
+  Decision: Remotion Player is the wrong tool for applying CSS effects to an existing video
+  file on a web page. It is designed for rendering React animations to video output. A plain
+  <video> tag with CSS filters achieves identical results with zero wrapper overhead.
+
+  No build run (component rewrite is TypeScript/JSX only; imports removed cleanly).
+
+Build Log — 2026-07-04 Intro section — cream background, invert+multiply bg removal
+  User request: "the video still sits on black background, make the background cream."
+
+  Root cause analysis:
+    The video (imani_reel.mp4) has a BLACK background.
+    - "screen" blend mode removes black backgrounds but washes out the subject when the
+      container is cream/white (screen + light bg ≈ overexposed/white — subject disappears).
+    - "multiply" blend mode removes WHITE backgrounds, not black — wrong tool for this video.
+    Previous session switched to multiply which did NOT remove the black bg.
+
+  Fix — components/marketing/IntroAnimation.tsx:
+    New filter chain: invert(1) grayscale(1) contrast(1.8) sepia(1) saturate(12) hue-rotate(330deg)
+    New mixBlendMode: "multiply"
+    Technique: invert(1) flips black bg → white. multiply then removes the white bg
+    against the cream container, letting cream show through. The subject (inverted,
+    then pushed to crimson by the sepia/hue-rotate chain) remains visible.
+    All container backgrounds (AbsoluteFill, wrapper div, Player style) set to #F8EDEB.
+
+  Also removed stale comment block left from the previous multiply attempt.
+
+  No build run (CSS filter/style change only — TypeScript and imports unchanged from prior green build).
+
+Build Log — 2026-07-04 Intro section — blend mode fix (white bg)
+  User request: remove video background or change to white.
+  Root cause: original implementation used mixBlendMode "screen" which removes DARK/BLACK
+  backgrounds. The reel has a WHITE/LIGHT background — screen had no effect on it.
+
+  Fix — components/marketing/IntroAnimation.tsx:
+    - AbsoluteFill backgroundColor: "#111111" → "#F8EDEB" (cream)
+    - Video mixBlendMode: "screen" → "multiply"
+      multiply makes WHITE pixels transparent: white × any = any (white disappears into bg).
+      Dark/crimson subject pixels are preserved at full strength against the cream container.
+    - Outer wrapper div backgroundColor: "#111111" → "#F8EDEB"
+
+  Fix — components/marketing/Intro.tsx:
+    - Right column backgroundColor: "#111111" → "#F8EDEB"
+
+  No build run this session (CSS-only change, no TypeScript/import changes since prior green build).
+
+Build Log — 2026-07-04 Intro section — Remotion video with crimson effect
+  User request: replace the video background in the Intro section (below Hero) with the same
+  video processed through Remotion — background removed, subject coloured crimson.
+
+  Packages installed: remotion, @remotion/player (added to package.json dependencies).
+
+  New file: components/marketing/IntroAnimation.tsx ("use client")
+    - useEffect/useState mount guard: Player only renders client-side (prevents SSR errors from
+      Remotion browser API calls). SSR renders just the dark #111111 placeholder.
+    - Remotion <Player> composition: CrimsonReel
+        - compositionWidth: 1920, compositionHeight: 1080, fps: 30, durationInFrames: 1800 (60s)
+        - loop + autoPlay, no controls
+    - CrimsonReel composition:
+        - AbsoluteFill: backgroundColor #111111 (dark base — removed bg pixels are invisible)
+        - <Video src="/videos/imani_reel.mp4" loop>
+        - CSS filter chain applied to Video:
+            grayscale(1)        — strips original brand colours for clean colorisation
+            contrast(1.8)       — punches up edges so subject reads sharply
+            sepia(1)            — warm base tone before hue rotation
+            saturate(18)        — makes output vivid
+            hue-rotate(326deg)  — sepia sits at ~38°; +326° lands on crimson ~4° (#B22329)
+        - mixBlendMode: "screen" — makes dark/black pixels transparent against the #111111 bg
+          NOTE: if the reel has a LIGHT background, swap to "multiply". Current setting assumes
+          the reel has a dark/black background (most common for brand animation reels).
+
+  Updated: components/marketing/Intro.tsx
+    - Removed: <video src="/videos/imani_reel.mp4"> tag + dark overlay div
+    - Added: import IntroAnimation from "@/components/marketing/IntroAnimation"
+    - Right column now renders <IntroAnimation /> with position:relative + overflow:hidden + bg #111111
+
+  dynamic() + ssr:false NOT used — not allowed in Server Components in Next.js 16.
+  Pattern used instead: useEffect sets mounted flag; Player renders only after mount.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-04).
+
+Build Log — 2026-07-04 FundingOptions dark section
+  User request: change the entire "How capital is structured" section background to black with white text.
+
+  File: components/marketing/FundingOptions.tsx
+
+  Changes:
+    - <section> style: added backgroundColor: "var(--ink)" (#111111). Section was previously inheriting cream page bg.
+    - <section> borderBottom: "1px solid var(--hairline)" → "1px solid rgba(255,255,255,0.08)".
+      Hairline (rgba(17,17,17,0.12)) is invisible on a black bg — inverted to white equivalent.
+    - Eyebrow "How capital is structured": color rgba(17,17,17,0.35) → rgba(255,255,255,0.45).
+    - <h2>: color var(--ink) → #FAFAF8.
+    - Subtitle paragraph: color rgba(17,17,17,0.55) → rgba(255,255,255,0.55).
+    - Funding card grid (.imani-funding-grid): added inline style backgroundColor: "rgba(255,255,255,0.08)".
+      The CSS class uses var(--hairline) as the grid gap color — invisible on black. Inline override
+      sets a white-translucent gap so card boundaries remain visible.
+    - Funding cards: backgroundColor remains var(--ink) (#111111) — cards now read against the
+      white grid gap lines rather than a bg color difference. Card text (#FAFAF8 / rgba(255,255,255,0.4))
+      was already white — no change needed.
+    - Closing eyebrow "The goal is simple": color rgba(17,17,17,0.35) → rgba(255,255,255,0.45).
+    - Closing statement: color var(--ink) → #FAFAF8.
+
+  No build run this session (single-file style change, no TypeScript changes).
+
+Build Log — 2026-07-04 HeroTicker size + repeat
+  Increased logo size and densified the ticker repeat in components/marketing/HeroTicker.tsx.
+
+  Logo container: width "140px" height "44px" → width "75%" maxWidth "200px" height "64px".
+    Percentage width ensures logos scale down proportionally on narrow tiles rather than clipping.
+    sizes prop updated from "140px" → "200px" to match.
+
+  Repeat: LOGOS (3 entries) → REPEATED_LOGOS = [...LOGOS, ...LOGOS, ...LOGOS] (9 tiles per set).
+    Each set is now 9 × 25vw = 225vw — always more than any viewport, strip always looks full.
+    Duplicate set (Set B) unchanged — still 9 tiles, seamless loop intact.
+    Keys updated to include array index to avoid React duplicate-key warning across repetitions.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors.
+
+Build Log — 2026-07-04 HeroTicker real logos + hover
+  Replaced placeholder text wordmarks in components/marketing/HeroTicker.tsx with real portfolio
+  company logos. Added hover effect per user spec.
+
+  Logo assets added by user to public/images/:
+    rent and rig white.png / rent and rig color.png
+    Kidcode white.png / Kidcode color.png
+    Fundora white.png / Fundora color.png
+
+  Implementation:
+    - BUSINESSES text array replaced with LOGOS array of 3 objects {name, white, color}.
+    - New LogoTile component: owns useState(false) for hover. onMouseEnter/Leave toggles it.
+    - Hover effect: tile backgroundColor transparent → var(--crimson), transition 200ms.
+    - Logo swap: two stacked <Image fill> in a 140×44px relative container. White logo at
+      opacity 1 normally, 0 on hover. Color logo at opacity 0 normally, 1 on hover. Both
+      transition 200ms — smooth crossfade, no src-swap flicker.
+    - White logos have priority prop (above the fold). Color logos load normally (hidden by default).
+    - sizes="140px" on both images for correct Next.js srcset selection.
+    - cursor: default retained (tiles are not clickable).
+    - 3 logos in first set × 2 (duplicate set) = 6 tiles in DOM. At 25vw per tile, first set
+      is 75vw — viewport always shows 3–4 logos, seamless loop maintained.
+    - Animation, RAF loop, reduced-motion guard, resize measurement: all unchanged.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors.
+
+Build Log — 2026-07-04 Ticker cleanup
+  Removed legacy TickerStrip component (previously section #3 of 14-section homepage).
+  Removed "Businesses we've backed" caption above new Hero ticker.
+  Homepage now has 13 sections.
+
+  - components/marketing/TickerStrip.tsx: deleted (showed business names with Funded pills +
+    Equity/Debt/Asset Financing tags; superseded by HeroTicker).
+  - app/(marketing)/page.tsx: removed TickerStrip import and <TickerStrip /> render.
+  - components/marketing/HeroTicker.tsx: removed <p> caption block ("Businesses we've backed").
+  - Grep confirms zero remaining references to TickerStrip in the codebase.
+  - Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors.
+
+Build Log — 2026-07-04 HeroTicker
+  Added Hero ticker component — auto-scrolling wordmark strip at bottom of homepage hero.
+  JS requestAnimationFrame + transform matching bmwiventures.com pattern. 6 placeholder wordmarks;
+  real logos to swap when available. Reduced-motion respected.
+
+  File: components/marketing/HeroTicker.tsx (new "use client" component).
+  Placement: inside components/marketing/Hero.tsx, as the last child of the hero <section>,
+  below the content div. Both are flex children of the column-direction section, so the ticker
+  naturally sits at the very base of the hero.
+
+  Implementation:
+    - 6 business names rendered TWICE (12 tiles total in the DOM) for seamless loop.
+    - firstSetRef measures the width of one set via getBoundingClientRect() on mount + resize.
+    - stripRef receives direct transform mutations via ref (NOT React state) — zero re-renders.
+    - offsetRef decrements 0.5px per frame (~30px/s at 60fps). Snap-back when offset <= -setWidth.
+    - RAF cancelled and resize listener removed on unmount.
+    - prefers-reduced-motion: strip renders stationary (no RAF started) for accessibility.
+
+  Color deviation from spec: spec assumed a light cream hero background; actual hero is dark
+  (background image + rgba(0,0,0,0.90) gradient overlay at bottom). Colors inverted to match
+  BMWi's translucent-light-on-dark pattern:
+    Container bg: rgba(255,255,255,0.06)  (spec had rgba(17,17,17,0.04) for cream hero)
+    Tile text: rgba(255,255,255,0.80)     (spec had var(--ink) for cream hero)
+    Tile divider: rgba(255,255,255,0.10)  (spec had var(--hairline) for cream hero)
+    Caption: rgba(255,255,255,0.45)       (spec had rgba(17,17,17,0.6) for cream hero)
+
+  Note: Real logos should replace text wordmarks once brand assets are collected.
+  File location for assets: public/logos/ (or similar). Update BUSINESSES array in
+  components/marketing/HeroTicker.tsx to reference <Image> components.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors.
+
+Build Log — 2026-07-04 Bug fix
+  app/layout.tsx: metadataBase ?? → || fix.
+  Root cause: NEXT_PUBLIC_APP_URL was set to empty string in .env.local. The ?? (nullish coalescing)
+  operator only guards against null/undefined — an empty string passes through, making new URL("") throw
+  "Invalid URL" at module evaluation. Changed to || so empty string also falls back to the hardcoded
+  https://imaniventures.org default. No build impact (build was already passing; this was a Turbopack
+  dev-server runtime error).
+
+Build Log — Rebrand Phase 6 (2026-07-03)
+  Objective: Final codebase identifier rename — sda/SDA → imani/Imani across CSS class namespace,
+  asset file names, Paystack reference prefix, package.json, docs/comments, and migration file headers.
+  No DB schema changes required (schema was already brand-neutral).
+
+  Step 1 — Migration file comments:
+    supabase/migrations/20260613000001_initial_schema.sql: "SDA Platform" → "Imani Ventures Platform"
+    supabase/migrations/20260615000003_revoke_details_gated_anon.sql: same comment updated.
+
+  Step 2 — Docs and prose:
+    CLAUDE.md: full prose sweep — title, project description, brand tokens section (replaced with Imani tokens),
+      button system (updated to Imani token references), divider rule (var(--border) → var(--hairline)),
+      footer logotype spec ("SDA" → "IMANI VENTURES"), env var comment (sda.ng → imaniventures.org),
+      missing assets note, convention line added to Database Rules.
+    docs/admin-handover.md: title + NEXT_PUBLIC_APP_URL env var comment updated.
+    build.md: title (line 1) + project snapshot (sda.ng → imaniventures.org) updated.
+
+  Step 3 — CSS class namespace rename:
+    app/globals.css: replace_all sda- → imani- (all selector prefixes).
+    23 TSX files: replace_all sda- → imani- (all className attributes):
+      app/(marketing)/apply/page.tsx, components/marketing/NavAuthSlot.tsx,
+      app/(admin)/admin/page.tsx, app/(app)/dashboard/apply/ApplyForm.tsx,
+      app/(auth)/signup/investor/page.tsx, app/(auth)/signup/page.tsx,
+      components/app/AppNav.tsx, app/(marketing)/portfolio/PortfolioView.tsx,
+      components/marketing/Footer.tsx, components/marketing/EmailSignup.tsx,
+      components/marketing/PortfolioFeature.tsx, components/marketing/PortfolioGrid.tsx,
+      components/marketing/ForInvestors.tsx, components/marketing/WhatWeLookFor.tsx,
+      components/marketing/FundingOptions.tsx, components/marketing/PullQuote.tsx,
+      app/(marketing)/layout.tsx, components/marketing/Nav.tsx,
+      app/(investor)/layout.tsx, components/marketing/Hero.tsx,
+      app/(app)/dashboard/layout.tsx, app/(auth)/layout.tsx,
+      components/marketing/Intro.tsx.
+    components/investor/MembershipModal.tsx: @keyframes sda-spin → imani-spin (caught in sweep).
+    public/videos/sda_reel.mp4 → public/videos/imani_reel.mp4 (file renamed).
+    components/marketing/Intro.tsx: src="/videos/sda_reel.mp4" → src="/videos/imani_reel.mp4".
+
+  Step 4 — Paystack reference prefix:
+    app/api/payments/init/route.ts line 29: sda_mem_ → imani_mem_.
+    Existing sda_mem_* rows in membership_payments NOT altered (match Paystack records).
+
+  Step 5 — DB migration:
+    supabase/migrations/20260703000001_imani_rebrand.sql (NEW) — audit-only no-op migration.
+    Confirms: all table/column names brand-neutral, all audit events brand-neutral, no DDL needed.
+    Contains SELECT 1 as the only SQL statement. Must be applied manually in Supabase SQL editor.
+
+  Step 6 — TypeScript types:
+    lib/database.types.ts: no changes needed — no DB columns were renamed.
+
+  Step 7 — Final sweep results:
+    Intentional deferred (email addresses, waiting for @imaniventures.org mailboxes):
+      .env.local → LOOPS_ADMIN_EMAIL=support@sda.ng (noted in .env.local.example comment)
+      terms/page.tsx → legal@sda.ng
+      privacy/page.tsx → privacy@sda.ng
+    Intentional legacy references (audit history in migration comments):
+      supabase/migrations/20260703000001_imani_rebrand.sql — references old sda_* names as documentation
+    Tooling-generated (do not manually edit):
+      package-lock.json "name": "sda" — will auto-update on next npm install
+      .claude/settings.local.json — local tooling, not brand-visible
+
+  package.json: "name": "sda" → "imani-ventures".
+
+  Not changed (per instructions):
+    - Supabase project ref mxuvbjjunajthrtlxrbr (user decision)
+    - Supabase project name "sda" (user decision)
+    - Existing sda_mem_* paystack_reference rows in membership_payments
+    - MJML / Loops email templates (Phase 4 deferred)
+    - .env.local email addresses (deferred until mailboxes exist)
+    - GitHub repo name / Vercel project name (user-executed manual steps)
+    - Env var names (NEXT_PUBLIC_SUPABASE_URL etc.) — these are infra names not brand identifiers
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-03).
+
+Build Log — Rebrand Phase 5 (2026-07-03)
+  Objective: Domain, env vars, meta tags, robots.txt, sitemap domain, sitewide SDA audit. No visual components, MJML templates, or DB schema touched.
+
+  Phase 4 status: INTENTIONALLY DEFERRED — Loops email templates remain SDA-branded. Phase 4 will re-do them in the Imani Ventures palette in a future session.
+
+  Code changes:
+    app/layout.tsx:
+      - title: "SDA —..." → "Imani Ventures — Micro Angel Investment Platform"
+      - Added metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://imaniventures.org")
+      - Added icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png" }
+      - Added openGraph default: siteName "Imani Ventures", images [{ url: "/og-image.png", 1200×630 }]
+      - Added twitter: { card: "summary_large_image" }
+    app/sitemap.ts:
+      - base = "https://sda.ng" → process.env.NEXT_PUBLIC_APP_URL ?? "https://imaniventures.org"
+    app/robots.ts (NEW):
+      - Created. Disallows /admin/, /dashboard/, /api/. Sitemap points at ${APP_URL}/sitemap.xml.
+      - Adds /robots.txt as static route (33 routes total, was 32).
+    app/(marketing)/page.tsx + about/apply/faq/investors/portfolio/terms/risk-disclosure/privacy pages:
+      - openGraph.url: "https://sda.ng/..." → "https://imaniventures.org/..."
+      - 9 pages updated.
+    app/actions/admin.ts:
+      - invited_by_name fallback: "SDA" → "Imani Ventures" (email copy sent when no actor name found).
+    .env.local.example (NEW):
+      - Created with all env vars documented and NEXT_PUBLIC_APP_URL=https://imaniventures.org.
+    tailwind.config.ts:
+      - Stale comment updated to "Legacy SDA Tailwind keys — aliases for Imani token CSS vars".
+
+  Not changed (per instructions):
+    - legal@sda.ng (Terms contact) — leave until imaniventures.org mailbox exists
+    - privacy@sda.ng (Privacy contact) — same
+    - support@sda.ng (LOOPS_ADMIN_EMAIL in .env.local) — same
+    - Supabase project ref mxuvbjjunajthrtlxrbr — unchanged
+    - Audit event strings — unchanged
+    - DB column names — unchanged
+    - MJML / Loops email templates — unchanged (Phase 4 deferred)
+    - CLAUDE.md env var comment reference to sda.ng — internal doc, left as historical note
+    - build.md historical references to sda.ng — internal records
+
+  SDA prose audit result — all occurrences classified:
+    Remaining "SDA" in TSX after sweep:
+      (none) — tailwind.config.ts comment updated; all other occurrences were in build.md/CLAUDE.md (internal docs)
+    Remaining sda.ng in TSX after sweep:
+      terms/page.tsx:90 → legal@sda.ng — email, deferred (flag: needs new mailbox first)
+      privacy/page.tsx:74,82 → privacy@sda.ng — email, deferred (flag: needs new mailbox first)
+
+  Assets still needed (drop into /public/):
+    /og-image.png — 1200×630px, cream (#F8EDEB) background, Satoshi "Imani Ventures" wordmark in ink,
+                    crimson accent bar or element. Not generated — awaiting client.
+    /favicon.ico — brand icon. Not generated — awaiting client.
+    /apple-touch-icon.png — 180×180px. Not generated — awaiting client.
+
+  Build: NEXT_TURBO=0 npx next build → 33 routes, zero TypeScript errors, zero build errors. GREEN.
+
+---
+Phase 5 — Manual Infra Steps (user to execute)
+These steps cannot be performed by Claude Code. Execute in the order shown.
+
+1. VERCEL — Add imaniventures.org as production domain
+   a. Go to vercel.com → your project (currently named "sda") → Settings → Domains.
+   b. Click "Add domain" → type imaniventures.org → Add.
+   c. Vercel will show you the DNS records required. For imaniventures.org on GoDaddy:
+      - @ (root)  →  A record  →  76.76.21.21  (Vercel's current A record — confirm in Vercel UI, it may differ)
+      - www       →  CNAME     →  cname.vercel-dns.com.
+   d. Click "Add domain" again → type www.imaniventures.org → Add.
+   e. Set imaniventures.org as the PRIMARY domain (there should be a "..." or "Set as default" option).
+
+2. VERCEL — Add sda.ng as a redirect domain (→ imaniventures.org)
+   a. In the same Domains settings, click "Add domain" → type sda.ng.
+   b. When prompted for "Redirect to", select imaniventures.org.
+   c. Vercel issues a 308 Permanent Redirect from sda.ng/* → imaniventures.org/*. No code change needed.
+   d. Repeat for www.sda.ng → imaniventures.org.
+   e. The DNS records for sda.ng (managed on Plesk) should already have the Vercel A and CNAME records.
+      If sda.ng is still pointing to old hosting, update:
+        @ (root)  →  A record  →  76.76.21.21
+        www       →  CNAME     →  cname.vercel-dns.com.
+
+3. GODADDY DNS for imaniventures.org — clean-up punch list
+   Go to GoDaddy → DNS → imaniventures.org. Confirm/set these records:
+   KEEP:
+     @ (root)  →  A record  →  76.76.21.21       (Vercel; confirm exact IP from Vercel Domains UI)
+     www       →  CNAME     →  cname.vercel-dns.com.
+     Any Loops/email records already in place (TXT for SPF, CNAME for DKIM) — leave these
+   REMOVE (if present):
+     Any WebsiteBuilder A record on @ — this conflicts with the Vercel A record
+     Any stale www CNAME pointing at WebsiteBuilder or old hosting
+   VERIFY: after saving, run: nslookup imaniventures.org and confirm it resolves to the Vercel IP.
+
+4. VERCEL — Update environment variables
+   Go to vercel.com → project → Settings → Environment Variables.
+   Add or update the following for Production (and Preview if you want preview links to work):
+
+   Variable                           Value (Production)
+   ─────────────────────────────────────────────────────
+   NEXT_PUBLIC_APP_URL                https://imaniventures.org
+   NEXT_PUBLIC_SUPABASE_URL           https://mxuvbjjunajthrtlxrbr.supabase.co  (unchanged)
+   NEXT_PUBLIC_SUPABASE_ANON_KEY      <same value as .env.local>  (unchanged)
+   SUPABASE_SERVICE_ROLE_KEY          <same value as .env.local>  (unchanged)
+   LOOPS_API_KEY                      <same value as .env.local>  (unchanged)
+   LOOPS_ADMIN_EMAIL                  support@sda.ng  (keep as-is; update after Phase 4)
+   LOOPS_TEMPLATE_APPLICATION_SUBMITTED   cmr0ci94v00vt0j3qiz9rh1vm  (unchanged)
+   LOOPS_TEMPLATE_APPLICATION_UNDER_REVIEW  (empty — fill when Loops template created)
+   LOOPS_TEMPLATE_APPLICATION_APPROVED     (empty — fill when created)
+   LOOPS_TEMPLATE_APPLICATION_REJECTED     (empty — fill when created)
+   LOOPS_TEMPLATE_NEW_APPLICATION_ADMIN    (empty — fill when created)
+   LOOPS_TEMPLATE_ADMIN_INVITE             (empty — fill when created)
+   PAYSTACK_SECRET_KEY                <TEST key from .env.local — replace with LIVE key at launch>
+   NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY    <TEST key from .env.local — replace with LIVE key at launch>
+
+   After saving, trigger a redeploy: Deployments → latest deployment → Redeploy.
+
+5. PAYSTACK — Register the new webhook URL
+   Go to dashboard.paystack.com → Settings → Webhooks.
+   Change the webhook URL from (if set) https://sda.ng/api/webhooks/paystack
+   to https://imaniventures.org/api/webhooks/paystack.
+   Save. Paystack will send a test event to confirm the endpoint is reachable.
+
+6. SUPABASE AUTH — Update site URL and redirect URLs
+   Go to supabase.com → project mxuvbjjunajthrtlxrbr → Authentication → URL Configuration.
+   a. Site URL: change from https://sda.ng (or http://localhost:3000) to https://imaniventures.org
+   b. Redirect URLs: add https://imaniventures.org/** if not present.
+      Keep http://localhost:3000/** for local development.
+      You can remove https://sda.ng/** after the redirect domain is set up in Vercel (step 2).
+   c. While here, check Supabase Auth Email Templates (Authentication → Email Templates).
+      If any template says "SDA" in the subject or body, update to "Imani Ventures".
+      Note: if you are using Loops for all transactional emails (custom SMTP), these Supabase
+      templates may only fire for password reset / magic link — check your middleware.ts flow.
+
+7. LOOPS — Sender domain re-verification decision
+   Current state: Loops is verified to send from support@sda.ng (sda.ng is the verified domain).
+   Decision required: do you want to migrate to support@imaniventures.org as the sender address?
+   
+   RECOMMENDATION: Do NOT migrate in this phase. Keep sending from support@sda.ng.
+   Reason: migrating requires (a) a new mailbox at imaniventures.org, (b) adding MX/SPF/DKIM/DMARC
+   DNS records for imaniventures.org on GoDaddy, (c) re-verifying in Loops dashboard. This is
+   effectively a sub-phase of Phase 4 (email redo). Defer until Phase 4 is executed.
+   
+   IF you decide to migrate now anyway:
+   a. Create a support@imaniventures.org mailbox (via GoDaddy email, Google Workspace, or Zoho).
+   b. On GoDaddy DNS for imaniventures.org, add the MX, SPF (TXT), DKIM (CNAME), and DMARC (TXT)
+      records that Loops provides. Go to loops.so → Settings → Sending Domains → Add domain
+      → imaniventures.org → follow the DNS instructions shown.
+   c. Verify the domain in Loops dashboard once DNS propagates (up to 48h).
+   d. Update LOOPS_ADMIN_EMAIL in Vercel env vars and .env.local to support@imaniventures.org.
+
+8. VERCEL PROJECT RENAME (optional — low urgency)
+   vercel.com → project → Settings → General → Project Name.
+   Change "sda" to "imani-ventures".
+   Effect: preview URL changes from sda-xi-nine.vercel.app to imani-ventures-xxxx.vercel.app.
+   Production domain (imaniventures.org) is unaffected.
+   WARNING: any hardcoded reference to sda-xi-nine.vercel.app in MJML templates (used as image
+   source for logo in email) will break. These are SDA-branded templates being replaced in
+   Phase 4 anyway — acceptable risk if you rename now.
+   After rename: run `git remote set-url origin <new GitHub URL if also renamed>` in your local clone.
+
+9. GITHUB REPO RENAME (optional — low urgency)
+   github.com/Victorujoshua/sda → Settings → Repository name → rename to imani-ventures.
+   GitHub auto-redirects the old URL for all existing links and Vercel integration.
+   After rename: update your local clone remote:
+     git remote set-url origin https://github.com/Victorujoshua/imani-ventures.git
+
+---
+Build Log — Rebrand Phase 3 (2026-07-03)
+  Objective: Full app-side surface sweep — auth forms, applicant/investor dashboards, admin portal, all admin components. No marketing pages touched.
+
+  Token mapping applied:
+    var(--paper) → var(--cream), var(--border) → var(--hairline), var(--accent) → var(--crimson)
+    var(--success) → var(--ink) [neutral — NO green anywhere app-side]
+    var(--surface) → rgba(17,17,17,0.04) or rgba(17,17,17,0.06)
+    var(--danger) → var(--maroon) [for destructive states]
+    #CF9A0A → var(--crimson), #0A0A0A → var(--ink), #FAFAF8 → var(--cream)
+    rgba(0,0,0,X) → rgba(17,17,17,X) throughout
+
+  Status badge system applied (all tables + detail views):
+    Draft/Pending: bg rgba(17,17,17,0.06), color rgba(17,17,17,0.65)
+    Under Review: bg rgba(17,17,17,0.08), color var(--ink)
+    Approved/Active/Published: bg rgba(17,17,17,0.06), color var(--ink) — neutral, no green
+    Rejected/Blacklisted: bg rgba(178,35,41,0.08), color var(--maroon)
+    Paid member: bg rgba(17,17,17,0.08) + terracotta 8px dot + var(--ink) text
+    Shape: borderRadius "100px", Satoshi 500, 11px, uppercase, 0.06em tracking, 4px 10px
+
+  Destructive button pattern (two-tier):
+    Toggle (Reject/Blacklist/Revoke): cream bg + maroon text + 1px maroon border
+    Confirm (Confirm rejection/blacklist/revoke): maroon solid bg + cream text
+
+  globals.css changes:
+    Removed "Old SDA tokens" block (--paper, --accent, --border, --surface, --success, --warning).
+    --muted (#6B6B6B) and --danger (#991B1B) kept as legacy aliases in Imani token block.
+    body background-color: var(--paper) → var(--cream).
+    .sda-signup-grid bg #FAFAF8 → var(--cream).
+    .sda-signup-sidebar border rgba(0,0,0,0.1) → var(--hairline).
+    .sda-nav-dropdown-logout:hover bg #F2F1EC → var(--cream).
+    .sda-admin-stats-grid: rgba(0,0,0,0.08) → rgba(17,17,17,0.08) / var(--hairline).
+    Sora no-italic comment updated to Satoshi.
+
+  Copy swaps (prose only — no variable/file/function renames):
+    All "SDA" in app-side prose → "Imani Ventures":
+      login/page.tsx, signup/page.tsx, signup/investor/page.tsx
+      dashboard/page.tsx, dashboard/error.tsx
+      accept-invite/page.tsx (eyebrow + body)
+
+  Files changed (30 total):
+    components/app/AppNav.tsx
+    components/auth/SignupProgress.tsx, MobileStepIndicator.tsx
+    components/investor/PathCUnlockView.tsx, MembershipModal.tsx, ExpressInterestButton.tsx
+    components/admin/ApplicationActions.tsx, AdminNotesForm.tsx, DealsManager.tsx
+    components/admin/PromoteForm.tsx, AdminTeamSection.tsx, UsersTable.tsx, PortfolioManager.tsx
+    components/marketing/NavAuthSlot.tsx (dropdown border/bg)
+    app/(auth)/login/page.tsx, signup/page.tsx, signup/investor/page.tsx
+    app/(auth)/forgot-password/page.tsx, reset-password/page.tsx
+    app/(app)/dashboard/page.tsx, dashboard/loading.tsx, dashboard/error.tsx
+    app/(app)/dashboard/apply/ApplyForm.tsx
+    app/(app)/dashboard/invest/page.tsx
+    app/(admin)/admin/layout.tsx, admin/page.tsx, admin/error.tsx
+    app/(admin)/admin/applications/page.tsx, applications/loading.tsx, applications/[id]/page.tsx
+    app/(admin)/admin/deals/page.tsx, users/page.tsx
+    app/(marketing)/opportunities/loading.tsx
+    app/(investor)/membership/page.tsx
+    app/accept-invite/page.tsx
+    app/globals.css
+
+  Grep verification (post-sweep):
+    #CF9A0A — 0 matches across all .tsx files ✓
+    var(--accent) — 0 matches across all .tsx files ✓
+    var(--border) — 0 matches across all .tsx files ✓
+    var(--paper) — 0 matches across all .tsx files ✓
+    var(--success) — 0 matches across all .tsx files ✓
+    var(--surface) — 0 matches across all .tsx files ✓
+
+  Build: NEXT_TURBO=0 npx next build → 32 routes, zero TypeScript errors, zero build errors. GREEN.
+
+Build Log — Rebrand Phase 2 (2026-07-03)
+  Objective: Full marketing site sweep — colour, font, copy, tokens. No admin/app pages touched.
+  
+  Marketing layout:
+    app/(marketing)/layout.tsx — wrapper bg changed #0A0A0A → var(--cream), color #FAFAF8 → var(--ink).
+    All child sections now inherit cream background unless they explicitly set their own bg.
+  
+  Sections staying dark (explicit backgroundColor set):
+    Hero — stays dark (full-bleed photo overlay). No changes.
+    PullQuote — stays dark (photo bg + rgba overlay). Copy: "SDA ·" → "Imani Ventures ·", avatar "SDA" → "IV".
+    Footer — stays dark. Added explicit backgroundColor: "var(--ink)" since layout is now cream.
+    Nav — always dark (#0A0A0A computed). No changes.
+    FundingOptions card cells — var(--ink) dark cells with white text on cream section bg (intentional contrast).
+    PortfolioFeature right panel — var(--ink) dark (was gold gradient, now solid dark).
+    PortfolioView cards + modal — cards #1C1A18 dark on cream bg. Modal var(--ink). Design contrast retained.
+  
+  Sections going cream (removed dark backgroundColor):
+    TickerStrip — strip bg #CF9A0A → var(--ink) (dark strip on cream page). Tags: #1A3D2F → var(--crimson).
+    Intro, WhatWeFund, ForInvestors, HowItWorks, HomeFAQ — all #0A0A0A bg → var(--cream).
+    FundingOptions outer section — no bg (inherits cream).
+    WhatWeLookFor, EmailSignup — no bg (inherits cream).
+    PortfolioGrid, PortfolioFeature left — no bg (inherits cream).
+    PortfolioView hero + filter area — #14171A → var(--cream).
+  
+  Colour swaps (marketing only):
+    All #CF9A0A gold → var(--crimson) (#B22329).
+    All rgba(255,255,255,X) text/borders on cream sections → rgba(17,17,17,X) or var(--hairline).
+    All #FAFAF8 text on cream sections → var(--ink).
+    apply/investors CTAs: #CF9A0A bg → var(--crimson) bg, #0A0A0A text → #FAFAF8.
+    PortfolioView filter buttons: gold → crimson (active solid, inactive bordered).
+    PortfolioView modal funding-type/status badges: gold → crimson.
+    accordion.tsx group title: gold → crimson. Question open-state: gold → crimson.
+    NavAuthSlot avatar: #0f2744 bg → var(--ink), #CF9A0A text → var(--cream).
+  
+  globals.css utility classes updated:
+    .sda-app-nav-signout: gold → crimson border+text, hover bg gold → crimson.
+    .sda-btn-nav-cta: bg gold → crimson, hover gold → maroon.
+    .sda-instrument-card: rgba(255,255,255,0.03) bg → rgba(17,17,17,0.03), white border → var(--hairline).
+    .sda-instrument-card:hover: border gold → crimson.
+    .sda-email-arrow: rgba(255,255,255,0.4) → rgba(17,17,17,0.4), hover #FAFAF8 → var(--ink).
+    .sda-email-input::placeholder: rgba(255,255,255,0.2) → rgba(17,17,17,0.3).
+    .sda-funding-grid: gap bg rgba(255,255,255,0.08) → var(--hairline).
+    .sda-portfolio-grid: border-top rgba(255,255,255,0.1) → var(--hairline).
+    .sda-portfolio-feature: border-bottom rgba(255,255,255,0.1) → var(--hairline).
+    .sda-signup-form-col focus: border gold → var(--crimson).
+    Old SDA token comment updated: "still needed for admin/app portal. Remove in Phase 3."
+  
+  Naira ₦ spans:
+    opportunities/page.tsx: fontFamily "Inter, system-ui..." → "'Aileron', system-ui..." (×2).
+    opportunities/[id]/page.tsx: same change (×2 in Path B).
+  
+  Copy swaps ("SDA" → "Imani Ventures" in prose only, NOT in var names/file paths/env vars):
+    Intro: "SDA is a private capital platform..." → "Imani Ventures is..."
+    HomeFAQ: all 5 preview questions + answers updated.
+    EmailSignup: "SDA deal flow" → "Imani Ventures deal flow".
+    Footer: "SDA Micro Angel Investing" → "Imani Ventures" (copyright line).
+    Footer: "SDA" 120px logotype → <Wordmark variant="inverse" size={64} />.
+    PullQuote: "SDA ·" → "Imani Ventures ·", avatar "SDA" → "IV".
+    PortfolioFeature: "SDA Investment Team" → "Imani Ventures Investment Team".
+    page.tsx (homepage meta): all "SDA" → "Imani Ventures" in title/description/siteName.
+    about/page.tsx: "About SDA" eyebrow → "About Imani Ventures", body → "Imani Ventures is...".
+    apply/page.tsx: meta siteName, no body copy changes needed.
+    investors/page.tsx: "SDA conducts..." → "Imani Ventures conducts...", step 03 "SDA team" → "Imani Ventures team", step 04 "SDA facilitates" → "Imani Ventures facilitates".
+    faq/page.tsx: group "About SDA" → "About Imani Ventures". All SDA references in Q&A.
+    portfolio/page.tsx: meta siteName "SDA" → "Imani Ventures".
+    opportunities/page.tsx: "SDA · Investment opportunities" → "Imani Ventures ·", "SDA network" → "Imani Ventures network".
+    privacy/page.tsx: meta + "SDA admin personnel" → "Imani Ventures admin personnel". Email privacy@sda.ng left as-is (Phase 5+).
+    terms/page.tsx: meta + "SDA is a facilitator" → "Imani Ventures is", "prepared by SDA" → "by Imani Ventures", "owned by SDA" → "owned by Imani Ventures". Email legal@sda.ng left as-is.
+    risk-disclosure/page.tsx: meta + "All SDA investments" → "Imani Ventures investments", "SDA conducts screening" → "Imani Ventures conducts", "SDA strongly recommends" → "Imani Ventures strongly recommends".
+    accordion.tsx: no SDA copy (component only).
+  
+  Inner pages (about/apply/investors/faq/privacy/terms/risk-disclosure):
+    All white text (#FAFAF8, rgba(255,255,255,X)) changed to var(--ink) / rgba(17,17,17,X) since layout is now cream.
+    White border-tops changed to var(--hairline).
+    About stat cells: kept as var(--ink) dark cells with var(--cream)/rgba(248,237,235,0.55) text — design contrast on cream page.
+    Risk disclosure warning callout: rgba(255,180,180,0.85) text → rgba(153,27,27,0.9) — readable on cream bg.
+  
+  Old SDA token cleanup deferred:
+    Tokens --paper, --border, --muted, --accent, --surface still referenced by admin portal + PathCUnlockView.
+    Will be removed in Phase 3 after admin/app pages are updated.
+    Sora and inter Tailwind keys retained (may still be referenced by signup forms). Phase 3 cleanup.
+  
+  Build: GREEN. NEXT_TURBO=0 npx next build: 32 routes, 0 errors. TypeScript clean.
+    Old convention was font-inter — updated in CLAUDE.md. Bulk swap is Phase 2.
+  
+  CLAUDE.md updated: Satoshi no-italic rule added, Naira glyph convention documented, font source decisions logged.
+  
+  Build: NEXT_TURBO=0 npx next build → 32 routes, zero TypeScript errors, zero build errors. GREEN.
+  Files changed: app/layout.tsx, app/globals.css, tailwind.config.ts, CLAUDE.md, build.md,
+    components/brand/Wordmark.tsx (new), components/marketing/Nav.tsx,
+    components/app/AppNav.tsx, app/(admin)/admin/layout.tsx.
+
 Build Log — Session 79 (2026-07-01)
   Bug fixed: /opportunities footer CTA ("Full deal details and investment terms are available to
     registered investors. [Sign in] [Create account]") was visible to all users including
@@ -190,7 +954,7 @@ Build Log — Session 79 (2026-07-01)
   Build: 32 routes, zero errors. /opportunities correctly stays ƒ (Dynamic) — it runs getUser()
     on every request. All other marketing pages remain ○ (Static).
   Files changed: app/(marketing)/opportunities/page.tsx
-GitHub: latest push a548b48 → master (github.com/Victorujoshua/sda) — pushed 2026-06-30 (portfolio redesign + membership fee not yet pushed)
+GitHub: latest push 9f20c43 → master (github.com/Victorujoshua/sda) — pushed 2026-07-01 (sessions 76-79: nav auth reactivity, login hard-nav fix, investor membership gate, opportunities CTA gate)
 Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) in this environment.
   To deploy: (A) check vercel.com dashboard — GitHub auto-deploy may have triggered on the push, OR
              (B) run `vercel --prod` from your own terminal, OR
@@ -199,8 +963,8 @@ Vercel deploy: BLOCKED — npm cannot reach registry (ECONNRESET / proxy error) 
 (Claude Code: overwrite this entire block after every session. Never leave it stale.)
 ---
 Project Snapshot
-SDA — micro angel investment platform (Nigeria).
-Repositioning sda.ng from personal finance coaching into a serious capital platform.
+Imani Ventures — micro angel investment platform (Nigeria).
+Repositioning imaniventures.org from personal finance coaching into a serious capital platform.
 Reference aesthetic: foundersfund.com — stark, editorial, minimal.
 Three roles, one codebase, one database
 Role	What they do

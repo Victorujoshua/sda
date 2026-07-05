@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import HeroTicker from "@/components/marketing/HeroTicker";
 
 export default function Hero() {
   return (
@@ -24,13 +25,13 @@ export default function Hero() {
       }} />
 
       {/* Content */}
-      <div className="sda-hero-content" style={{
+      <div className="imani-hero-content" style={{
         position: "relative",
         zIndex: 1,
         padding: "80px 40px 64px",
         maxWidth: "1100px",
       }}>
-<h1 className="sda-hero-h1" style={{
+<h1 className="imani-hero-h1" style={{
           fontFamily: "var(--sr)",
           fontSize: "80px",
           fontWeight: 500,
@@ -44,7 +45,7 @@ export default function Hero() {
           that are already working.
         </h1>
 
-        <p className="sda-hero-body" style={{
+        <p className="imani-hero-body" style={{
           fontFamily: "var(--in)",
           fontSize: "18px",
           fontWeight: 400,
@@ -61,7 +62,7 @@ Just real businesses, real numbers, and disciplined capital.
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "32px" }}>
           <Link
             href="/signup"
-            className="sda-btn-primary"
+            className="imani-btn-primary"
             style={{
               fontFamily: "var(--in)",
               fontSize: "16px",
@@ -76,7 +77,7 @@ Just real businesses, real numbers, and disciplined capital.
           </Link>
           <Link
             href="/opportunities"
-            className="sda-btn-ghost"
+            className="imani-btn-ghost"
             style={{
               fontFamily: "var(--in)",
               fontSize: "16px",
@@ -92,6 +93,8 @@ Just real businesses, real numbers, and disciplined capital.
           </Link>
         </div>
       </div>
+
+      <HeroTicker />
     </section>
   );
 }

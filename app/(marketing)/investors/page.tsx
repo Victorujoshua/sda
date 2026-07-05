@@ -1,16 +1,16 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "For Investors — SDA",
+  title: "For Investors — Imani Ventures",
   description:
-    "Invest in early-stage Nigerian businesses with traction. SDA curates deal flow, conducts due diligence, and structures investment opportunities for angel investors.",
+    "Invest in early-stage Nigerian businesses with traction. Imani Ventures curates deal flow, conducts due diligence, and structures investment opportunities for angel investors.",
   openGraph: {
-    title: "For Investors — SDA",
+    title: "For Investors — Imani Ventures",
     description:
       "Invest in early-stage Nigerian businesses with traction. Curated deal flow for angel investors.",
-    url: "https://sda.ng/investors",
-    siteName: "SDA",
+    url: "https://imaniventures.org/investors",
+    siteName: "Imani Ventures",
     type: "website",
   },
 };
@@ -29,12 +29,12 @@ const HOW_IT_WORKS = [
   {
     step: "03",
     title: "Express interest",
-    body: "When you find a deal you want to pursue, express your interest. The SDA team connects you with the founding team to discuss terms.",
+    body: "When you find a deal you want to pursue, express your interest. The Imani Ventures team connects you with the founding team to discuss terms.",
   },
   {
     step: "04",
     title: "Commit offline",
-    body: "Investment commitments in V1 are recorded offline. No money moves through this platform — SDA facilitates introductions and term discussions.",
+    body: "Investment commitments in V1 are recorded offline. No money moves through this platform — Imani Ventures facilitates introductions and term discussions.",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function InvestorsPage() {
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "20px",
       }}>
         For investors
@@ -58,12 +58,12 @@ export default function InvestorsPage() {
         fontWeight: 300,
         lineHeight: 1.06,
         letterSpacing: "-0.025em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "20px",
         maxWidth: "680px",
       }}>
         Access curated deals in{" "}
-        <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(255,255,255,0.45)" }}>
+        <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(17,17,17,0.45)" }}>
           Nigerian early-stage companies.
         </em>
       </h1>
@@ -71,11 +71,11 @@ export default function InvestorsPage() {
         fontFamily: "var(--in)",
         fontSize: "18px",
         lineHeight: 1.7,
-        color: "rgba(255,255,255,0.65)",
+        color: "rgba(17,17,17,0.65)",
         maxWidth: "560px",
         marginBottom: "48px",
       }}>
-        SDA conducts initial screening, reviews financials, and structures deal
+        Imani Ventures conducts initial screening, reviews financials, and structures deal
         summaries so you can evaluate opportunities quickly and confidently.
       </p>
 
@@ -84,8 +84,8 @@ export default function InvestorsPage() {
           href="/opportunities"
           style={{
             display: "inline-block",
-            backgroundColor: "#CF9A0A",
-            color: "#0A0A0A",
+            backgroundColor: "var(--crimson)",
+            color: "#FAFAF8",
             fontFamily: "var(--in)",
             fontSize: "14px",
             letterSpacing: "0.04em",
@@ -99,8 +99,8 @@ export default function InvestorsPage() {
           href="/signup/investor"
           style={{
             display: "inline-block",
-            border: "1px solid rgba(255,255,255,0.25)",
-            color: "#FAFAF8",
+            border: "1px solid var(--hairline)",
+            color: "var(--ink)",
             fontFamily: "var(--in)",
             fontSize: "14px",
             letterSpacing: "0.04em",
@@ -118,17 +118,17 @@ export default function InvestorsPage() {
         fontSize: "28px",
         fontWeight: 300,
         letterSpacing: "-0.01em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "32px",
       }}>
         How it works
       </h2>
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ borderTop: "1px solid var(--hairline)" }}>
         {HOW_IT_WORKS.map(({ step, title, body }) => (
           <div
             key={step}
             style={{
-              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              borderBottom: "1px solid var(--hairline)",
               padding: "32px 0",
               display: "grid",
               gridTemplateColumns: "48px 1fr",
@@ -138,7 +138,7 @@ export default function InvestorsPage() {
             <span style={{
               fontFamily: "var(--in)",
               fontSize: "13px",
-              color: "rgba(255,255,255,0.25)",
+              color: "rgba(17,17,17,0.35)",
               letterSpacing: "0.04em",
               paddingTop: "3px",
             }}>
@@ -149,7 +149,7 @@ export default function InvestorsPage() {
                 fontFamily: "var(--sr)",
                 fontSize: "18px",
                 fontWeight: 400,
-                color: "#FAFAF8",
+                color: "var(--ink)",
                 margin: "0 0 8px",
               }}>
                 {title}
@@ -158,7 +158,7 @@ export default function InvestorsPage() {
                 fontFamily: "var(--in)",
                 fontSize: "17px",
                 lineHeight: 1.65,
-                color: "rgba(255,255,255,0.65)",
+                color: "rgba(17,17,17,0.65)",
                 margin: 0,
                 maxWidth: "480px",
               }}>
@@ -174,7 +174,7 @@ export default function InvestorsPage() {
         fontFamily: "var(--in)",
         fontSize: "15px",
         lineHeight: 1.7,
-        color: "rgba(255,255,255,0.4)",
+        color: "rgba(17,17,17,0.45)",
         maxWidth: "520px",
         marginTop: "40px",
       }}>

@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -62,7 +62,7 @@ export default async function InvestorDashboardPage() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
         fontFamily: "var(--in)",
       }}
@@ -97,7 +97,7 @@ export default async function InvestorDashboardPage() {
         {/* Browse CTA */}
         <div
           style={{
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             padding: "28px",
             marginBottom: 40,
             display: "flex",
@@ -141,8 +141,8 @@ export default async function InvestorDashboardPage() {
               fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
-              backgroundColor: "var(--accent)",
-              color: "#FAFAF8",
+              backgroundColor: "var(--crimson)",
+              color: "var(--cream)",
               textDecoration: "none",
               flexShrink: 0,
             }}
@@ -180,9 +180,9 @@ export default async function InvestorDashboardPage() {
         {interestedDeals.length === 0 ? (
           <div
             style={{
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "40px 28px",
-              backgroundColor: "var(--surface)",
+              backgroundColor: "rgba(17,17,17,0.03)",
             }}
           >
             <p
@@ -217,8 +217,8 @@ export default async function InvestorDashboardPage() {
                 fontSize: 14,
                 letterSpacing: "0.04em",
                 padding: "10px 22px",
-                backgroundColor: "var(--accent)",
-                color: "#FAFAF8",
+                backgroundColor: "var(--crimson)",
+                color: "var(--cream)",
                 textDecoration: "none",
               }}
             >
@@ -231,14 +231,14 @@ export default async function InvestorDashboardPage() {
               display: "flex",
               flexDirection: "column",
               gap: 1,
-              backgroundColor: "var(--border)",
+              backgroundColor: "var(--hairline)",
             }}
           >
             {interestedDeals.map((deal) => (
               <div
                 key={deal.id}
                 style={{
-                  backgroundColor: "var(--paper)",
+                  backgroundColor: "var(--cream)",
                   padding: "20px 24px",
                   display: "flex",
                   alignItems: "center",
@@ -275,7 +275,7 @@ export default async function InvestorDashboardPage() {
                           textTransform: "uppercase",
                           letterSpacing: "0.08em",
                           color: "var(--muted)",
-                          border: "1px solid var(--border)",
+                          border: "1px solid var(--hairline)",
                           padding: "2px 6px",
                           flexShrink: 0,
                         }}
@@ -320,7 +320,7 @@ export default async function InvestorDashboardPage() {
                     fontFamily: "var(--in)",
                     fontSize: 14,
                     letterSpacing: "0.04em",
-                    color: "var(--accent)",
+                    color: "var(--crimson)",
                     textDecoration: "none",
                     flexShrink: 0,
                   }}

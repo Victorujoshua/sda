@@ -1,4 +1,4 @@
-﻿const STEPS = [
+const STEPS = [
   "Businesses apply and undergo screening",
   "Financials and operations are reviewed",
   "Funding is structured based on business cash flow",
@@ -10,9 +10,9 @@ export default function HowItWorks() {
   return (
     <section
       style={{
-        backgroundColor: "#0A0A0A",
+        backgroundColor: "var(--cream)",
         padding: "80px 40px",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        borderBottom: "1px solid var(--hairline)",
       }}
     >
       <div style={{ maxWidth: "900px" }}>
@@ -22,7 +22,7 @@ export default function HowItWorks() {
             fontSize: "15px",
             textTransform: "uppercase",
             letterSpacing: "0.12em",
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(17,17,17,0.35)",
             marginBottom: "32px",
           }}
         >
@@ -35,7 +35,7 @@ export default function HowItWorks() {
             fontSize: "42px",
             fontWeight: 300,
             letterSpacing: "-0.02em",
-            color: "#FAFAF8",
+            color: "var(--ink)",
             lineHeight: 1.12,
             marginBottom: "48px",
           }}
@@ -52,10 +52,10 @@ export default function HowItWorks() {
                 alignItems: "flex-start",
                 gap: "20px",
                 padding: "20px 0",
-                borderTop: "1px solid rgba(255,255,255,0.08)",
+                borderTop: "1px solid var(--hairline)",
                 borderBottom:
                   i === STEPS.length - 1
-                    ? "1px solid rgba(255,255,255,0.08)"
+                    ? "1px solid var(--hairline)"
                     : undefined,
               }}
             >
@@ -64,7 +64,7 @@ export default function HowItWorks() {
                   width: "32px",
                   height: "32px",
                   borderRadius: "50%",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  border: "1px solid var(--hairline)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -76,7 +76,7 @@ export default function HowItWorks() {
                     fontFamily: "var(--sr)",
                     fontSize: "18px",
                     fontWeight: 400,
-                    color: "#CF9A0A",
+                    color: "var(--crimson)",
                   }}
                 >
                   {i + 1}
@@ -86,7 +86,7 @@ export default function HowItWorks() {
                 style={{
                   fontFamily: "var(--in)",
                   fontSize: "18px",
-                  color: "#FAFAF8",
+                  color: "var(--ink)",
                   lineHeight: 1.5,
                   margin: 0,
                   paddingTop: "4px",
@@ -104,7 +104,7 @@ export default function HowItWorks() {
               fontFamily: "var(--sr)",
               fontSize: "22px",
               fontWeight: 300,
-              color: "rgba(255,255,255,0.45)",
+              color: "rgba(17,17,17,0.45)",
               lineHeight: 1.4,
               margin: 0,
             }}
@@ -116,7 +116,7 @@ export default function HowItWorks() {
               fontFamily: "var(--sr)",
               fontSize: "22px",
               fontWeight: 300,
-              color: "rgba(255,255,255,0.45)",
+              color: "rgba(17,17,17,0.45)",
               lineHeight: 1.4,
               margin: 0,
             }}
@@ -128,7 +128,7 @@ export default function HowItWorks() {
               fontFamily: "var(--sr)",
               fontSize: "22px",
               fontWeight: 300,
-              color: "#FAFAF8",
+              color: "var(--ink)",
               lineHeight: 1.4,
               margin: 0,
             }}

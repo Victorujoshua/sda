@@ -1,5 +1,5 @@
 -- ============================================================
--- SDA Platform — Security fix: block anon access to details_gated
+-- Imani Ventures Platform — Security fix: block anon access to details_gated
 -- Migration: 20260615000003_revoke_details_gated_anon
 -- ============================================================
 --

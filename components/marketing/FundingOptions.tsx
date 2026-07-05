@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 
 const FUNDING_TYPES = [
   {
@@ -35,14 +35,18 @@ export default function FundingOptions() {
   return (
     <section
       id="funding-options"
-      style={{ padding: "72px 40px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}
+      style={{
+        backgroundColor: "var(--ink)",
+        padding: "72px 40px",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+      }}
     >
       <p style={{
         fontFamily: "var(--in)",
         fontSize: "17px",
         textTransform: "uppercase",
         letterSpacing: "0.12em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(255,255,255,0.45)",
         marginBottom: "16px",
       }}>
         How capital is structured
@@ -72,17 +76,17 @@ export default function FundingOptions() {
         We structure financing based on how the business actually operates.
       </p>
 
-      <div className="sda-funding-grid">
+      <div className="imani-funding-grid" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
         {FUNDING_TYPES.map((item) => (
           <div
             key={item.type}
             style={{
-              backgroundColor: "#0A0A0A",
+              backgroundColor: "var(--ink)",
               padding: "40px 36px",
               ...("fullWidth" in item && item.fullWidth ? { gridColumn: "1 / -1" } : {}),
             }}
           >
-            <div className="sda-funding-card">
+            <div className="imani-funding-card">
               <div style={{ flex: 1 }}>
                 <p style={{
                   fontFamily: "var(--sr)",
@@ -103,7 +107,7 @@ export default function FundingOptions() {
                   {item.description}
                 </p>
               </div>
-              <div className="sda-funding-icon">
+              <div className="imani-funding-icon">
                 <Image
                   src={item.icon}
                   alt={item.type}
@@ -123,7 +127,7 @@ export default function FundingOptions() {
         fontSize: "15px",
         textTransform: "uppercase",
         letterSpacing: "0.12em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(255,255,255,0.45)",
         marginTop: "48px",
         marginBottom: 0,
       }}>

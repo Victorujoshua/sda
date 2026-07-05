@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import Wordmark from "@/components/brand/Wordmark";
 
 type Props = {
   userName: string | null;
@@ -10,9 +9,6 @@ type Props = {
 };
 
 export default function AppNav({ userName, userRole }: Props) {
-  const logoHref =
-    userRole === "investor" ? "/dashboard/invest" : "/dashboard";
-
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -31,20 +27,11 @@ export default function AppNav({ userName, userRole }: Props) {
         alignItems: "center",
         justifyContent: "space-between",
         padding: "6px 40px",
-        backgroundColor: "#0A0A0A",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        backgroundColor: "var(--cream)",
+        borderBottom: "1px solid var(--hairline)",
       }}
     >
-      <Link href={logoHref} style={{ display: "inline-flex", alignItems: "center" }}>
-        <Image
-          src="/images/logo.png"
-          alt="SDA"
-          width={120}
-          height={40}
-          style={{ objectFit: "contain" }}
-          priority
-        />
-      </Link>
+      <Wordmark variant="default" />
 
       <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
         {userName && (
@@ -52,7 +39,7 @@ export default function AppNav({ userName, userRole }: Props) {
             style={{
               fontFamily: "var(--in)",
               fontSize: 15,
-              color: "rgba(255,255,255,0.5)",
+              color: "rgba(17,17,17,0.6)",
             }}
           >
             {userName}
@@ -64,7 +51,7 @@ export default function AppNav({ userName, userRole }: Props) {
             style={{
               fontFamily: "var(--in)",
               fontSize: 13,
-              color: "rgba(255,255,255,0.3)",
+              color: "rgba(17,17,17,0.4)",
               textTransform: "uppercase",
               letterSpacing: "0.1em",
             }}
@@ -73,7 +60,7 @@ export default function AppNav({ userName, userRole }: Props) {
           </span>
         )}
 
-        <button onClick={handleLogout} className="sda-app-nav-signout">
+        <button onClick={handleLogout} className="imani-app-nav-signout">
           Log out
         </button>
       </div>

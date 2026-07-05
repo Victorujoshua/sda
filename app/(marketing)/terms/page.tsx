@@ -1,13 +1,13 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — SDA",
-  description: "SDA Terms of Service — the rules governing use of the SDA platform.",
+  title: "Terms of Service — Imani Ventures",
+  description: "Imani Ventures Terms of Service — the rules governing use of the Imani Ventures platform.",
   openGraph: {
-    title: "Terms of Service — SDA",
-    description: "SDA Terms of Service.",
-    url: "https://sda.ng/terms",
-    siteName: "SDA",
+    title: "Terms of Service — Imani Ventures",
+    description: "Imani Ventures Terms of Service.",
+    url: "https://imaniventures.org/terms",
+    siteName: "Imani Ventures",
     type: "website",
   },
 };
@@ -20,7 +20,7 @@ export default function TermsPage() {
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "20px",
       }}>
         Legal
@@ -31,7 +31,7 @@ export default function TermsPage() {
         fontWeight: 300,
         lineHeight: 1.12,
         letterSpacing: "-0.02em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "12px",
       }}>
         Terms of Service
@@ -39,7 +39,7 @@ export default function TermsPage() {
       <p style={{
         fontFamily: "var(--in)",
         fontSize: "14px",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "48px",
       }}>
         Last updated: June 2025
@@ -49,13 +49,13 @@ export default function TermsPage() {
         display: "flex",
         flexDirection: "column",
         gap: "32px",
-        borderTop: "1px solid rgba(255,255,255,0.1)",
+        borderTop: "1px solid var(--hairline)",
         paddingTop: "40px",
       }}>
         {[
           {
             heading: "1. Acceptance",
-            body: "By accessing or using the SDA platform, you agree to be bound by these Terms of Service. If you do not agree, do not use the platform.",
+            body: "By accessing or using the Imani Ventures platform, you agree to be bound by these Terms of Service. If you do not agree, do not use the platform.",
           },
           {
             heading: "2. Eligibility",
@@ -63,7 +63,7 @@ export default function TermsPage() {
           },
           {
             heading: "3. Platform purpose",
-            body: "SDA is a facilitator of investment introductions. We do not provide financial advice, guarantee investment returns, or manage money on behalf of investors or applicants. No financial transaction takes place on this platform.",
+            body: "Imani Ventures is a facilitator of investment introductions. We do not provide financial advice, guarantee investment returns, or manage money on behalf of investors or applicants. No financial transaction takes place on this platform.",
           },
           {
             heading: "4. Accuracy of information",
@@ -71,11 +71,11 @@ export default function TermsPage() {
           },
           {
             heading: "5. Intellectual property",
-            body: "All content on this platform — including deal summaries prepared by SDA — is owned by SDA. You may not reproduce, distribute, or use this content without written permission.",
+            body: "All content on this platform — including deal summaries prepared by Imani Ventures — is owned by Imani Ventures. You may not reproduce, distribute, or use this content without written permission.",
           },
           {
             heading: "6. Limitation of liability",
-            body: "SDA is not liable for any investment losses. Investment involves risk. Past portfolio performance does not guarantee future results. You are solely responsible for your investment decisions.",
+            body: "Imani Ventures is not liable for any investment losses. Investment involves risk. Past portfolio performance does not guarantee future results. You are solely responsible for your investment decisions.",
           },
           {
             heading: "7. Account termination",
@@ -95,7 +95,7 @@ export default function TermsPage() {
               fontFamily: "var(--sr)",
               fontSize: "18px",
               fontWeight: 400,
-              color: "#FAFAF8",
+              color: "var(--ink)",
               margin: "0 0 10px",
             }}>
               {heading}
@@ -104,7 +104,7 @@ export default function TermsPage() {
               fontFamily: "var(--in)",
               fontSize: "16px",
               lineHeight: 1.7,
-              color: "rgba(255,255,255,0.65)",
+              color: "rgba(17,17,17,0.65)",
               margin: 0,
             }}>
               {body}

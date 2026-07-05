@@ -32,7 +32,7 @@ export default async function MembershipPage({
       : undefined;
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "var(--paper)" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--cream)" }}>
       <MembershipFallbackView initialError={initialError} />
     </div>
   );

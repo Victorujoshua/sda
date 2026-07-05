@@ -1,5 +1,5 @@
 -- ============================================================
--- SDA Platform — Section 1: Database Schema & RLS
+-- Imani Ventures Platform — Section 1: Database Schema & RLS
 -- Migration: 20260613000001_initial_schema
 -- ============================================================
 

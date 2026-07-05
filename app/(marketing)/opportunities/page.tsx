@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
 function fmt(n: number | null) {
@@ -49,12 +49,12 @@ export default async function OpportunitiesPage({
   ].sort();
 
   const inputStyle: React.CSSProperties = {
-    border: "1px solid var(--border)",
+    border: "1px solid var(--hairline)",
     padding: "8px 12px",
     fontFamily: "var(--in)",
     fontSize: 15,
     color: "var(--ink)",
-    backgroundColor: "#fff",
+    backgroundColor: "var(--cream)",
     outline: "none",
   };
 
@@ -64,7 +64,7 @@ export default async function OpportunitiesPage({
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
       }}
     >
@@ -76,11 +76,11 @@ export default async function OpportunitiesPage({
             fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
-            color: "var(--muted)",
+            color: "rgba(17,17,17,0.45)",
             margin: "0 0 12px",
           }}
         >
-          SDA · Investment opportunities
+          Imani Ventures · Investment opportunities
         </p>
         <h1
           style={{
@@ -99,13 +99,13 @@ export default async function OpportunitiesPage({
           style={{
             fontFamily: "var(--in)",
             fontSize: 17,
-            color: "var(--muted)",
+            color: "rgba(17,17,17,0.55)",
             lineHeight: 1.7,
             margin: "0 0 48px",
             maxWidth: 520,
           }}
         >
-          Businesses currently seeking capital from the SDA network. Sign in to
+          Businesses currently seeking capital from the Imani Ventures network. Sign in to
           view full details and express interest.
         </p>
 
@@ -128,7 +128,7 @@ export default async function OpportunitiesPage({
                 fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                color: "var(--muted)",
+                color: "rgba(17,17,17,0.45)",
                 marginBottom: 6,
               }}
             >
@@ -156,7 +156,7 @@ export default async function OpportunitiesPage({
                 fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                color: "var(--muted)",
+                color: "rgba(17,17,17,0.45)",
                 marginBottom: 6,
               }}
             >
@@ -181,7 +181,7 @@ export default async function OpportunitiesPage({
                 fontSize: 13,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                color: "var(--muted)",
+                color: "rgba(17,17,17,0.45)",
                 marginBottom: 6,
               }}
             >
@@ -205,7 +205,7 @@ export default async function OpportunitiesPage({
               fontSize: 14,
               letterSpacing: "0.04em",
               padding: "9px 20px",
-              backgroundColor: "var(--accent)",
+              backgroundColor: "var(--crimson)",
               color: "#FAFAF8",
               border: "none",
               cursor: "pointer",
@@ -220,7 +220,7 @@ export default async function OpportunitiesPage({
               style={{
                 fontFamily: "var(--in)",
                 fontSize: 14,
-                color: "var(--muted)",
+                color: "rgba(17,17,17,0.45)",
                 textDecoration: "none",
                 padding: "9px 0",
               }}
@@ -235,7 +235,7 @@ export default async function OpportunitiesPage({
           style={{
             fontFamily: "var(--in)",
             fontSize: 15,
-            color: "var(--muted)",
+            color: "rgba(17,17,17,0.45)",
             margin: "0 0 24px",
           }}
         >
@@ -246,7 +246,7 @@ export default async function OpportunitiesPage({
         {!deals?.length ? (
           <div
             style={{
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "64px 40px",
               textAlign: "center",
             }}
@@ -266,7 +266,7 @@ export default async function OpportunitiesPage({
               style={{
                 fontFamily: "var(--in)",
                 fontSize: 16,
-                color: "var(--muted)",
+                color: "rgba(17,17,17,0.55)",
                 margin: 0,
               }}
             >
@@ -281,14 +281,14 @@ export default async function OpportunitiesPage({
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
               gap: 1,
-              backgroundColor: "var(--border)",
+              backgroundColor: "var(--hairline)",
             }}
           >
             {deals.map((deal) => (
               <div
                 key={deal.id}
                 style={{
-                  backgroundColor: "var(--paper)",
+                  backgroundColor: "var(--cream)",
                   padding: "32px 28px",
                   display: "flex",
                   flexDirection: "column",
@@ -302,8 +302,8 @@ export default async function OpportunitiesPage({
                       fontSize: 10,
                       textTransform: "uppercase",
                       letterSpacing: "0.1em",
-                      color: "var(--muted)",
-                      border: "1px solid var(--border)",
+                      color: "rgba(17,17,17,0.45)",
+                      border: "1px solid var(--hairline)",
                       padding: "3px 8px",
                       display: "inline-block",
                       marginBottom: 16,
@@ -334,7 +334,7 @@ export default async function OpportunitiesPage({
                   style={{
                     fontFamily: "var(--in)",
                     fontSize: 16,
-                    color: "var(--muted)",
+                    color: "rgba(17,17,17,0.55)",
                     lineHeight: 1.7,
                     margin: "0 0 20px",
                     flex: 1,
@@ -364,7 +364,7 @@ export default async function OpportunitiesPage({
                           fontSize: 10,
                           textTransform: "uppercase",
                           letterSpacing: "0.08em",
-                          color: "var(--muted)",
+                          color: "rgba(17,17,17,0.45)",
                           margin: "0 0 3px",
                         }}
                       >
@@ -379,7 +379,7 @@ export default async function OpportunitiesPage({
                           margin: 0,
                         }}
                       >
-                        <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.funding_required.toLocaleString("en-NG")}
+                        <span style={{ fontFamily: "'Aileron', system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.funding_required.toLocaleString("en-NG")}
                       </p>
                     </div>
                   )}
@@ -391,7 +391,7 @@ export default async function OpportunitiesPage({
                           fontSize: 10,
                           textTransform: "uppercase",
                           letterSpacing: "0.08em",
-                          color: "var(--muted)",
+                          color: "rgba(17,17,17,0.45)",
                           margin: "0 0 3px",
                         }}
                       >
@@ -406,7 +406,7 @@ export default async function OpportunitiesPage({
                           margin: 0,
                         }}
                       >
-                        <span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.revenue_to_date.toLocaleString("en-NG")}
+                        <span style={{ fontFamily: "'Aileron', system-ui, sans-serif", textDecoration: "none" }}>₦</span>{deal.revenue_to_date.toLocaleString("en-NG")}
                       </p>
                     </div>
                   )}
@@ -440,7 +440,7 @@ export default async function OpportunitiesPage({
           <div
             style={{
               marginTop: 56,
-              borderTop: "1px solid var(--border)",
+              borderTop: "1px solid var(--hairline)",
               paddingTop: 32,
               display: "flex",
               alignItems: "center",
@@ -453,7 +453,7 @@ export default async function OpportunitiesPage({
               style={{
                 fontFamily: "var(--in)",
                 fontSize: 16,
-                color: "var(--muted)",
+                color: "rgba(17,17,17,0.55)",
                 lineHeight: 1.6,
                 margin: 0,
               }}
@@ -472,7 +472,7 @@ export default async function OpportunitiesPage({
                   backgroundColor: "transparent",
                   color: "var(--ink)",
                   textDecoration: "none",
-                  border: "1px solid var(--border)",
+                  border: "1px solid var(--hairline)",
                 }}
               >
                 Sign in
@@ -484,7 +484,7 @@ export default async function OpportunitiesPage({
                   fontSize: 14,
                   letterSpacing: "0.04em",
                   padding: "10px 20px",
-                  backgroundColor: "var(--accent)",
+                  backgroundColor: "var(--crimson)",
                   color: "#FAFAF8",
                   textDecoration: "none",
                 }}

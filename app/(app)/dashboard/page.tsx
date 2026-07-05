@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -61,7 +61,7 @@ export default async function DashboardPage({
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
         fontFamily: "var(--in)",
       }}
@@ -99,12 +99,12 @@ export default async function DashboardPage({
         {justSubmitted && (
           <div
             style={{
-              border: "1px solid var(--success)",
+              border: "1px solid var(--hairline)",
               padding: "16px 20px",
               marginBottom: 32,
               fontFamily: "var(--in)",
               fontSize: 17,
-              color: "var(--success)",
+              color: "var(--ink)",
               lineHeight: 1.6,
             }}
           >
@@ -133,7 +133,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
           }}
         >
           You have not submitted an application yet. Apply for early-stage
-          capital from the SDA network.
+          capital from the Imani Ventures network.
         </p>
         <Link
           href="/dashboard/apply"
@@ -143,8 +143,8 @@ function ApplicantPanel({ app }: { app: Application | null }) {
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "10px 28px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             textDecoration: "none",
           }}
         >
@@ -158,7 +158,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
     return (
       <div
         style={{
-          border: "1px solid var(--border)",
+          border: "1px solid var(--hairline)",
           padding: "28px",
         }}
       >
@@ -219,8 +219,8 @@ function ApplicantPanel({ app }: { app: Application | null }) {
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "10px 22px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             textDecoration: "none",
           }}
         >
@@ -269,7 +269,7 @@ function ApplicantPanel({ app }: { app: Application | null }) {
         {app.rejection_reason && (
           <div
             style={{
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               borderTop: "none",
               padding: "20px 28px",
             }}
@@ -308,8 +308,8 @@ function ApplicantPanel({ app }: { app: Application | null }) {
               fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
-              backgroundColor: "var(--accent)",
-              color: "#FAFAF8",
+              backgroundColor: "var(--crimson)",
+              color: "var(--cream)",
               textDecoration: "none",
             }}
           >
@@ -339,7 +339,7 @@ function StatusCard({
   return (
     <div
       style={{
-        border: `1px solid ${highlight ? "var(--success)" : "var(--border)"}`,
+        border: "1px solid var(--hairline)",
         padding: "28px",
       }}
     >
@@ -359,7 +359,7 @@ function StatusCard({
             fontSize: 13,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
-            color: highlight ? "var(--success)" : "var(--muted)",
+            color: "var(--muted)",
             margin: 0,
           }}
         >

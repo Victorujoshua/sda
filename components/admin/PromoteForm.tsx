@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -6,12 +6,12 @@ import { promoteToDeals } from "@/app/actions/admin";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  border: "1px solid var(--border)",
+  border: "1px solid var(--hairline)",
   padding: "10px 14px",
   fontFamily: "var(--in)",
   fontSize: 16,
   color: "var(--ink)",
-  backgroundColor: "#fff",
+  backgroundColor: "var(--cream)",
   outline: "none",
   boxSizing: "border-box",
   lineHeight: 1.6,
@@ -95,12 +95,13 @@ export default function PromoteForm({
       {error && (
         <div
           style={{
-            border: "1px solid var(--danger)",
+            border: "1px solid rgba(178,35,41,0.3)",
+            backgroundColor: "rgba(178,35,41,0.06)",
             padding: "12px 16px",
             marginBottom: 28,
             fontFamily: "var(--in)",
             fontSize: 16,
-            color: "var(--danger)",
+            color: "var(--maroon)",
           }}
         >
           {error}
@@ -109,7 +110,7 @@ export default function PromoteForm({
 
       <div style={{ marginBottom: 28 }}>
         <label style={labelStyle}>
-          Public summary <span style={{ color: "var(--danger)" }}>*</span>
+          Public summary <span style={{ color: "var(--maroon)" }}>*</span>
         </label>
         <p
           style={{
@@ -238,8 +239,8 @@ export default function PromoteForm({
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "11px 28px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             border: "none",
             cursor: isPending ? "not-allowed" : "pointer",
             opacity: isPending ? 0.7 : 1,
@@ -259,7 +260,7 @@ export default function PromoteForm({
             padding: "11px 20px",
             backgroundColor: "transparent",
             color: "var(--muted)",
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             cursor: "pointer",
           }}
         >

@@ -1,4 +1,4 @@
-# SDA Admin Handover
+# Imani Ventures Admin Handover
 
 ## Logging in as admin
 
@@ -121,4 +121,4 @@ These must be set in Vercel → Project Settings → Environment Variables:
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side only — never expose to client |
 | `LOOPS_API_KEY` | From Loops dashboard → Settings → API keys — server-side only |
 | `LOOPS_ADMIN_EMAIL` | Admin inbox for new application alerts |
-| `NEXT_PUBLIC_APP_URL` | `https://sda.ng` in production |
+| `NEXT_PUBLIC_APP_URL` | `https://imaniventures.org` in production |

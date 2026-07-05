@@ -27,7 +27,7 @@ export default async function InvestorLayout({
   return (
     <>
       <AppNav userName={userName} userRole={userRole} />
-      <div className="sda-page-content">{children}</div>
+      <div className="imani-page-content">{children}</div>
     </>
   );
 }

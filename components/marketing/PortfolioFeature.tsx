@@ -1,19 +1,20 @@
-﻿import { PORTFOLIO_COMPANIES } from "@/lib/portfolio-data";
+import Image from "next/image";
+import { PORTFOLIO_COMPANIES } from "@/lib/portfolio-data";
 
 export default function PortfolioFeature() {
   return (
-    <section className="sda-portfolio-feature">
+    <section className="imani-portfolio-feature">
       {/* Left — quote */}
       <div style={{
         padding: "56px 40px",
-        borderRight: "1px solid rgba(255,255,255,0.1)",
+        borderRight: "1px solid var(--hairline)",
       }}>
         <p style={{
           fontFamily: "var(--in)",
           fontSize: "15px",
           textTransform: "uppercase",
           letterSpacing: "0.12em",
-          color: "rgba(255,255,255,0.3)",
+          color: "rgba(17,17,17,0.35)",
           marginBottom: "20px",
         }}>
           Portfolio feature
@@ -23,7 +24,7 @@ export default function PortfolioFeature() {
           fontSize: "24px",
           fontWeight: 300,
           lineHeight: 1.5,
-          color: "rgba(255,255,255,0.85)",
+          color: "var(--ink)",
           fontStyle: "normal",
           margin: "0 0 20px",
         }}>
@@ -34,21 +35,21 @@ export default function PortfolioFeature() {
         <p style={{
           fontFamily: "var(--in)",
           fontSize: "15px",
-          color: "rgba(255,255,255,0.35)",
+          color: "rgba(17,17,17,0.4)",
           letterSpacing: "0.04em",
         }}>
-          SDA Investment Team
+          Imani Ventures Investment Team
         </p>
       </div>
 
       {/* Right — company list */}
       <div style={{
-        background: "linear-gradient(180deg, #CF9A0A, #5D4400)",
+        backgroundColor: "var(--ink)",
         padding: "40px",
       }}>
         <span style={{
           display: "inline-block",
-          backgroundColor: "rgba(0,0,0,0.3)",
+          backgroundColor: "rgba(255,255,255,0.08)",
           fontFamily: "var(--in)",
           fontSize: "9px",
           color: "#FAFAF8",
@@ -85,8 +86,20 @@ export default function PortfolioFeature() {
                 fontWeight: 600,
                 color: "#FAFAF8",
                 flexShrink: 0,
+                overflow: "hidden",
+                position: "relative",
               }}>
-                {company.initials}
+                {company.image ? (
+                  <Image
+                    src={company.image}
+                    alt={company.name}
+                    fill
+                    sizes="32px"
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  company.initials
+                )}
               </div>
               <div>
                 <p style={{

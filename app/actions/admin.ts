@@ -510,7 +510,7 @@ export async function inviteAdmin(
 
   await sendEmail(TEMPLATES.ADMIN_INVITE, trimmedEmail, {
     invite_link: inviteLink,
-    invited_by_name: actorProfile?.full_name ?? "SDA",
+    invited_by_name: actorProfile?.full_name ?? "Imani Ventures",
     expires_at: expiresAt,
   });
 

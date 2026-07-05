@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import Wordmark from "@/components/brand/Wordmark";
 
 const FOOTER_NAV = [
   { label: "Funding types", href: "/#funding-options" },
@@ -13,6 +14,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   return (
     <footer style={{
+      backgroundColor: "var(--ink)",
       padding: "32px 40px 24px",
       borderTop: "1px solid rgba(255,255,255,0.08)",
     }}>
@@ -22,16 +24,7 @@ export default function Footer() {
         justifyContent: "space-between",
         alignItems: "flex-start",
       }}>
-        <span style={{
-          fontFamily: "var(--sr)",
-          fontSize: "120px",
-          fontWeight: 600,
-          letterSpacing: "-0.05em",
-          color: "#FAFAF8",
-          lineHeight: 1,
-        }}>
-          SDA
-        </span>
+        <Wordmark variant="inverse" size={64} />
         <nav style={{
           display: "flex",
           flexDirection: "column",
@@ -42,7 +35,7 @@ export default function Footer() {
             <Link
               key={link.label}
               href={link.href}
-              className="sda-footer-link"
+              className="imani-footer-link"
               style={{
                 fontFamily: "var(--in)",
                 fontSize: "15px",
@@ -73,7 +66,7 @@ export default function Footer() {
           color: "rgba(255,255,255,0.2)",
           margin: 0,
         }}>
-          © {currentYear} SDA Micro Angel Investing. All rights reserved.{" "}
+          © {currentYear} Imani Ventures. All rights reserved.{" "}
           <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>Privacy</Link>
           {" · "}
           <Link href="/terms" style={{ color: "inherit", textDecoration: "none" }}>Terms</Link>

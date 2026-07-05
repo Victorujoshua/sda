@@ -16,9 +16,10 @@ function StatCard({
 }) {
   return (
     <div
-      className="sda-admin-stat-card"
+      className="imani-admin-stat-card"
       style={{
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
+        border: "1px solid var(--hairline)",
         padding: "32px 28px",
         display: "flex",
         flexDirection: "column",
@@ -32,7 +33,7 @@ function StatCard({
           fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.08em",
-          color: "rgba(0,0,0,0.4)",
+          color: "rgba(17,17,17,0.4)",
           margin: "0 0 16px",
         }}
       >
@@ -44,7 +45,7 @@ function StatCard({
           fontSize: 36,
           fontWeight: 300,
           letterSpacing: "-0.02em",
-          color: "#0A0A0A",
+          color: "var(--ink)",
           margin: 0,
           lineHeight: 1,
         }}
@@ -55,7 +56,7 @@ function StatCard({
         style={{
           fontFamily: "var(--in)",
           fontSize: 14,
-          color: "rgba(0,0,0,0.45)",
+          color: "rgba(17,17,17,0.45)",
           margin: "12px 0 0",
           minHeight: 20,
         }}
@@ -141,7 +142,7 @@ export default async function AdminOverviewPage() {
       </h1>
 
       {/* Single unified 3×2 stats grid */}
-      <div className="sda-admin-stats-grid">
+      <div className="imani-admin-stats-grid">
         <StatCard
           label="Total applications"
           value={fmt(total ?? 0)}
@@ -158,7 +159,7 @@ export default async function AdminOverviewPage() {
         />
         <StatCard
           label="Total funding approved"
-          value={<><span style={{ fontFamily: "Inter, system-ui, sans-serif", textDecoration: "none" }}>₦</span>{fmt(totalFunding)}</>}
+          value={<><span style={{ fontFamily: "'Aileron', system-ui, sans-serif", textDecoration: "none" }}>₦</span>{fmt(totalFunding)}</>}
         />
         <StatCard
           label="Registered users"

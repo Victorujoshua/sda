@@ -60,19 +60,19 @@ function LoginForm() {
   }
 
   return (
-    <main style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+    <main style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "var(--cream)", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
       <div style={{ width: "100%", maxWidth: "400px" }}>
 
-        <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "#0A0A0A", marginBottom: "8px" }}>
+        <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: "8px" }}>
           Welcome back
         </h1>
-        <p style={{ fontFamily: "var(--in)", fontSize: "17px", color: "#6B6B6B", marginBottom: "36px" }}>
-          Sign in to your SDA account.
+        <p style={{ fontFamily: "var(--in)", fontSize: "17px", color: "rgba(17,17,17,0.6)", marginBottom: "36px" }}>
+          Sign in to your Imani Ventures account.
         </p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label style={{ fontFamily: "var(--in)", fontSize: "15px", color: "#0A0A0A", fontWeight: 500 }}>
+            <label style={{ fontFamily: "var(--in)", fontSize: "15px", color: "var(--ink)", fontWeight: 500 }}>
               Email address
             </label>
             <input
@@ -81,16 +81,16 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              style={{ fontFamily: "var(--in)", fontSize: "17px", padding: "11px 14px", border: "1px solid #E5E4DF", backgroundColor: "#FAFAF8", color: "#0A0A0A", outline: "none", width: "100%", boxSizing: "border-box" }}
+              style={{ fontFamily: "var(--in)", fontSize: "17px", padding: "11px 14px", border: "1px solid var(--hairline)", backgroundColor: "var(--cream)", color: "var(--ink)", outline: "none", width: "100%", boxSizing: "border-box" }}
             />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ fontFamily: "var(--in)", fontSize: "15px", color: "#0A0A0A", fontWeight: 500 }}>
+              <label style={{ fontFamily: "var(--in)", fontSize: "15px", color: "var(--ink)", fontWeight: 500 }}>
                 Password
               </label>
-              <Link href="/forgot-password" style={{ fontFamily: "var(--in)", fontSize: "15px", color: "#1A3D2F", textDecoration: "none" }}>
+              <Link href="/forgot-password" style={{ fontFamily: "var(--in)", fontSize: "15px", color: "var(--crimson)", textDecoration: "none" }}>
                 Forgot password?
               </Link>
             </div>
@@ -101,12 +101,12 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                style={{ fontFamily: "var(--in)", fontSize: "17px", padding: "11px 44px 11px 14px", border: "1px solid #E5E4DF", backgroundColor: "#FAFAF8", color: "#0A0A0A", outline: "none", width: "100%", boxSizing: "border-box" }}
+                style={{ fontFamily: "var(--in)", fontSize: "17px", padding: "11px 44px 11px 14px", border: "1px solid var(--hairline)", backgroundColor: "var(--cream)", color: "var(--ink)", outline: "none", width: "100%", boxSizing: "border-box" }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "rgba(0,0,0,0.4)", padding: "4px", display: "flex", alignItems: "center" }}
+                style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "rgba(17,17,17,0.4)", padding: "4px", display: "flex", alignItems: "center" }}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -115,13 +115,13 @@ function LoginForm() {
           </div>
 
           {error && (
-            <p style={{ fontFamily: "var(--in)", fontSize: "15px", color: "#991B1B", margin: 0 }}>
+            <p style={{ fontFamily: "var(--in)", fontSize: "15px", color: "var(--maroon)", margin: 0 }}>
               {error}
             </p>
           )}
 
           {searchParams.get("error") === "auth_callback_error" && (
-            <p style={{ fontFamily: "var(--in)", fontSize: "15px", color: "#991B1B", margin: 0 }}>
+            <p style={{ fontFamily: "var(--in)", fontSize: "15px", color: "var(--maroon)", margin: 0 }}>
               The link has expired or is invalid. Please try again.
             </p>
           )}
@@ -129,15 +129,15 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            style={{ fontFamily: "var(--in)", fontSize: "15px", fontWeight: 500, letterSpacing: "0.04em", backgroundColor: loading ? "#2d5a43" : "#1A3D2F", color: "#FAFAF8", border: "none", padding: "13px 24px", cursor: loading ? "not-allowed" : "pointer", width: "100%", marginTop: "4px" }}
+            style={{ fontFamily: "var(--in)", fontSize: "15px", fontWeight: 500, letterSpacing: "0.04em", backgroundColor: loading ? "var(--maroon)" : "var(--crimson)", color: "var(--cream)", border: "none", padding: "13px 24px", cursor: loading ? "not-allowed" : "pointer", width: "100%", marginTop: "4px" }}
           >
             {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
 
-        <p style={{ fontFamily: "var(--in)", fontSize: "16px", color: "#6B6B6B", marginTop: "28px", textAlign: "center" }}>
+        <p style={{ fontFamily: "var(--in)", fontSize: "16px", color: "rgba(17,17,17,0.6)", marginTop: "28px", textAlign: "center" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/signup" style={{ color: "#1A3D2F", textDecoration: "none", fontWeight: 500 }}>
+          <Link href="/signup" style={{ color: "var(--crimson)", textDecoration: "none", fontWeight: 500 }}>
             Create one
           </Link>
         </p>
@@ -148,7 +148,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "#FAFAF8" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "var(--cream)" }} />}>
       <LoginForm />
     </Suspense>
   );

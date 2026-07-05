@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://sda.ng";
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://imaniventures.org";
   const now = new Date();
 
   return [

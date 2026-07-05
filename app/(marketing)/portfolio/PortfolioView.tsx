@@ -1,13 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 
 const INDUSTRIES = [
   "All",
-  "Food & Beverage",
   "Retail",
-  "Agribusiness",
-  "Manufacturing",
   "Services",
   "Technology",
 ] as const;
@@ -26,12 +24,14 @@ interface Company {
   fundingType: FundingType;
   location: string;
   fundingAmount: string;
+  image?: string;
 }
 
 const COMPANIES: Company[] = [
   {
     name: "Fundora HQ",
     initials: "FH",
+    image: "/images/portfolio-fundora.png",
     industry: "Technology",
     shortDescription: "Financial infrastructure for small businesses",
     description:
@@ -44,6 +44,7 @@ const COMPANIES: Company[] = [
   {
     name: "Kidcode",
     initials: "KC",
+    image: "/images/portfolio-Kidcode.png",
     industry: "Technology",
     shortDescription: "Technology education for children aged 7–17",
     description:
@@ -56,6 +57,7 @@ const COMPANIES: Company[] = [
   {
     name: "Rent & Rig Limited",
     initials: "RR",
+    image: "/images/portfolio-rent and rig.png",
     industry: "Services",
     shortDescription: "Equipment rental and logistics for construction and events",
     description:
@@ -76,30 +78,6 @@ const COMPANIES: Company[] = [
     fundingType: "Equity",
     location: "Lagos",
     fundingAmount: "₦1,500,000",
-  },
-  {
-    name: "AgriPrime Foods",
-    initials: "AF",
-    industry: "Agribusiness",
-    shortDescription: "Grain processing and distribution for northern Nigerian markets",
-    description:
-      "AgriPrime Foods processes and packages maize, millet, and sorghum sourced directly from smallholder farmers in Kano and Kaduna states. The business supplies supermarkets, schools, and institutional buyers from a 500-tonne-per-month processing facility.",
-    status: "Active",
-    fundingType: "Asset Financing",
-    location: "Kano",
-    fundingAmount: "₦5,000,000",
-  },
-  {
-    name: "Maidstone Bakery",
-    initials: "MB",
-    industry: "Food & Beverage",
-    shortDescription: "Artisanal baked goods for retail and food-service clients",
-    description:
-      "Maidstone Bakery produced premium breads, pastries, and celebration cakes sold through two Lagos retail outlets and a wholesale channel serving hotels and restaurants. The business completed its debt facility in full and exited in Q3 2024.",
-    status: "Exited",
-    fundingType: "Debt",
-    location: "Lagos",
-    fundingAmount: "₦2,500,000",
   },
 ];
 
@@ -134,13 +112,13 @@ export default function PortfolioView() {
       : COMPANIES.filter((c) => c.industry === activeIndustry);
 
   return (
-    <main style={{ backgroundColor: "#14171A", minHeight: "100vh" }}>
+    <main style={{ backgroundColor: "var(--cream)", minHeight: "100vh" }}>
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section
-        className="sda-pf-hero"
+        className="imani-pf-hero"
         style={{
-          backgroundColor: "#14171A",
+          backgroundColor: "var(--cream)",
           marginTop: "-80px",
           paddingTop: "140px",
           paddingBottom: "56px",
@@ -155,7 +133,7 @@ export default function PortfolioView() {
             fontWeight: 600,
             lineHeight: 1.08,
             letterSpacing: "-0.025em",
-            color: "#FAFAF8",
+            color: "var(--ink)",
             margin: "0 0 16px",
           }}
         >
@@ -165,7 +143,7 @@ export default function PortfolioView() {
           style={{
             fontFamily: "var(--in)",
             fontSize: "16px",
-            color: "rgba(255,255,255,0.5)",
+            color: "rgba(17,17,17,0.5)",
             margin: "0 0 48px",
             maxWidth: "520px",
             lineHeight: 1.6,
@@ -173,17 +151,17 @@ export default function PortfolioView() {
         >
           Revenue-generating Nigerian businesses funded through structured financing.
         </p>
-        <div style={{ height: "2px", backgroundColor: "#CF9A0A", width: "100%" }} />
+        <div style={{ height: "2px", backgroundColor: "var(--crimson)", width: "100%" }} />
       </section>
 
       {/* ── Filter bar ────────────────────────────────────────────────── */}
-      <div style={{ backgroundColor: "#14171A", borderBottom: "1px solid #2A2E32" }}>
+      <div style={{ backgroundColor: "var(--cream)", borderBottom: "1px solid var(--hairline)" }}>
         <div
-          className="sda-pf-filter-outer"
+          className="imani-pf-filter-outer"
           style={{ padding: "20px 40px", display: "flex", alignItems: "center", gap: "16px" }}
         >
-          <div className="sda-pf-filter-wrap" style={{ flex: 1 }}>
-            <div className="sda-pf-filter-bar">
+          <div className="imani-pf-filter-wrap" style={{ flex: 1 }}>
+            <div className="imani-pf-filter-bar">
               {INDUSTRIES.map((industry) => {
                 const active = industry === activeIndustry;
                 return (
@@ -196,9 +174,9 @@ export default function PortfolioView() {
                       letterSpacing: "0.02em",
                       padding: "6px 16px",
                       borderRadius: "999px",
-                      border: active ? "none" : "1px solid #CF9A0A",
-                      backgroundColor: active ? "#CF9A0A" : "transparent",
-                      color: active ? "#14171A" : "#CF9A0A",
+                      border: active ? "none" : "1px solid var(--crimson)",
+                      backgroundColor: active ? "var(--crimson)" : "transparent",
+                      color: active ? "#FAFAF8" : "var(--crimson)",
                       cursor: "pointer",
                       whiteSpace: "nowrap",
                       fontWeight: active ? 500 : 400,
@@ -217,7 +195,7 @@ export default function PortfolioView() {
               style={{
                 fontFamily: "var(--in)",
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.35)",
+                color: "rgba(17,17,17,0.45)",
                 background: "none",
                 border: "none",
                 cursor: "pointer",
@@ -240,7 +218,7 @@ export default function PortfolioView() {
             style={{
               fontFamily: "var(--in)",
               fontSize: "15px",
-              color: "rgba(255,255,255,0.3)",
+              color: "rgba(17,17,17,0.4)",
               padding: "8px 0 48px",
             }}
           >
@@ -248,12 +226,12 @@ export default function PortfolioView() {
           </p>
         )}
 
-        <div className="sda-pf-grid">
+        <div className="imani-pf-grid">
           {filtered.map((company) => (
             <button
               key={company.name}
               onClick={() => setSelected(company)}
-              className="sda-pf-card"
+              className="imani-pf-card"
               aria-label={`View details for ${company.name}`}
               style={{
                 position: "relative",
@@ -278,33 +256,66 @@ export default function PortfolioView() {
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   color: "rgba(255,255,255,0.6)",
+                  zIndex: 2,
                 }}
               >
                 {badgeLabel(company)}
               </span>
 
-              {/* Initials — centered */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <span
-                  style={{
+              {/* Image or initials placeholder */}
+              {company.image ? (
+                <>
+                  <Image
+                    src={company.image}
+                    alt={company.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                  {/* gradient so name reads against the photo */}
+                  <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 60%)",
+                    zIndex: 1,
+                  }} />
+                  <span style={{
+                    position: "absolute",
+                    bottom: "14px",
+                    left: "16px",
                     fontFamily: "var(--sr)",
-                    fontSize: "40px",
-                    fontWeight: 300,
-                    letterSpacing: "-0.02em",
-                    color: "rgba(255,255,255,0.8)",
+                    fontSize: "16px",
+                    fontWeight: 400,
+                    color: "#FAFAF8",
+                    letterSpacing: "-0.01em",
+                    zIndex: 2,
+                  }}>
+                    {company.name}
+                  </span>
+                </>
+              ) : (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  {company.initials}
-                </span>
-              </div>
+                  <span
+                    style={{
+                      fontFamily: "var(--sr)",
+                      fontSize: "40px",
+                      fontWeight: 300,
+                      letterSpacing: "-0.02em",
+                      color: "rgba(255,255,255,0.8)",
+                    }}
+                  >
+                    {company.initials}
+                  </span>
+                </div>
+              )}
             </button>
           ))}
         </div>
@@ -330,8 +341,8 @@ export default function PortfolioView() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: "#14171A",
-              border: "1px solid #2A2E32",
+              backgroundColor: "var(--ink)",
+              border: "1px solid rgba(255,255,255,0.12)",
               maxWidth: "560px",
               width: "100%",
               maxHeight: "90vh",
@@ -342,7 +353,7 @@ export default function PortfolioView() {
             <div
               style={{
                 padding: "24px 28px 20px",
-                borderBottom: "1px solid #2A2E32",
+                borderBottom: "1px solid rgba(255,255,255,0.12)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
@@ -425,9 +436,9 @@ export default function PortfolioView() {
                     fontSize: "10px",
                     textTransform: "uppercase",
                     letterSpacing: "0.08em",
-                    border: "1px solid rgba(207,154,10,0.3)",
+                    border: "1px solid rgba(178,35,41,0.3)",
                     padding: "4px 10px",
-                    color: "#CF9A0A",
+                    color: "var(--crimson)",
                   }}
                 >
                   {selected.fundingType}
@@ -441,11 +452,11 @@ export default function PortfolioView() {
                     padding: "4px 10px",
                     color:
                       selected.status === "Active"
-                        ? "#CF9A0A"
+                        ? "var(--crimson)"
                         : "rgba(255,255,255,0.3)",
                     border:
                       selected.status === "Active"
-                        ? "1px solid rgba(207,154,10,0.3)"
+                        ? "1px solid rgba(178,35,41,0.3)"
                         : "1px solid rgba(255,255,255,0.1)",
                   }}
                 >
@@ -469,7 +480,7 @@ export default function PortfolioView() {
               {/* Funding amount */}
               <div
                 style={{
-                  borderTop: "1px solid #2A2E32",
+                  borderTop: "1px solid rgba(255,255,255,0.12)",
                   paddingTop: "20px",
                 }}
               >
@@ -490,7 +501,7 @@ export default function PortfolioView() {
                     fontFamily: "var(--in)",
                     fontSize: "22px",
                     fontWeight: 500,
-                    color: "#CF9A0A",
+                    color: "var(--crimson)",
                     margin: 0,
                   }}
                 >

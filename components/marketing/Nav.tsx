@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import NavAuthSlot from "./NavAuthSlot";
+import Wordmark from "@/components/brand/Wordmark";
 
 const NAV_LINKS = [
   { label: "Funding types", href: "/#funding-options" },
@@ -106,20 +106,11 @@ export default function Nav() {
         boxShadow: navShadow,
         transition: "background-color 0.3s ease, box-shadow 0.3s ease",
       }}>
-        {/* Left: logo */}
-        <Link href="/" style={{ display: "inline-flex", alignItems: "center" }}>
-          <Image
-            src="/images/logo.png"
-            alt="SDA"
-            width={120}
-            height={40}
-            style={{ objectFit: "contain" }}
-            priority
-          />
-        </Link>
+        {/* Left: wordmark */}
+        <Wordmark variant="inverse" />
 
         {/* Desktop nav links + auth slot — hidden on mobile */}
-        <div className="sda-nav-desktop" style={{
+        <div className="imani-nav-desktop" style={{
           display: "flex",
           alignItems: "center",
           gap: "32px",
@@ -136,7 +127,7 @@ export default function Nav() {
               <li key={link.label}>
                 <Link
                   href={link.href}
-                  className="sda-nav-link"
+                  className="imani-nav-link"
                   style={{
                     fontFamily: "var(--in)",
                     fontSize: "18px",
@@ -159,7 +150,7 @@ export default function Nav() {
 
         {/* Hamburger button — visible only on mobile via CSS */}
         <button
-          className="sda-nav-hamburger"
+          className="imani-nav-hamburger"
           onClick={() => setIsOpen(true)}
           aria-label="Open menu"
         >
@@ -170,7 +161,7 @@ export default function Nav() {
       </nav>
 
       {/* Full-screen mobile drawer */}
-      <div className={isOpen ? "sda-nav-drawer sda-nav-drawer--open" : "sda-nav-drawer"}>
+      <div className={isOpen ? "imani-nav-drawer imani-nav-drawer--open" : "imani-nav-drawer"}>
         {/* Top row: logo + close */}
         <div style={{
           display: "flex",
@@ -178,17 +169,9 @@ export default function Nav() {
           alignItems: "center",
           marginBottom: "48px",
         }}>
-          <Link href="/" onClick={() => setIsOpen(false)} style={{ display: "inline-flex", alignItems: "center" }}>
-            <Image
-              src="/images/logo.png"
-              alt="SDA"
-              width={100}
-              height={34}
-              style={{ objectFit: "contain" }}
-            />
-          </Link>
+          <Wordmark variant="inverse" />
           <button
-            className="sda-nav-close"
+            className="imani-nav-close"
             onClick={() => setIsOpen(false)}
             aria-label="Close menu"
           >
@@ -232,7 +215,7 @@ export default function Nav() {
             <Link
               href="/signup"
               onClick={() => setIsOpen(false)}
-              className="sda-btn-nav-cta"
+              className="imani-btn-nav-cta"
               style={{
                 display: "block",
                 textAlign: "center",
@@ -252,7 +235,7 @@ export default function Nav() {
               <Link
                 href={mobileDest.href}
                 onClick={() => setIsOpen(false)}
-                className="sda-btn-nav-cta"
+                className="imani-btn-nav-cta"
                 style={{
                   display: "block",
                   textAlign: "center",

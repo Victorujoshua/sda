@@ -1,4 +1,4 @@
-﻿import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 import Link from "next/link";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -9,12 +9,14 @@ const STATUS_LABEL: Record<string, string> = {
   rejected: "Rejected",
 };
 
-const STATUS_COLOR: Record<string, string> = {
-  draft: "var(--muted)",
-  pending: "var(--warning)",
-  under_review: "var(--accent)",
-  approved: "var(--success)",
-  rejected: "var(--danger)",
+type BadgeStyle = { bg: string; color: string };
+
+const STATUS_BADGE: Record<string, BadgeStyle> = {
+  draft:        { bg: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" },
+  pending:      { bg: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" },
+  under_review: { bg: "rgba(17,17,17,0.08)", color: "var(--ink)" },
+  approved:     { bg: "rgba(17,17,17,0.06)", color: "var(--ink)" },
+  rejected:     { bg: "rgba(178,35,41,0.08)", color: "var(--maroon)" },
 };
 
 const FUNDING_LABEL: Record<string, string> = {
@@ -70,12 +72,12 @@ export default async function ApplicationsPage({
   const { data: applications } = await query;
 
   const inputStyle: React.CSSProperties = {
-    border: "1px solid var(--border)",
+    border: "1px solid var(--hairline)",
     padding: "8px 12px",
     fontFamily: "var(--in)",
     fontSize: 15,
     color: "var(--ink)",
-    backgroundColor: "#fff",
+    backgroundColor: "var(--cream)",
     outline: "none",
     width: 200,
   };
@@ -203,8 +205,8 @@ export default async function ApplicationsPage({
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             border: "none",
             cursor: "pointer",
           }}
@@ -245,7 +247,7 @@ export default async function ApplicationsPage({
       {!applications?.length ? (
         <div
           style={{
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             padding: "48px 32px",
             textAlign: "center",
           }}
@@ -271,7 +273,7 @@ export default async function ApplicationsPage({
           }}
         >
           <thead>
-            <tr style={{ borderBottom: "1px solid var(--border)" }}>
+            <tr style={{ borderBottom: "1px solid var(--hairline)" }}>
               {[
                 "Business",
                 "Founder",
@@ -285,12 +287,12 @@ export default async function ApplicationsPage({
                   style={{
                     textAlign: "left",
                     padding: "10px 12px",
-                    fontFamily: "var(--in)",
-                    fontSize: 13,
+                    fontFamily: "var(--sr)",
+                    fontSize: 11,
                     textTransform: "uppercase",
                     letterSpacing: "0.08em",
-                    color: "var(--muted)",
-                    fontWeight: 400,
+                    color: "var(--ink)",
+                    fontWeight: 500,
                   }}
                 >
                   {h}
@@ -302,7 +304,7 @@ export default async function ApplicationsPage({
             {applications.map((app) => (
               <tr
                 key={app.id}
-                style={{ borderBottom: "1px solid var(--border)" }}
+                style={{ borderBottom: "1px solid var(--hairline)" }}
               >
                 <td style={{ padding: "12px 12px" }}>
                   <Link
@@ -350,17 +352,27 @@ export default async function ApplicationsPage({
                     : "—"}
                 </td>
                 <td style={{ padding: "12px 12px" }}>
-                  <span
-                    style={{
-                      fontFamily: "var(--in)",
-                      fontSize: 13,
-                      color: STATUS_COLOR[app.status] ?? "var(--muted)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                    }}
-                  >
-                    {STATUS_LABEL[app.status] ?? app.status}
-                  </span>
+                  {(() => {
+                    const badge = STATUS_BADGE[app.status] ?? STATUS_BADGE.draft;
+                    return (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          fontFamily: "var(--sr)",
+                          fontSize: 11,
+                          fontWeight: 500,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                          padding: "4px 10px",
+                          borderRadius: "100px",
+                          backgroundColor: badge.bg,
+                          color: badge.color,
+                        }}
+                      >
+                        {STATUS_LABEL[app.status] ?? app.status}
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td
                   style={{

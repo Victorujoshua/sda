@@ -1,25 +1,23 @@
 import type { Metadata } from "next";
-import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 
-const sora = Sora({
-  subsets: ["latin"],
-  weight: ["300", "400", "600"],
-  variable: "--font-sora",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "SDA — Micro Angel Investment Platform",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://imaniventures.org"),
+  title: "Imani Ventures — Micro Angel Investment Platform",
   description:
     "Backing early-stage Nigerian businesses with traction. Apply for funding or explore live opportunities.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    siteName: "Imani Ventures",
+    type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Imani Ventures" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
@@ -31,9 +29,22 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${sora.variable} ${inter.variable}`}
       style={{ colorScheme: "light" }}
     >
+      <head>
+        {/* Satoshi — via Fontshare CDN (weights 400, 500, 700) */}
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap"
+          rel="stylesheet"
+        />
+        {/* Aileron — via CDNfonts (weight 400). Fontshare/Google Fonts do not carry Aileron. */}
+        <link rel="preconnect" href="https://fonts.cdnfonts.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.cdnfonts.com/css/aileron"
+          rel="stylesheet"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

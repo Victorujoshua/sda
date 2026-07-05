@@ -1,16 +1,16 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Apply for Funding — SDA",
+  title: "Apply for Funding — Imani Ventures",
   description:
-    "Apply for micro angel investment from SDA. We fund early-stage Nigerian businesses with traction across equity, debt, asset financing, and revenue-based instruments.",
+    "Apply for micro angel investment from Imani Ventures. We fund early-stage Nigerian businesses with traction across equity, debt, asset financing, and revenue-based instruments.",
   openGraph: {
-    title: "Apply for Funding — SDA",
+    title: "Apply for Funding — Imani Ventures",
     description:
       "Apply for micro angel investment. We fund Nigerian businesses with traction.",
-    url: "https://sda.ng/apply",
-    siteName: "SDA",
+    url: "https://imaniventures.org/apply",
+    siteName: "Imani Ventures",
     type: "website",
   },
 };
@@ -54,7 +54,7 @@ export default function ApplyPage() {
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "20px",
       }}>
         Apply for funding
@@ -65,12 +65,12 @@ export default function ApplyPage() {
         fontWeight: 300,
         lineHeight: 1.06,
         letterSpacing: "-0.025em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "20px",
         maxWidth: "640px",
       }}>
         We fund businesses{" "}
-        <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(255,255,255,0.45)" }}>
+        <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(17,17,17,0.45)" }}>
           with traction.
         </em>
       </h1>
@@ -78,7 +78,7 @@ export default function ApplyPage() {
         fontFamily: "var(--in)",
         fontSize: "18px",
         lineHeight: 1.7,
-        color: "rgba(255,255,255,0.65)",
+        color: "rgba(17,17,17,0.65)",
         maxWidth: "520px",
         marginBottom: "56px",
       }}>
@@ -92,14 +92,14 @@ export default function ApplyPage() {
         fontSize: "28px",
         fontWeight: 300,
         letterSpacing: "-0.01em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "24px",
       }}>
         What we look for
       </h2>
       <div style={{
-        border: "1px solid #CF9A0A",
-        backgroundColor: "rgba(207,154,10,0.08)",
+        border: "1px solid var(--crimson)",
+        backgroundColor: "rgba(178,35,41,0.06)",
         padding: "32px",
         marginBottom: "72px",
       }}>
@@ -108,7 +108,7 @@ export default function ApplyPage() {
             <li
               key={item}
               style={{
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                borderBottom: "1px solid var(--hairline)",
                 padding: "16px 0",
                 display: "flex",
                 gap: "16px",
@@ -116,14 +116,14 @@ export default function ApplyPage() {
                 fontFamily: "var(--in)",
                 fontSize: "18px",
                 lineHeight: 1.6,
-                color: "#FAFAF8",
+                color: "var(--ink)",
               }}
             >
               <span style={{
                 width: "6px",
                 height: "6px",
                 borderRadius: "50%",
-                backgroundColor: "#CF9A0A",
+                backgroundColor: "var(--crimson)",
                 flexShrink: 0,
                 marginTop: "9px",
               }} />
@@ -135,7 +135,7 @@ export default function ApplyPage() {
           fontFamily: "var(--in)",
           fontSize: "16px",
           fontWeight: 500,
-          color: "#CF9A0A",
+          color: "var(--crimson)",
           margin: "20px 0 0",
         }}>
           Applications that do not meet these criteria will not be considered.
@@ -148,7 +148,7 @@ export default function ApplyPage() {
         fontSize: "28px",
         fontWeight: 300,
         letterSpacing: "-0.01em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "24px",
       }}>
         Funding instruments
@@ -160,12 +160,12 @@ export default function ApplyPage() {
         marginBottom: "64px",
       }}>
         {INSTRUMENTS.map(({ type, description, note }) => (
-          <div key={type} className="sda-instrument-card" style={{ padding: "32px 28px" }}>
+          <div key={type} className="imani-instrument-card" style={{ padding: "32px 28px" }}>
             <p style={{
               fontFamily: "var(--sr)",
               fontSize: "18px",
               fontWeight: 300,
-              color: "#FAFAF8",
+              color: "var(--ink)",
               margin: "0 0 10px",
             }}>
               {type}
@@ -174,7 +174,7 @@ export default function ApplyPage() {
               fontFamily: "var(--in)",
               fontSize: "17px",
               lineHeight: 1.6,
-              color: "rgba(255,255,255,0.65)",
+              color: "rgba(17,17,17,0.65)",
               margin: "0 0 12px",
             }}>
               {description}
@@ -182,7 +182,7 @@ export default function ApplyPage() {
             <p style={{
               fontFamily: "var(--in)",
               fontSize: "14px",
-              color: "rgba(255,255,255,0.35)",
+              color: "rgba(17,17,17,0.4)",
             }}>
               {note}
             </p>
@@ -195,8 +195,8 @@ export default function ApplyPage() {
         href="/signup"
         style={{
           display: "inline-block",
-          backgroundColor: "#CF9A0A",
-          color: "#0A0A0A",
+          backgroundColor: "var(--crimson)",
+          color: "#FAFAF8",
           fontFamily: "var(--in)",
           fontSize: "14px",
           letterSpacing: "0.04em",

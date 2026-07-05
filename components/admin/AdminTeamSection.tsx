@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ const btnBase: React.CSSProperties = {
   fontSize: 13,
   letterSpacing: "0.04em",
   padding: "6px 12px",
-  border: "1px solid var(--border)",
+  border: "1px solid var(--hairline)",
   backgroundColor: "transparent",
   cursor: "pointer",
 };
@@ -31,8 +31,8 @@ function RoleBadge({ role }: { role: string }) {
         textTransform: "uppercase",
         letterSpacing: "0.08em",
         padding: "3px 8px",
-        backgroundColor: isSuperAdmin ? "#CF9A0A" : "rgba(0,0,0,0.06)",
-        color: isSuperAdmin ? "#0A0A0A" : "var(--ink)",
+        backgroundColor: isSuperAdmin ? "var(--ink)" : "rgba(17,17,17,0.06)",
+        color: isSuperAdmin ? "var(--cream)" : "var(--ink)",
       }}
     >
       {isSuperAdmin ? "Super Admin" : "Admin"}
@@ -95,7 +95,7 @@ function AdminRow({
   const hasName = nameValue.trim().length > 0;
 
   return (
-    <tr style={{ borderBottom: "1px solid var(--border)" }}>
+    <tr style={{ borderBottom: "1px solid var(--hairline)" }}>
       <td style={{ padding: "14px 12px", verticalAlign: "middle" }}>
         {editing ? (
           <input
@@ -109,12 +109,12 @@ function AdminRow({
               fontSize: 16,
               fontWeight: 500,
               color: "var(--ink)",
-              border: "1px solid var(--border)",
+              border: "1px solid var(--hairline)",
               padding: "4px 8px",
               outline: "none",
               width: "100%",
               boxSizing: "border-box",
-              backgroundColor: "#fff",
+              backgroundColor: "var(--cream)",
             }}
           />
         ) : (
@@ -136,7 +136,7 @@ function AdminRow({
               {hasName ? nameValue : "Unnamed admin"}
             </span>
             {nameSaved && (
-              <span style={{ fontFamily: "var(--in)", fontSize: 13, color: "var(--success)" }}>
+              <span style={{ fontFamily: "var(--in)", fontSize: 13, color: "var(--ink)" }}>
                 Saved
               </span>
             )}
@@ -173,7 +173,7 @@ function AdminRow({
             <button
               onClick={handleRemove}
               disabled={isPending}
-              style={{ ...btnBase, color: "var(--danger)" }}
+              style={{ ...btnBase, color: "var(--maroon)" }}
             >
               {isPending ? "Removing…" : "Remove admin"}
             </button>
@@ -182,7 +182,7 @@ function AdminRow({
                 style={{
                   fontFamily: "var(--in)",
                   fontSize: 14,
-                  color: "var(--danger)",
+                  color: "var(--maroon)",
                   margin: "6px 0 0",
                 }}
               >
@@ -218,7 +218,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
   return (
     <div
       style={{
-        border: "1px solid var(--border)",
+        border: "1px solid var(--hairline)",
         padding: "20px",
         marginTop: 16,
         maxWidth: 440,
@@ -242,7 +242,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
           style={{
             fontFamily: "var(--in)",
             fontSize: 15,
-            color: "var(--success)",
+            color: "var(--ink)",
             margin: "0 0 12px",
           }}
         >
@@ -254,7 +254,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
           style={{
             fontFamily: "var(--in)",
             fontSize: 15,
-            color: "var(--danger)",
+            color: "var(--maroon)",
             margin: "0 0 12px",
           }}
         >
@@ -274,12 +274,12 @@ function InviteForm({ onDone }: { onDone: () => void }) {
           placeholder="admin@example.com"
           style={{
             flex: 1,
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             padding: "9px 12px",
             fontFamily: "var(--in)",
             fontSize: 15,
             color: "var(--ink)",
-            backgroundColor: "#fff",
+            backgroundColor: "var(--cream)",
             outline: "none",
           }}
         />
@@ -291,8 +291,8 @@ function InviteForm({ onDone }: { onDone: () => void }) {
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             border: "none",
             cursor: isPending ? "not-allowed" : "pointer",
             flexShrink: 0,
@@ -308,7 +308,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
             fontSize: 14,
             padding: "9px 14px",
             background: "none",
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             color: "var(--muted)",
             cursor: "pointer",
             flexShrink: 0,
@@ -361,8 +361,8 @@ export default function AdminTeamSection({
               fontSize: 14,
               letterSpacing: "0.04em",
               padding: "7px 16px",
-              backgroundColor: "#CF9A0A",
-              color: "#0A0A0A",
+              backgroundColor: "var(--crimson)",
+              color: "var(--cream)",
               border: "none",
               cursor: "pointer",
             }}
@@ -376,23 +376,23 @@ export default function AdminTeamSection({
         style={{
           width: "100%",
           borderCollapse: "collapse",
-          border: "1px solid var(--border)",
+          border: "1px solid var(--hairline)",
         }}
       >
         <thead>
-          <tr style={{ borderBottom: "1px solid var(--border)", backgroundColor: "var(--surface)" }}>
+          <tr style={{ borderBottom: "1px solid var(--hairline)", backgroundColor: "rgba(17,17,17,0.04)" }}>
             {["Name", "Role", "Joined", "Actions"].map((h) => (
               <th
                 key={h}
                 style={{
                   textAlign: "left",
                   padding: "10px 12px",
-                  fontFamily: "var(--in)",
-                  fontSize: 13,
+                  fontFamily: "var(--sr)",
+                  fontSize: 11,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
-                  color: "var(--muted)",
-                  fontWeight: 400,
+                  color: "var(--ink)",
+                  fontWeight: 500,
                 }}
               >
                 {h}

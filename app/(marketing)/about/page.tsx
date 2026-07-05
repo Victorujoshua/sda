@@ -1,15 +1,15 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About — SDA",
+  title: "About — Imani Ventures",
   description:
-    "SDA is a micro angel investment platform backing early-stage Nigerian businesses with traction. Learn about our team and approach.",
+    "Imani Ventures is a micro angel investment platform backing early-stage Nigerian businesses with traction. Learn about our team and approach.",
   openGraph: {
-    title: "About — SDA",
+    title: "About — Imani Ventures",
     description:
-      "SDA is a micro angel investment platform backing early-stage Nigerian businesses with traction.",
-    url: "https://sda.ng/about",
-    siteName: "SDA",
+      "Imani Ventures is a micro angel investment platform backing early-stage Nigerian businesses with traction.",
+    url: "https://imaniventures.org/about",
+    siteName: "Imani Ventures",
     type: "website",
   },
 };
@@ -23,10 +23,10 @@ export default function AboutPage() {
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "20px",
       }}>
-        About SDA
+        About Imani Ventures
       </p>
 
       <h1 style={{
@@ -35,17 +35,17 @@ export default function AboutPage() {
         fontWeight: 300,
         lineHeight: 1.06,
         letterSpacing: "-0.025em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "32px",
       }}>
         Capital for Nigerian businesses{" "}
-        <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(255,255,255,0.45)" }}>
+        <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(17,17,17,0.45)" }}>
           already moving.
         </em>
       </h1>
 
       <div style={{
-        borderTop: "1px solid rgba(255,255,255,0.1)",
+        borderTop: "1px solid var(--hairline)",
         paddingTop: "40px",
         display: "flex",
         flexDirection: "column",
@@ -56,9 +56,9 @@ export default function AboutPage() {
           fontFamily: "var(--in)",
           fontSize: "18px",
           lineHeight: 1.7,
-          color: "rgba(255,255,255,0.65)",
+          color: "rgba(17,17,17,0.65)",
         }}>
-          SDA is a micro angel investment platform repositioned to connect serious
+          Imani Ventures is a micro angel investment platform repositioned to connect serious
           capital with early-stage Nigerian businesses that already have traction —
           revenue, customers, and a clear sense of where they are going.
         </p>
@@ -66,7 +66,7 @@ export default function AboutPage() {
           fontFamily: "var(--in)",
           fontSize: "18px",
           lineHeight: 1.7,
-          color: "rgba(255,255,255,0.65)",
+          color: "rgba(17,17,17,0.65)",
         }}>
           We are not a grant programme. We are not a pitch competition. We back
           operators who understand their market and have already started building
@@ -76,7 +76,7 @@ export default function AboutPage() {
           fontFamily: "var(--in)",
           fontSize: "18px",
           lineHeight: 1.7,
-          color: "rgba(255,255,255,0.65)",
+          color: "rgba(17,17,17,0.65)",
         }}>
           Our funding instruments — equity, debt, asset financing, and
           revenue-based funding — are structured to match the stage and shape of
@@ -88,12 +88,12 @@ export default function AboutPage() {
       {/* Stats row */}
       <div style={{
         marginTop: "64px",
-        borderTop: "1px solid rgba(255,255,255,0.1)",
+        borderTop: "1px solid var(--hairline)",
         paddingTop: "40px",
         display: "grid",
         gridTemplateColumns: "1fr 1fr 1fr",
         gap: "1px",
-        backgroundColor: "rgba(255,255,255,0.08)",
+        backgroundColor: "var(--hairline)",
       }}>
         {[
           { stat: "4+", label: "portfolio companies" },
@@ -101,7 +101,7 @@ export default function AboutPage() {
           { stat: "Nigeria", label: "focus market" },
         ].map(({ stat, label }) => (
           <div key={label} style={{
-            backgroundColor: "#0A0A0A",
+            backgroundColor: "var(--ink)",
             padding: "32px 24px",
           }}>
             <p style={{
@@ -109,7 +109,7 @@ export default function AboutPage() {
               fontSize: "42px",
               fontWeight: 300,
               letterSpacing: "-0.025em",
-              color: "#FAFAF8",
+              color: "var(--cream)",
               margin: "0 0 6px",
             }}>
               {stat}
@@ -117,7 +117,7 @@ export default function AboutPage() {
             <p style={{
               fontFamily: "var(--in)",
               fontSize: "14px",
-              color: "rgba(255,255,255,0.35)",
+              color: "rgba(248,237,235,0.55)",
               margin: 0,
               textTransform: "uppercase",
               letterSpacing: "0.08em",

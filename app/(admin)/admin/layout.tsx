@@ -1,7 +1,8 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logout } from "@/app/actions/auth";
+import Wordmark from "@/components/brand/Wordmark";
 
 const NAV = [
   { href: "/admin", label: "Overview" },
@@ -35,7 +36,7 @@ export default async function AdminLayout({
       style={{
         display: "flex",
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
         fontFamily: "var(--in)",
       }}
@@ -44,14 +45,14 @@ export default async function AdminLayout({
       <aside
         style={{
           width: 216,
-          borderRight: "1px solid var(--border)",
+          borderRight: "1px solid var(--hairline)",
           position: "fixed",
           top: 0,
           left: 0,
           bottom: 0,
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "var(--paper)",
+          backgroundColor: "var(--cream)",
           zIndex: 10,
         }}
       >
@@ -59,22 +60,10 @@ export default async function AdminLayout({
         <div
           style={{
             padding: "20px 24px 18px",
-            borderBottom: "1px solid var(--border)",
+            borderBottom: "1px solid var(--hairline)",
           }}
         >
-          <Link
-            href="/"
-            style={{
-              fontFamily: "var(--sr)",
-              fontSize: 18,
-              fontWeight: 600,
-              color: "var(--ink)",
-              textDecoration: "none",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            SDA
-          </Link>
+          <Wordmark />
           <p
             style={{
               fontFamily: "var(--in)",
@@ -114,7 +103,7 @@ export default async function AdminLayout({
         <div
           style={{
             padding: "14px 24px",
-            borderTop: "1px solid var(--border)",
+            borderTop: "1px solid var(--hairline)",
           }}
         >
           <p
@@ -138,7 +127,7 @@ export default async function AdminLayout({
                 fontSize: 14,
                 background: "none",
                 border: "none",
-                color: "var(--muted)",
+                color: "var(--crimson)",
                 cursor: "pointer",
                 padding: 0,
                 letterSpacing: "0.02em",

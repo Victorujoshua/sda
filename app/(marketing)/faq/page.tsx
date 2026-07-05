@@ -1,36 +1,36 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 import { AccordionGroup } from "@/components/ui/accordion";
 
 export const metadata: Metadata = {
-  title: "FAQ — SDA",
+  title: "FAQ — Imani Ventures",
   description:
-    "Frequently asked questions about applying for funding, investing through SDA, and how the platform works.",
+    "Frequently asked questions about applying for funding, investing through Imani Ventures, and how the platform works.",
   openGraph: {
-    title: "FAQ — SDA",
+    title: "FAQ — Imani Ventures",
     description:
-      "Frequently asked questions about SDA micro angel investing.",
-    url: "https://sda.ng/faq",
-    siteName: "SDA",
+      "Frequently asked questions about Imani Ventures micro angel investing.",
+    url: "https://imaniventures.org/faq",
+    siteName: "Imani Ventures",
     type: "website",
   },
 };
 
 const FAQ_GROUPS = [
   {
-    title: "About SDA",
+    title: "About Imani Ventures",
     items: [
       {
-        question: "What is SDA?",
+        question: "What is Imani Ventures?",
         answer:
-          "SDA is a private capital platform connecting vetted investors with revenue-generating businesses through structured financing. We focus on businesses that are already operating and generating revenue, not early-stage ideas.",
+          "Imani Ventures is a private capital platform connecting vetted investors with revenue-generating businesses through structured financing. We focus on businesses that are already operating and generating revenue, not early-stage ideas.",
       },
       {
-        question: "Is SDA a crowdfunding platform?",
+        question: "Is Imani Ventures a crowdfunding platform?",
         answer:
-          "No. SDA does not operate as a public crowdfunding platform. All opportunities are offered privately to approved participants within our network.",
+          "No. Imani Ventures does not operate as a public crowdfunding platform. All opportunities are offered privately to approved participants within our network.",
       },
       {
-        question: "Who can join SDA as an investor?",
+        question: "Who can join Imani Ventures as an investor?",
         answer:
           "Investors apply to join the platform and are onboarded before gaining access to opportunities. We work with individuals who are looking to allocate capital in a disciplined and informed way.",
       },
@@ -42,7 +42,7 @@ const FAQ_GROUPS = [
       {
         question: "What types of investments are available?",
         answer:
-          "SDA offers different structures depending on the business and investor preference: revenue-based financing, fixed return financing, profit-sharing agreements, equity investments, and hybrid structures combining income and upside.",
+          "Imani Ventures offers different structures depending on the business and investor preference: revenue-based financing, fixed return financing, profit-sharing agreements, equity investments, and hybrid structures combining income and upside.",
       },
       {
         question: "How do investors make money?",
@@ -107,7 +107,7 @@ const FAQ_GROUPS = [
       {
         question: "What is the minimum investment amount?",
         answer:
-          "Minimum investment levels vary by opportunity, but SDA is structured to allow participation at relatively accessible levels.",
+          "Minimum investment levels vary by opportunity, but Imani Ventures is structured to allow participation at relatively accessible levels.",
       },
     ],
   },
@@ -155,7 +155,7 @@ const FAQ_GROUPS = [
           "Businesses can apply for revenue-based financing, fixed return financing, profit-sharing structures, equity, and hybrid funding.",
       },
       {
-        question: "Why does SDA operate this model?",
+        question: "Why does Imani Ventures operate this model?",
         answer:
           "We believe capital should be structured around real business performance. By aligning funding with how businesses actually generate cash, we create a more disciplined and realistic investment environment for both sides.",
       },
@@ -171,7 +171,7 @@ export default function FAQPage() {
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "20px",
       }}>
         FAQ
@@ -182,7 +182,7 @@ export default function FAQPage() {
         fontWeight: 300,
         lineHeight: 1.06,
         letterSpacing: "-0.025em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "56px",
       }}>
         Common questions.

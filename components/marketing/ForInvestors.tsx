@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 const SCREENING = [
   "Screened for operational traction",
@@ -24,10 +24,10 @@ function BulletList({ items }: { items: string[] }) {
             alignItems: "center",
             gap: "14px",
             padding: "14px 0",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            borderTop: "1px solid var(--hairline)",
             borderBottom:
               i === items.length - 1
-                ? "1px solid rgba(255,255,255,0.08)"
+                ? "1px solid var(--hairline)"
                 : undefined,
           }}
         >
@@ -36,7 +36,7 @@ function BulletList({ items }: { items: string[] }) {
               width: "6px",
               height: "6px",
               borderRadius: "50%",
-              backgroundColor: "#CF9A0A",
+              backgroundColor: "var(--crimson)",
               flexShrink: 0,
             }}
           />
@@ -44,7 +44,7 @@ function BulletList({ items }: { items: string[] }) {
             style={{
               fontFamily: "var(--in)",
               fontSize: "18px",
-              color: "#FAFAF8",
+              color: "var(--ink)",
               lineHeight: 1.5,
               margin: 0,
             }}
@@ -61,9 +61,9 @@ export default function ForInvestors() {
   return (
     <section
       style={{
-        backgroundColor: "#0A0A0A",
+        backgroundColor: "var(--cream)",
         padding: "80px 40px",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        borderBottom: "1px solid var(--hairline)",
       }}
     >
       {/* Eyebrow + heading */}
@@ -75,7 +75,7 @@ export default function ForInvestors() {
             fontWeight: 400,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(17,17,17,0.35)",
             marginBottom: "32px",
           }}
         >
@@ -89,7 +89,7 @@ export default function ForInvestors() {
             fontWeight: 300,
             lineHeight: 1.15,
             letterSpacing: "-0.02em",
-            color: "#FAFAF8",
+            color: "var(--ink)",
             marginBottom: 0,
           }}
         >
@@ -99,14 +99,14 @@ export default function ForInvestors() {
       </div>
 
       {/* Two-column sub-blocks */}
-      <div className="sda-two-col" style={{ marginTop: "40px" }}>
+      <div className="imani-two-col" style={{ marginTop: "40px" }}>
         {/* Left — screening criteria */}
         <div>
           <p
             style={{
               fontFamily: "var(--in)",
               fontSize: "18px",
-              color: "rgba(255,255,255,0.65)",
+              color: "rgba(17,17,17,0.65)",
               marginTop: 0,
               marginBottom: "16px",
             }}
@@ -122,7 +122,7 @@ export default function ForInvestors() {
             style={{
               fontFamily: "var(--in)",
               fontSize: "18px",
-              color: "rgba(255,255,255,0.65)",
+              color: "rgba(17,17,17,0.65)",
               marginTop: 0,
               marginBottom: "16px",
             }}
@@ -142,7 +142,7 @@ export default function ForInvestors() {
               fontFamily: "var(--sr)",
               fontSize: "24px",
               fontWeight: 300,
-              color: "#FAFAF8",
+              color: "var(--ink)",
               margin: 0,
             }}
           >
@@ -153,7 +153,7 @@ export default function ForInvestors() {
               fontFamily: "var(--sr)",
               fontSize: "24px",
               fontWeight: 300,
-              color: "rgba(255,255,255,0.5)",
+              color: "rgba(17,17,17,0.5)",
               margin: 0,
             }}
           >
@@ -169,10 +169,10 @@ export default function ForInvestors() {
             fontFamily: "var(--in)",
             fontSize: "18px",
             fontWeight: 500,
-            color: "#CF9A0A",
+            color: "var(--crimson)",
             textDecoration: "none",
             letterSpacing: "0.04em",
-            borderBottom: "1px solid #CF9A0A",
+            borderBottom: "1px solid var(--crimson)",
             paddingBottom: "2px",
           }}
         >

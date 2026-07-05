@@ -35,22 +35,22 @@
   }
 }
 
-/* SDA brand tokens
-   Placed outside @layer so they win the cascade over the shadcn variables above.
-   --accent, --muted, --border here override shadcn's HSL versions. */
+/* Imani Ventures design tokens
+   Placed outside @layer so they win the cascade over the shadcn variables above. */
 :root {
-  --ink:     #0A0A0A;
-  --paper:   #FAFAF8;
-  --accent:  #1A3D2F;
+  --cream:      #F8EDEB;
+  --ink:        #111111;
+  --crimson:    #B22329;
+  --maroon:     #6D1626;
+  --terracotta: #C16B3A;
+  --hairline:   rgba(17, 17, 17, 0.12);
+
+  /* Legacy aliases still referenced by components */
   --muted:   #6B6B6B;
-  --border:  #E5E4DF;
-  --surface: #F2F1EC;
-  --success: #2D6A4F;
-  --warning: #B45309;
   --danger:  #991B1B;
 
-  --sr: var(--font-sora, 'Sora'), system-ui, sans-serif;
-  --in: var(--font-inter, 'Inter'), system-ui, sans-serif;
+  --sr: 'Satoshi', system-ui, sans-serif;
+  --in: 'Aileron', system-ui, sans-serif;
 }
 
 /* Light mode locked — no system preference, no .dark class ever */
@@ -66,7 +66,7 @@ html {
 }
 
 body {
-  background-color: var(--paper);
+  background-color: var(--cream);
   color: var(--ink);
   font-family: var(--in);
 }
@@ -75,7 +75,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--sr);
 }
 
-/* Sora has no true italic — enforced globally on heading emphasis */
+/* Satoshi — never use font-style: italic per brand guide */
 h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   font-style: normal;
   font-weight: 300;
@@ -90,31 +90,31 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 
 /* ── Marketing interactive states ───────────────────────────────────────── */
 
-.sda-nav-link {
+.imani-nav-link {
   color: rgba(255, 255, 255, 0.5);
   transition: color 150ms;
 }
-.sda-nav-link:hover { color: #FAFAF8; }
+.imani-nav-link:hover { color: #FAFAF8; }
 
-.sda-app-nav-signout {
+.imani-app-nav-signout {
   font-family: var(--sr);
   font-size: 14px;
   font-weight: 400;
   font-style: normal;
-  color: #CF9A0A;
+  color: var(--crimson);
   background: none;
-  border: 1px solid #CF9A0A;
+  border: 1px solid var(--crimson);
   padding: 7px 16px;
   cursor: pointer;
   letter-spacing: 0.03em;
   transition: background-color 150ms, color 150ms;
 }
-.sda-app-nav-signout:hover {
-  background-color: #CF9A0A;
-  color: #0A0A0A;
+.imani-app-nav-signout:hover {
+  background-color: var(--crimson);
+  color: #FAFAF8;
 }
 
-.sda-nav-dropdown-logout {
+.imani-nav-dropdown-logout {
   display: block;
   width: 100%;
   text-align: left;
@@ -128,59 +128,59 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   letter-spacing: 0.01em;
   transition: background-color 150ms;
 }
-.sda-nav-dropdown-logout:hover { background-color: #F2F1EC; }
+.imani-nav-dropdown-logout:hover { background-color: var(--cream); }
 
-.sda-btn-nav-cta {
-  background-color: #CF9A0A;
+.imani-btn-nav-cta {
+  background-color: var(--crimson);
   transition: background-color 150ms;
 }
-.sda-btn-nav-cta:hover { background-color: #b8870a; }
+.imani-btn-nav-cta:hover { background-color: var(--maroon); }
 
-.sda-btn-primary {
+.imani-btn-primary {
   background-color: #FAFAF8;
   transition: background-color 150ms;
 }
-.sda-btn-primary:hover { background-color: #e8e6e0; }
+.imani-btn-primary:hover { background-color: #e8e6e0; }
 
-.sda-btn-ghost {
+.imani-btn-ghost {
   border: 1px solid rgba(255, 255, 255, 0.25);
   transition: border-color 150ms;
 }
-.sda-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.55); }
+.imani-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.55); }
 
-.sda-email-arrow {
-  color: rgba(255, 255, 255, 0.4);
+.imani-email-arrow {
+  color: rgba(17, 17, 17, 0.4);
   transition: color 150ms;
 }
-.sda-email-arrow:hover { color: #FAFAF8; }
+.imani-email-arrow:hover { color: var(--ink); }
 
-.sda-footer-link {
+.imani-footer-link {
   color: rgba(255, 255, 255, 0.35);
   transition: color 150ms;
 }
-.sda-footer-link:hover { color: rgba(255, 255, 255, 0.7); }
+.imani-footer-link:hover { color: rgba(255, 255, 255, 0.7); }
 
-.sda-email-input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+.imani-email-input::placeholder {
+  color: rgba(17, 17, 17, 0.3);
   font-family: var(--sr);
 }
 
-.sda-page-content {
+.imani-page-content {
   padding-top: 80px;
 }
 
 /* ── Signup / Apply shared centered layout ───────────────────────────────── */
 
-.sda-signup-grid {
+.imani-signup-grid {
   min-height: calc(100vh - 80px);
-  background-color: #FAFAF8;
+  background-color: var(--cream);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 56px 40px 60px;
 }
 
-.sda-signup-inner {
+.imani-signup-inner {
   display: flex;
   align-items: flex-start;
   gap: 0;
@@ -188,36 +188,36 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   width: 100%;
 }
 
-.sda-signup-sidebar {
+.imani-signup-sidebar {
   width: 220px;
   flex-shrink: 0;
   padding: 0 40px 0 0;
-  border-right: 1px solid rgba(0,0,0,0.1);
+  border-right: 1px solid var(--hairline);
 }
 
-.sda-signup-form-col {
+.imani-signup-form-col {
   flex: 1;
   padding: 0 0 0 48px;
   min-width: 0;
 }
 
-.sda-mobile-steps {
+.imani-mobile-steps {
   display: none;
 }
 
 /* Focus ring on form inputs */
-.sda-signup-form-col input:focus,
-.sda-signup-form-col textarea:focus,
-.sda-signup-form-col select:focus {
-  border-color: #CF9A0A;
+.imani-signup-form-col input:focus,
+.imani-signup-form-col textarea:focus,
+.imani-signup-form-col select:focus {
+  border-color: var(--crimson);
   outline: none;
 }
 
 @media (max-width: 768px) {
-  .sda-signup-grid { padding: 32px 24px 48px; }
-  .sda-signup-sidebar { display: none; }
-  .sda-signup-form-col { padding: 0; }
-  .sda-mobile-steps { display: block; margin-bottom: 32px; }
+  .imani-signup-grid { padding: 32px 24px 48px; }
+  .imani-signup-sidebar { display: none; }
+  .imani-signup-form-col { padding: 0; }
+  .imani-mobile-steps { display: block; margin-bottom: 32px; }
 }
 
 /* ── Ticker strip ────────────────────────────────────────────────────────── */
@@ -237,23 +237,23 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 
 /* ── Inner page card hover states ───────────────────────────────────────── */
 
-.sda-portfolio-card {
+.imani-portfolio-card {
   background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: border-color 150ms;
 }
-.sda-portfolio-card:hover { border-color: rgba(255, 255, 255, 0.2); }
+.imani-portfolio-card:hover { border-color: rgba(255, 255, 255, 0.2); }
 
-.sda-instrument-card {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.imani-instrument-card {
+  background-color: rgba(17, 17, 17, 0.03);
+  border: 1px solid var(--hairline);
   transition: border-color 150ms;
 }
-.sda-instrument-card:hover { border-color: #CF9A0A; }
+.imani-instrument-card:hover { border-color: var(--crimson); }
 
 /* ── Nav mobile drawer ───────────────────────────────────────────────────── */
 
-.sda-nav-hamburger {
+.imani-nav-hamburger {
   display: none;
   flex-direction: column;
   gap: 5px;
@@ -263,14 +263,14 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   padding: 4px;
 }
 
-.sda-nav-hamburger span {
+.imani-nav-hamburger span {
   display: block;
   width: 24px;
   height: 1px;
   background-color: #FAFAF8;
 }
 
-.sda-nav-close {
+.imani-nav-close {
   background: none;
   border: none;
   cursor: pointer;
@@ -280,11 +280,11 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   padding: 4px;
 }
 
-.sda-nav-drawer {
+.imani-nav-drawer {
   display: none;
 }
 
-.sda-nav-drawer--open {
+.imani-nav-drawer--open {
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -297,28 +297,28 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 
 /* ── Responsive layout helpers ───────────────────────────────────────────── */
 
-.sda-hero {
+.imani-hero {
   display: grid;
   grid-template-columns: 1fr 220px;
   min-height: 340px;
 }
 
-.sda-funding-grid {
+.imani-funding-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: auto auto;
   gap: 1px;
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--hairline);
 }
 
-.sda-funding-card {
+.imani-funding-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 24px;
 }
 
-.sda-funding-icon {
+.imani-funding-icon {
   flex-shrink: 0;
   width: 80px;
   height: 80px;
@@ -327,121 +327,121 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   justify-content: center;
 }
 
-.sda-two-col {
+.imani-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 64px;
 }
 
-.sda-pull-quote-grid {
+.imani-pull-quote-grid {
   display: grid;
   grid-template-columns: 1fr 260px;
   gap: 48px;
   align-items: center;
 }
 
-.sda-portfolio-grid {
+.imani-portfolio-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--hairline);
   margin-top: 32px;
 }
 
-.sda-portfolio-feature {
+.imani-portfolio-feature {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--hairline);
 }
 
 @media (max-width: 1024px) {
-  .sda-two-col { grid-template-columns: 1fr; gap: 40px; }
-  .sda-pull-quote-grid { grid-template-columns: 1fr; }
+  .imani-two-col { grid-template-columns: 1fr; gap: 40px; }
+  .imani-pull-quote-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-  .sda-hero { grid-template-columns: 1fr; }
-  .sda-hero-panel { display: none; }
-  .sda-nav-links { display: none; }
-  .sda-funding-grid { grid-template-columns: 1fr; }
-  .sda-funding-card { flex-direction: column; align-items: flex-start; }
-  .sda-funding-icon { width: 48px; height: 48px; margin-bottom: 16px; order: -1; }
-  .sda-portfolio-grid { grid-template-columns: 1fr; }
-  .sda-portfolio-feature { grid-template-columns: 1fr; }
+  .imani-hero { grid-template-columns: 1fr; }
+  .imani-hero-panel { display: none; }
+  .imani-nav-links { display: none; }
+  .imani-funding-grid { grid-template-columns: 1fr; }
+  .imani-funding-card { flex-direction: column; align-items: flex-start; }
+  .imani-funding-icon { width: 48px; height: 48px; margin-bottom: 16px; order: -1; }
+  .imani-portfolio-grid { grid-template-columns: 1fr; }
+  .imani-portfolio-feature { grid-template-columns: 1fr; }
 
   /* Nav */
-  .sda-nav-desktop { display: none !important; }
-  .sda-nav-hamburger { display: flex !important; }
+  .imani-nav-desktop { display: none !important; }
+  .imani-nav-hamburger { display: flex !important; }
 
   /* Hero */
-  .sda-hero-content { padding: 100px 24px 48px !important; }
-  .sda-hero-h1 { font-size: 48px !important; line-height: 1.1 !important; }
-  .sda-hero-body { font-size: 18px !important; }
+  .imani-hero-content { padding: 100px 24px 48px !important; }
+  .imani-hero-h1 { font-size: 48px !important; line-height: 1.1 !important; }
+  .imani-hero-body { font-size: 18px !important; }
 
   /* Intro */
-  .sda-intro-section { grid-template-columns: 1fr !important; }
-  .sda-intro-left { padding: 60px 24px !important; }
-  .sda-intro-video-col { display: none !important; }
+  .imani-intro-section { grid-template-columns: 1fr !important; }
+  .imani-intro-left { padding: 60px 24px !important; }
+  .imani-intro-video-col { display: none !important; }
 }
 
 @media (max-width: 480px) {
-  .sda-funding-grid { grid-template-columns: 1fr; }
+  .imani-funding-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Admin stats grid ────────────────────────────────────────────────────── */
 
-.sda-admin-stats-grid {
+.imani-admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background-color: rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--hairline);
 }
 
 @media (max-width: 768px) {
-  .sda-admin-stats-grid { grid-template-columns: 1fr; }
-  .sda-admin-stat-card { min-height: auto !important; }
+  .imani-admin-stats-grid { grid-template-columns: 1fr; }
+  .imani-admin-stat-card { min-height: auto !important; }
 }
 
 /* ── Portfolio page ──────────────────────────────────────────────────── */
 
-.sda-pf-filter-wrap {
+.imani-pf-filter-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
-.sda-pf-filter-wrap::-webkit-scrollbar { display: none; }
+.imani-pf-filter-wrap::-webkit-scrollbar { display: none; }
 
-.sda-pf-filter-bar {
+.imani-pf-filter-bar {
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: max-content;
 }
 
-.sda-pf-card {
+.imani-pf-card {
   transition: border-color 150ms, background-color 150ms;
 }
-.sda-pf-card:hover {
+.imani-pf-card:hover {
   border-color: rgba(255, 255, 255, 0.28) !important;
   background-color: #252220 !important;
 }
 
-.sda-pf-grid {
+.imani-pf-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
 @media (max-width: 1100px) {
-  .sda-pf-grid { grid-template-columns: repeat(3, 1fr); }
+  .imani-pf-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .sda-pf-hero { padding-left: 24px !important; padding-right: 24px !important; padding-top: 120px !important; }
-  .sda-pf-filter-outer { padding: 16px 24px !important; }
-  .sda-pf-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .imani-pf-hero { padding-left: 24px !important; padding-right: 24px !important; padding-top: 120px !important; }
+  .imani-pf-filter-outer { padding: 16px 24px !important; }
+  .imani-pf-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 
 @media (max-width: 480px) {
-  .sda-pf-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .imani-pf-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }

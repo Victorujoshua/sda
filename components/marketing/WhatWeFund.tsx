@@ -1,4 +1,4 @@
-﻿const CRITERIA = [
+const CRITERIA = [
   "Have a minimum of 6 months verifiable revenue",
   "Understand their financial position clearly",
   "Operate with discipline and consistency",
@@ -9,9 +9,9 @@ export default function WhatWeFund() {
   return (
     <section
       style={{
-        backgroundColor: "#0A0A0A",
+        backgroundColor: "var(--cream)",
         padding: "80px 40px",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        borderBottom: "1px solid var(--hairline)",
       }}
     >
       <div style={{ maxWidth: "900px" }}>
@@ -21,7 +21,7 @@ export default function WhatWeFund() {
             fontSize: "15px",
             textTransform: "uppercase",
             letterSpacing: "0.12em",
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(17,17,17,0.35)",
             marginBottom: "32px",
           }}
         >
@@ -34,7 +34,7 @@ export default function WhatWeFund() {
             fontSize: "42px",
             fontWeight: 300,
             letterSpacing: "-0.02em",
-            color: "#FAFAF8",
+            color: "var(--ink)",
             marginBottom: "40px",
             lineHeight: 1.12,
           }}
@@ -51,10 +51,10 @@ export default function WhatWeFund() {
                 alignItems: "center",
                 gap: "14px",
                 padding: "14px 0",
-                borderTop: "1px solid rgba(255,255,255,0.08)",
+                borderTop: "1px solid var(--hairline)",
                 borderBottom:
                   i === CRITERIA.length - 1
-                    ? "1px solid rgba(255,255,255,0.08)"
+                    ? "1px solid var(--hairline)"
                     : undefined,
               }}
             >
@@ -63,7 +63,7 @@ export default function WhatWeFund() {
                   width: "6px",
                   height: "6px",
                   borderRadius: "50%",
-                  backgroundColor: "#CF9A0A",
+                  backgroundColor: "var(--crimson)",
                   flexShrink: 0,
                 }}
               />
@@ -71,7 +71,7 @@ export default function WhatWeFund() {
                 style={{
                   fontFamily: "var(--in)",
                   fontSize: "18px",
-                  color: "#FAFAF8",
+                  color: "var(--ink)",
                   lineHeight: 1.5,
                   margin: 0,
                 }}
@@ -87,7 +87,7 @@ export default function WhatWeFund() {
             fontFamily: "var(--in)",
             fontSize: "17px",
             lineHeight: 1.6,
-            color: "rgba(255,255,255,0.65)",
+            color: "rgba(17,17,17,0.65)",
             maxWidth: "640px",
             marginTop: "40px",
             marginBottom: 0,

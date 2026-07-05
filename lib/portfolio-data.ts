@@ -5,6 +5,7 @@ export interface PortfolioCompany {
   city: string;
   initials: string;
   tags: string[];
+  image?: string;
 }
 
 // Fallback data — replace with Supabase query after Section 1 migration is applied
@@ -17,6 +18,7 @@ export const PORTFOLIO_COMPANIES: PortfolioCompany[] = [
     city: "Lagos",
     initials: "FH",
     tags: ["Equity", "Active"],
+    image: "/images/portfolio-fundora.png",
   },
   {
     name: "Kidcode",
@@ -25,6 +27,7 @@ export const PORTFOLIO_COMPANIES: PortfolioCompany[] = [
     city: "Abuja",
     initials: "KC",
     tags: ["Revenue-based", "Active"],
+    image: "/images/portfolio-Kidcode.png",
   },
   {
     name: "Rent & Rig Limited",
@@ -33,6 +36,7 @@ export const PORTFOLIO_COMPANIES: PortfolioCompany[] = [
     city: "Lagos",
     initials: "RR",
     tags: ["Debt", "Active"],
+    image: "/images/portfolio-rent and rig.png",
   },
   {
     name: "My Little Big Surprise",

@@ -1,4 +1,4 @@
-# CLAUDE.md — SDA Platform
+# CLAUDE.md — Imani Ventures Platform
 
 > Read this file at the start of every session before touching any code.
 > If anything here conflicts with build.md, stop and ask. build.md wins.
@@ -8,8 +8,8 @@
 
 ## What this project is
 
-**SDA** — micro angel investment platform for early-stage Nigerian businesses.
-Repositioning sda.ng from personal finance coaching into a serious capital platform.
+**Imani Ventures** — micro angel investment platform for early-stage Nigerian businesses.
+Repositioning imaniventures.org from personal finance coaching into a serious capital platform.
 
 One codebase. One database. Three roles.
 
@@ -30,7 +30,7 @@ One codebase. One database. Three roles.
 | File Storage | Supabase Storage | Private buckets only — no public URLs ever |
 | Email | Loops | Transactional email |
 | Styling | Tailwind CSS + shadcn/ui | Custom tokens override defaults — resolve v4 shadcn issue before Section 3 |
-| UI Components | 21st.dev Magic MCP | `/ui [description]` in Claude Code — always override with SDA tokens after generation |
+| UI Components | 21st.dev Magic MCP | `/ui [description]` in Claude Code — always override with Imani Ventures tokens after generation |
 | Design intelligence | UI-UX-Pro max skill | Loaded as Claude Code skill — reference for all layout and spacing decisions |
 | Forms | React Hook Form + Zod | Validation server-side AND client-side |
 | Hosting | Vercel | Auto-deploy from GitHub |
@@ -79,27 +79,28 @@ app/
 These are defined in `globals.css` and `tailwind.config.ts`. Do not hardcode hex values — reference the tokens.
 
 ```css
---ink:     #0A0A0A    /* page text, buttons */
---paper:   #FAFAF8    /* page background (light pages) */
---accent:  #1A3D2F    /* deep forest green — CTAs, links, trust signals */
+--cream:      #F8EDEB    /* page background, card fills, button foreground */
+--ink:        #111111    /* page text, dark bg elements */
+--crimson:    #B22329    /* primary CTA, links, error states */
+--maroon:     #6D1626    /* hover on crimson, destructive confirm */
+--terracotta: #C16B3A    /* accent markers, paid-member dot */
+--hairline:   rgba(17,17,17,0.12)  /* dividers, input borders */
+
+/* Legacy aliases — still referenced in some components, do not remove */
 --muted:   #6B6B6B    /* secondary text */
---border:  #E5E4DF    /* dividers */
---surface: #F2F1EC    /* cards, section fills */
---success: #2D6A4F
---warning: #B45309
---danger:  #991B1B
+--danger:  #991B1B    /* prefer --maroon for new destructive UI */
 
 /* Font stacks */
---sr: 'Sora', system-ui, sans-serif;
---in: 'Inter', system-ui, sans-serif;
+--sr: 'Satoshi', system-ui, sans-serif;
+--in: 'Aileron', system-ui, sans-serif;
 
 /* Marketing pages use dark bg */
-/* Page bg on homepage and marketing: #0A0A0A */
+/* Page bg on homepage and marketing: var(--ink) */
 /* Pull quote section: #0d120e */
 /* Ticker strip: #0d0d0b */
 ```
 
-If the client provides a logo or brand color, swap `--accent` only. Do not change any other token without flagging it.
+If the client provides a logo or brand color, swap `--crimson` only. Do not change any other token without flagging it.
 
 ---
 
@@ -119,18 +120,37 @@ If the client provides a logo or brand color, swap `--accent` only. Do not chang
 | Section eyebrow | Inter | 10–11px | 400 | uppercase, letter-spacing 0.12–0.14em |
 | Tags / labels | Inter | 9–11px | 400–500 | uppercase where used as badges |
 
-### The one rule that must not be broken
+### Typography conventions (Phase 1 rebrand — Satoshi + Aileron)
 
-**Sora has no true italic. Never use `font-style: italic` on any Sora element.**
+**Rebrand Phase 1 (2026-07-03):** Fonts replaced from Sora + Inter → Satoshi + Aileron.
+- Satoshi (Fontshare CDN) — 400, 500, 700 weights — headings, wordmark, UI labels, numerals, buttons
+- Aileron (CDNfonts) — 400 weight — body copy, paragraphs, captions
 
-Emphasis inside a Sora heading uses:
+Both fonts loaded via `<link>` tags in `app/layout.tsx` (not `next/font/google`) to avoid Turbopack network-fetch failure. This preserves the `NEXT_TURBO=0 npx next build` workaround.
+
+CSS variables `--sr` and `--in` now point to Satoshi and Aileron respectively. All components using `var(--sr)` / `var(--in)` automatically pick up the new fonts. Tailwind keys `font-sora` / `font-inter` also resolve to Satoshi / Aileron. Phase 2 will rename these to `font-satoshi` / `font-aileron` during the component sweep.
+
+**Satoshi: never use `font-style: italic`.** The brand guide implies clean, upright-only use. Emphasis within Satoshi headings uses:
 ```css
 font-style: normal;
-font-weight: 300;
-color: rgba(255, 255, 255, 0.45);
+font-weight: 700;
+color: var(--crimson); /* or reduced opacity — context-dependent */
 ```
 
-Apply this to `<em>` spans inside headings. Never let the browser synthesise an italic.
+### The one rule that must not be broken (now applies to Satoshi)
+
+**Satoshi has a true italic, but the brand guide prohibits its use. Never use `font-style: italic` on any Satoshi element.**
+
+**Sora no-italic rule (historical — kept for reference):**
+Sora had no true italic. The rule was: emphasis inside Sora headings uses `font-style: normal`, `font-weight: 300`, `color: rgba(255, 255, 255, 0.45)`.
+
+### Naira glyph (₦) — Phase 1 finding
+
+Satoshi's coverage of the Naira sign (U+20A6) is **unconfirmed** — requires visual browser test.
+- Aileron **does** render ₦ correctly (confirmed by font spec).
+- Until Phase 2 visually verifies Satoshi ₦ rendering, use `<span className="font-aileron">₦</span>` as a safe fallback.
+- The old convention was `<span className="font-inter">₦</span>` — update to `font-aileron` if encountered.
+- Phase 2 will do the bulk ₦ span sweep after visual confirmation.
 
 ---
 
@@ -139,7 +159,7 @@ Apply this to `<em>` spans inside headings. Never let the browser synthesise an 
 - **Zero border-radius** on buttons, inputs, or containers — except avatar circles (`border-radius: 50%`)
 - **Zero box-shadow** anywhere
 - **Zero gradients** on UI elements — only used as dark textured overlays on section backgrounds
-- **Dividers are 1px lines** — `rgba(255,255,255,0.1)` on dark bg, `var(--border)` on light bg
+- **Dividers are 1px lines** — `rgba(255,255,255,0.1)` on dark bg, `var(--hairline)` on light bg
 - **No card lift / hover shadows** — hover states use background opacity shifts only
 - **Light mode locked** in root layout. No `ThemeProvider`. No system preference. No dark mode classes
 - **No Tailwind arbitrary values for rgba** — write explicit CSS or use CSS modules
@@ -148,16 +168,16 @@ Apply this to `<em>` spans inside headings. Never let the browser synthesise an 
 ### Button system
 
 ```
-Primary:  bg #FAFAF8 · color #0A0A0A · no border · no radius · padding 10–13px 22–28px
-          Inter 12–13px · letter-spacing 0.04em · hover bg #e8e6e0
+Primary:  bg var(--cream) · color var(--ink) · no border · no radius · padding 10–13px 22–28px
+          Satoshi 12–13px · letter-spacing 0.04em · hover bg rgba(248,237,235,0.85)
 
-Ghost:    bg transparent · color #FAFAF8 · border 1px rgba(255,255,255,0.25)
+Ghost:    bg transparent · color var(--cream) · border 1px rgba(255,255,255,0.25)
           no radius · same padding · hover border rgba(255,255,255,0.55)
 
-Nav CTA:  bg #1A3D2F · color #FAFAF8 · no radius · padding 8–9px 18–20px
-          Inter 12–13px · hover bg #244d3c
+Nav CTA:  bg var(--crimson) · color var(--cream) · no radius · padding 8–9px 18–20px
+          Satoshi 12–13px · hover bg var(--maroon)
 
-Accent:   bg #1A3D2F (same as nav CTA) — used for tags, badges, markers
+Accent:   bg var(--crimson) — used for tags, badges, markers
 ```
 
 ---
@@ -178,7 +198,7 @@ Screenshot saved at `docs/bcv-reference.png`.
 7. Portfolio grid — oversized bleed word + "Meet our portfolio." + 3 company cards
 8. Portfolio feature — founder quote left + company list right
 9. Email signup — minimal input + arrow
-10. Footer — massive "SDA" logotype + nav column + legal row
+10. Footer — massive "IMANI VENTURES" logotype + nav column + legal row
 
 After building the homepage, screenshot at 1280px and compare against `docs/bcv-reference.png`. Fix all structural gaps before marking done.
 
@@ -217,6 +237,7 @@ Or use the inline edit feature on `/admin/users` after creation — click the na
 - **Never expose raw Storage file paths to the client** — only signed URLs
 - **Enums are locked** — do not add enum values without flagging
 - **Audit log is append-only** — every admin mutation writes one entry using the locked action vocabulary
+- **Historical identifiers:** Pre-rebrand migrations and audit events use the original schema names. Do not rename these retroactively. New identifiers use `imani_*` prefixes where applicable.
 
 ### Audit log action vocabulary (the complete list — no freeform strings)
 
@@ -312,7 +333,7 @@ LOOPS_API_KEY=                    ← from Loops dashboard → Settings → API 
 LOOPS_ADMIN_EMAIL=                ← admin inbox for new application alerts
 
 # App
-NEXT_PUBLIC_APP_URL=              ← https://sda.ng in production
+NEXT_PUBLIC_APP_URL=              ← https://imaniventures.org in production
 ```
 
 ---
@@ -321,7 +342,7 @@ NEXT_PUBLIC_APP_URL=              ← https://sda.ng in production
 
 | Asset | Where used | Status |
 |---|---|---|
-| Hero right panel photo | Homepage hero | Placeholder: dark panel + SDA monogram |
+| Hero right panel photo | Homepage hero | Placeholder: dark panel + Imani Ventures monogram |
 | Spotlight featured image | Homepage spotlight section | Placeholder: dark bg box |
 | Spotlight card thumbnails (×3) | Homepage spotlight cards | Placeholder: dark bg box |
 | Pull quote photo | Homepage pull quote section | Placeholder: circle avatar |
@@ -334,4 +355,4 @@ When any asset arrives from the client: drop it in, remove the placeholder, upda
 
 ---
 
-*Last updated: pre-build. Claude Code updates build.md after every session — not this file.*
+*Last updated: 2026-07-03 (Phase 6 rebrand). Claude Code updates build.md after every session — not this file.*

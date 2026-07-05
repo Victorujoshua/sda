@@ -7,12 +7,12 @@ import { Eye, EyeOff } from "lucide-react";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  border: "1px solid rgba(0,0,0,0.15)",
+  border: "1px solid var(--hairline)",
   padding: "12px 14px",
   fontFamily: "var(--in)",
   fontSize: 16,
   color: "var(--ink)",
-  backgroundColor: "#fff",
+  backgroundColor: "var(--cream)",
   outline: "none",
   boxSizing: "border-box",
 };
@@ -41,7 +41,7 @@ function AcceptInviteForm() {
 
   if (!token) {
     return (
-      <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--danger)" }}>
+      <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--maroon)" }}>
         This invite link is invalid or has expired.
       </p>
     );
@@ -65,11 +65,12 @@ function AcceptInviteForm() {
       {error && (
         <div
           style={{
-            border: "1px solid var(--danger)",
+            border: "1px solid rgba(178,35,41,0.3)",
+            backgroundColor: "rgba(178,35,41,0.06)",
             padding: "10px 14px",
             fontFamily: "var(--in)",
             fontSize: 15,
-            color: "var(--danger)",
+            color: "var(--maroon)",
           }}
         >
           {error}
@@ -103,7 +104,7 @@ function AcceptInviteForm() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "rgba(0,0,0,0.4)", padding: "4px", display: "flex", alignItems: "center" }}
+            style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "rgba(17,17,17,0.4)", padding: "4px", display: "flex", alignItems: "center" }}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -129,8 +130,8 @@ function AcceptInviteForm() {
           fontSize: 17,
           fontWeight: 600,
           padding: "14px 32px",
-          backgroundColor: isPending ? "rgba(10,10,10,0.5)" : "#0A0A0A",
-          color: "#FAFAF8",
+          backgroundColor: isPending ? "rgba(17,17,17,0.5)" : "var(--ink)",
+          color: "var(--cream)",
           border: "none",
           cursor: isPending ? "not-allowed" : "pointer",
           width: "100%",
@@ -147,7 +148,7 @@ export default function AcceptInvitePage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -165,7 +166,7 @@ export default function AcceptInvitePage() {
             margin: "0 0 12px",
           }}
         >
-          SDA Admin
+          Imani Ventures Admin
         </p>
         <h1
           style={{
@@ -188,8 +189,8 @@ export default function AcceptInvitePage() {
             lineHeight: 1.6,
           }}
         >
-          You have been invited to join SDA as an admin. Create your password to
-          get started.
+          You have been invited to join Imani Ventures as an admin. Create your
+          password to get started.
         </p>
 
         <Suspense fallback={null}>

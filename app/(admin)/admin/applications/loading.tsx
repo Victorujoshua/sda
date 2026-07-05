@@ -11,7 +11,7 @@ const Skel = ({
     style={{
       width: w,
       height: h,
-      backgroundColor: "var(--surface)",
+      backgroundColor: "rgba(17,17,17,0.06)",
       marginBottom: mb || undefined,
     }}
   />
@@ -46,7 +46,7 @@ export default function ApplicationsLoading() {
       {/* Header row */}
       <div
         style={{
-          borderBottom: "1px solid var(--border)",
+          borderBottom: "1px solid var(--hairline)",
           display: "flex",
           gap: 0,
           padding: "10px 12px",
@@ -64,7 +64,7 @@ export default function ApplicationsLoading() {
         <div
           key={i}
           style={{
-            borderBottom: "1px solid var(--border)",
+            borderBottom: "1px solid var(--hairline)",
             display: "flex",
             gap: 0,
             padding: "14px 12px",

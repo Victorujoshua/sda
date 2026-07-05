@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -29,6 +29,18 @@ function fmtDate(s: string) {
   });
 }
 
+const pillBase: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  fontFamily: "var(--sr)",
+  fontSize: 11,
+  fontWeight: 500,
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+  padding: "4px 10px",
+  borderRadius: "100px",
+};
+
 function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -56,7 +68,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
   }
 
   return (
-    <tr style={{ borderBottom: "1px solid var(--border)" }}>
+    <tr style={{ borderBottom: "1px solid var(--hairline)" }}>
       <td style={{ padding: "14px 12px", verticalAlign: "top" }}>
         <p
           style={{
@@ -95,58 +107,34 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
       </td>
 
       <td style={{ padding: "14px 12px", verticalAlign: "top" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {!user.is_active && (
-            <span
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: "var(--muted)",
-              }}
-            >
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {/* Account status badge */}
+          {!user.is_active ? (
+            <span style={{ ...pillBase, backgroundColor: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" }}>
               Inactive
             </span>
-          )}
-          {user.is_blacklisted && (
-            <span
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: "var(--danger)",
-              }}
-            >
+          ) : user.is_blacklisted ? (
+            <span style={{ ...pillBase, backgroundColor: "rgba(178,35,41,0.08)", color: "var(--maroon)" }}>
               Blacklisted
             </span>
-          )}
-          {user.is_active && !user.is_blacklisted && (
-            <span
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: "var(--success)",
-              }}
-            >
+          ) : (
+            <span style={{ ...pillBase, backgroundColor: "rgba(17,17,17,0.06)", color: "var(--ink)" }}>
               Active
             </span>
           )}
+
+          {/* Membership badge — investors only */}
           {user.role === "investor" && (
-            <span
-              style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: user.has_paid_membership ? "var(--success)" : "var(--muted)",
-              }}
-            >
-              {user.has_paid_membership ? "Paid" : "Unpaid"}
-            </span>
+            user.has_paid_membership ? (
+              <span style={{ ...pillBase, backgroundColor: "rgba(17,17,17,0.08)", color: "var(--ink)", gap: 6 }}>
+                <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--terracotta)", flexShrink: 0 }} />
+                Paid member
+              </span>
+            ) : (
+              <span style={{ ...pillBase, backgroundColor: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" }}>
+                Unpaid
+              </span>
+            )
           )}
         </div>
       </td>
@@ -171,7 +159,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
               style={{
                 fontFamily: "var(--in)",
                 fontSize: 14,
-                color: "var(--danger)",
+                color: "var(--maroon)",
                 margin: 0,
               }}
             >
@@ -192,7 +180,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                   padding: "6px 12px",
                   backgroundColor: "transparent",
                   color: "var(--muted)",
-                  border: "1px solid var(--border)",
+                  border: "1px solid var(--hairline)",
                   cursor: isPending ? "not-allowed" : "pointer",
                 }}
               >
@@ -208,8 +196,8 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                   letterSpacing: "0.04em",
                   padding: "6px 12px",
                   backgroundColor: "transparent",
-                  color: "var(--success)",
-                  border: "1px solid var(--border)",
+                  color: "var(--ink)",
+                  border: "1px solid var(--hairline)",
                   cursor: isPending ? "not-allowed" : "pointer",
                 }}
               >
@@ -228,8 +216,8 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                   letterSpacing: "0.04em",
                   padding: "6px 12px",
                   backgroundColor: "transparent",
-                  color: "var(--danger)",
-                  border: "1px solid var(--border)",
+                  color: "var(--maroon)",
+                  border: "1px solid var(--hairline)",
                   cursor: isPending ? "not-allowed" : "pointer",
                 }}
               >
@@ -245,8 +233,8 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                   letterSpacing: "0.04em",
                   padding: "6px 12px",
                   backgroundColor: "transparent",
-                  color: "var(--danger)",
-                  border: "1px solid var(--border)",
+                  color: "var(--maroon)",
+                  border: "1px solid var(--hairline)",
                   cursor: isPending ? "not-allowed" : "pointer",
                 }}
               >
@@ -268,8 +256,8 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                     letterSpacing: "0.04em",
                     padding: "6px 12px",
                     backgroundColor: "transparent",
-                    color: "var(--warning)",
-                    border: "1px solid var(--border)",
+                    color: "var(--maroon)",
+                    border: "1px solid var(--hairline)",
                     cursor: isPending ? "not-allowed" : "pointer",
                   }}
                 >
@@ -281,7 +269,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
           {showRevoke && (
             <div
               style={{
-                border: "1px solid var(--border)",
+                border: "1px solid var(--hairline)",
                 padding: "14px",
                 maxWidth: 320,
               }}
@@ -306,12 +294,12 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                 placeholder="Reason for revocation…"
                 style={{
                   width: "100%",
-                  border: "1px solid var(--border)",
+                  border: "1px solid var(--hairline)",
                   padding: "8px 12px",
                   fontFamily: "var(--in)",
                   fontSize: 15,
                   color: "var(--ink)",
-                  backgroundColor: "#fff",
+                  backgroundColor: "var(--cream)",
                   outline: "none",
                   resize: "vertical",
                   boxSizing: "border-box",
@@ -326,8 +314,8 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                     fontSize: 13,
                     letterSpacing: "0.04em",
                     padding: "7px 14px",
-                    backgroundColor: "var(--warning)",
-                    color: "#FAFAF8",
+                    backgroundColor: "var(--maroon)",
+                    color: "var(--cream)",
                     border: "none",
                     cursor: !revokeReason.trim() ? "not-allowed" : "pointer",
                     opacity: !revokeReason.trim() ? 0.5 : 1,
@@ -342,7 +330,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                     fontSize: 13,
                     padding: "7px 12px",
                     background: "none",
-                    border: "1px solid var(--border)",
+                    border: "1px solid var(--hairline)",
                     color: "var(--muted)",
                     cursor: "pointer",
                   }}
@@ -357,7 +345,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
           {showBlacklist && (
             <div
               style={{
-                border: "1px solid var(--border)",
+                border: "1px solid var(--hairline)",
                 padding: "14px",
                 maxWidth: 320,
               }}
@@ -382,12 +370,12 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                 placeholder="Reason for blacklisting…"
                 style={{
                   width: "100%",
-                  border: "1px solid var(--border)",
+                  border: "1px solid var(--hairline)",
                   padding: "8px 12px",
                   fontFamily: "var(--in)",
                   fontSize: 15,
                   color: "var(--ink)",
-                  backgroundColor: "#fff",
+                  backgroundColor: "var(--cream)",
                   outline: "none",
                   resize: "vertical",
                   boxSizing: "border-box",
@@ -406,8 +394,8 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                     fontSize: 13,
                     letterSpacing: "0.04em",
                     padding: "7px 14px",
-                    backgroundColor: "var(--danger)",
-                    color: "#FAFAF8",
+                    backgroundColor: "var(--maroon)",
+                    color: "var(--cream)",
                     border: "none",
                     cursor: !blacklistReason.trim() ? "not-allowed" : "pointer",
                     opacity: !blacklistReason.trim() ? 0.5 : 1,
@@ -422,7 +410,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
                     fontSize: 13,
                     padding: "7px 12px",
                     background: "none",
-                    border: "1px solid var(--border)",
+                    border: "1px solid var(--hairline)",
                     color: "var(--muted)",
                     cursor: "pointer",
                   }}
@@ -439,7 +427,7 @@ function UserRow({ user, actorRole }: { user: User; actorRole: string }) {
               style={{
                 fontFamily: "var(--in)",
                 fontSize: 14,
-                color: "var(--danger)",
+                color: "var(--maroon)",
                 margin: 0,
                 maxWidth: 320,
               }}
@@ -464,7 +452,7 @@ export default function UsersTable({
     return (
       <div
         style={{
-          border: "1px solid var(--border)",
+          border: "1px solid var(--hairline)",
           padding: "48px 32px",
           textAlign: "center",
         }}
@@ -493,19 +481,19 @@ export default function UsersTable({
       }}
     >
       <thead>
-        <tr style={{ borderBottom: "1px solid var(--border)" }}>
+        <tr style={{ borderBottom: "1px solid var(--hairline)" }}>
           {["Name / ID", "Role", "Status", "Joined", "Actions"].map((h) => (
             <th
               key={h}
               style={{
                 textAlign: "left",
                 padding: "10px 12px",
-                fontFamily: "var(--in)",
-                fontSize: 13,
+                fontFamily: "var(--sr)",
+                fontSize: 11,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                color: "var(--muted)",
-                fontWeight: 400,
+                color: "var(--ink)",
+                fontWeight: 500,
               }}
             >
               {h}

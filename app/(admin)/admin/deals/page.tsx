@@ -64,7 +64,7 @@ export default async function DealsPage() {
         {active} active · {total} total — Promote approved applications from{" "}
         <Link
           href="/admin/applications?status=approved"
-          style={{ color: "var(--accent)", textDecoration: "none" }}
+          style={{ color: "var(--crimson)", textDecoration: "none" }}
         >
           Applications
         </Link>

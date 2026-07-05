@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 const CRITERIA = [
   "At least 6 months of verifiable revenue",
@@ -11,20 +11,20 @@ export default function WhatWeLookFor() {
   return (
     <section style={{
       padding: "72px 40px",
-      borderBottom: "1px solid rgba(255,255,255,0.1)",
+      borderBottom: "1px solid var(--hairline)",
     }}>
       <p style={{
         fontFamily: "var(--in)",
         fontSize: "17px",
         textTransform: "uppercase",
         letterSpacing: "0.12em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "40px",
       }}>
         What we look for
       </p>
 
-      <div className="sda-two-col">
+      <div className="imani-two-col">
         {/* Left — headline */}
         <h2 style={{
           fontFamily: "var(--sr)",
@@ -32,7 +32,7 @@ export default function WhatWeLookFor() {
           fontWeight: 300,
           lineHeight: 1.12,
           letterSpacing: "-0.02em",
-          color: "#FAFAF8",
+          color: "var(--ink)",
           margin: 0,
         }}>
           We support businesses<br />
@@ -44,7 +44,7 @@ export default function WhatWeLookFor() {
           <p style={{
             fontFamily: "var(--in)",
             fontSize: "17px",
-            color: "rgba(255,255,255,0.65)",
+            color: "rgba(17,17,17,0.65)",
             lineHeight: 1.7,
             marginBottom: "28px",
           }}>
@@ -60,9 +60,9 @@ export default function WhatWeLookFor() {
                   alignItems: "center",
                   gap: "14px",
                   padding: "14px 0",
-                  borderTop: "1px solid rgba(255,255,255,0.08)",
+                  borderTop: "1px solid var(--hairline)",
                   borderBottom: i === CRITERIA.length - 1
-                    ? "1px solid rgba(255,255,255,0.08)"
+                    ? "1px solid var(--hairline)"
                     : undefined,
                 }}
               >
@@ -70,13 +70,13 @@ export default function WhatWeLookFor() {
                   width: "6px",
                   height: "6px",
                   borderRadius: "50%",
-                  backgroundColor: "#CF9A0A",
+                  backgroundColor: "var(--crimson)",
                   flexShrink: 0,
                 }} />
                 <p style={{
                   fontFamily: "var(--in)",
                   fontSize: "18px",
-                  color: "rgba(255,255,255,0.65)",
+                  color: "rgba(17,17,17,0.65)",
                   lineHeight: 1.5,
                   margin: 0,
                 }}>
@@ -87,14 +87,14 @@ export default function WhatWeLookFor() {
           </div>
 
           <div style={{
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--hairline)",
             padding: "20px",
             marginTop: "24px",
           }}>
             <p style={{
               fontFamily: "var(--in)",
               fontSize: "18px",
-              color: "rgba(255,255,255,0.5)",
+              color: "rgba(17,17,17,0.5)",
               lineHeight: 1.6,
               marginBottom: "12px",
               margin: "0 0 12px",
@@ -106,7 +106,7 @@ export default function WhatWeLookFor() {
               style={{
                 fontFamily: "var(--in)",
                 fontSize: "17px",
-                color: "#CF9A0A",
+                color: "var(--crimson)",
                 textDecoration: "none",
               }}
             >

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -61,8 +61,8 @@ export default function AdminError({
             fontSize: 14,
             letterSpacing: "0.04em",
             padding: "9px 20px",
-            backgroundColor: "var(--accent)",
-            color: "#FAFAF8",
+            backgroundColor: "var(--crimson)",
+            color: "var(--cream)",
             border: "none",
             cursor: "pointer",
           }}
@@ -77,7 +77,7 @@ export default function AdminError({
             letterSpacing: "0.04em",
             padding: "9px 20px",
             color: "var(--ink)",
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             textDecoration: "none",
           }}
         >

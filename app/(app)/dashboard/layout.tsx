@@ -25,7 +25,7 @@ export default async function AppLayout({
   return (
     <>
       <AppNav userName={userName} userRole={userRole} />
-      <div className="sda-page-content">
+      <div className="imani-page-content">
         {children}
       </div>
     </>

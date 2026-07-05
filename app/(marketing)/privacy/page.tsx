@@ -1,13 +1,13 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — SDA",
-  description: "SDA Privacy Policy — how we collect, use, and protect your data.",
+  title: "Privacy Policy — Imani Ventures",
+  description: "Imani Ventures Privacy Policy — how we collect, use, and protect your data.",
   openGraph: {
-    title: "Privacy Policy — SDA",
-    description: "SDA Privacy Policy.",
-    url: "https://sda.ng/privacy",
-    siteName: "SDA",
+    title: "Privacy Policy — Imani Ventures",
+    description: "Imani Ventures Privacy Policy.",
+    url: "https://imaniventures.org/privacy",
+    siteName: "Imani Ventures",
     type: "website",
   },
 };
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "0.14em",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "20px",
       }}>
         Legal
@@ -31,7 +31,7 @@ export default function PrivacyPage() {
         fontWeight: 300,
         lineHeight: 1.12,
         letterSpacing: "-0.02em",
-        color: "#FAFAF8",
+        color: "var(--ink)",
         marginBottom: "12px",
       }}>
         Privacy Policy
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
       <p style={{
         fontFamily: "var(--in)",
         fontSize: "14px",
-        color: "rgba(255,255,255,0.3)",
+        color: "rgba(17,17,17,0.35)",
         marginBottom: "48px",
       }}>
         Last updated: June 2025
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
         display: "flex",
         flexDirection: "column",
         gap: "32px",
-        borderTop: "1px solid rgba(255,255,255,0.1)",
+        borderTop: "1px solid var(--hairline)",
         paddingTop: "40px",
       }}>
         {[
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
           },
           {
             heading: "3. Document storage",
-            body: "Financial documents are stored in private, encrypted cloud storage. They are never publicly accessible. Access is restricted to SDA admin personnel and governed by row-level security policies.",
+            body: "Financial documents are stored in private, encrypted cloud storage. They are never publicly accessible. Access is restricted to Imani Ventures admin personnel and governed by row-level security policies.",
           },
           {
             heading: "4. Data retention",
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
               fontFamily: "var(--sr)",
               fontSize: "18px",
               fontWeight: 400,
-              color: "#FAFAF8",
+              color: "var(--ink)",
               margin: "0 0 10px",
             }}>
               {heading}
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
               fontFamily: "var(--in)",
               fontSize: "16px",
               lineHeight: 1.7,
-              color: "rgba(255,255,255,0.65)",
+              color: "rgba(17,17,17,0.65)",
               margin: 0,
             }}>
               {body}

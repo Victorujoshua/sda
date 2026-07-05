@@ -22,7 +22,7 @@ export default function OpportunitiesLoading() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
       }}
     >
@@ -42,16 +42,16 @@ export default function OpportunitiesLoading() {
           }}
         >
           <div
-            style={{ width: 180, height: 38, backgroundColor: "var(--surface)" }}
+            style={{ width: 180, height: 38, backgroundColor: "rgba(17,17,17,0.06)" }}
           />
           <div
-            style={{ width: 120, height: 38, backgroundColor: "var(--surface)" }}
+            style={{ width: 120, height: 38, backgroundColor: "rgba(17,17,17,0.06)" }}
           />
           <div
-            style={{ width: 120, height: 38, backgroundColor: "var(--surface)" }}
+            style={{ width: 120, height: 38, backgroundColor: "rgba(17,17,17,0.06)" }}
           />
           <div
-            style={{ width: 80, height: 38, backgroundColor: "var(--surface)" }}
+            style={{ width: 80, height: 38, backgroundColor: "rgba(17,17,17,0.06)" }}
           />
         </div>
 
@@ -60,7 +60,7 @@ export default function OpportunitiesLoading() {
           style={{
             width: 100,
             height: 13,
-            backgroundColor: "var(--surface)",
+            backgroundColor: "rgba(17,17,17,0.06)",
             marginBottom: 24,
           }}
         />
@@ -71,14 +71,14 @@ export default function OpportunitiesLoading() {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
             gap: 1,
-            backgroundColor: "var(--border)",
+            backgroundColor: "var(--hairline)",
           }}
         >
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
               style={{
-                backgroundColor: "var(--paper)",
+                backgroundColor: "var(--cream)",
                 padding: "32px 28px",
                 display: "flex",
                 flexDirection: "column",

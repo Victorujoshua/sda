@@ -23,7 +23,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div
       style={{
-        borderBottom: "1px solid var(--border)",
+        borderBottom: "1px solid var(--hairline)",
         padding: "14px 0",
         display: "flex",
         gap: 24,
@@ -72,7 +72,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
       <div
         style={{
           minHeight: "100vh",
-          backgroundColor: "var(--paper)",
+          backgroundColor: "var(--cream)",
           color: "var(--ink)",
         }}
       >
@@ -118,7 +118,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 color: "var(--muted)",
-                border: "1px solid var(--border)",
+                border: "1px solid var(--hairline)",
                 padding: "3px 8px",
                 display: "inline-block",
                 marginBottom: 16,
@@ -149,7 +149,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
               gap: 32,
               marginBottom: 40,
               paddingBottom: 32,
-              borderBottom: "1px solid var(--border)",
+              borderBottom: "1px solid var(--hairline)",
               flexWrap: "wrap",
             }}
           >
@@ -177,13 +177,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: "Inter, system-ui, sans-serif",
-                    }}
-                  >
-                    ₦
-                  </span>
+                  <span style={{ fontFamily: "'Aileron', system-ui, sans-serif" }}>₦</span>
                   {deal.funding_required.toLocaleString("en-NG")}
                 </p>
               </div>
@@ -212,13 +206,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: "Inter, system-ui, sans-serif",
-                    }}
-                  >
-                    ₦
-                  </span>
+                  <span style={{ fontFamily: "'Aileron', system-ui, sans-serif" }}>₦</span>
                   {deal.revenue_to_date.toLocaleString("en-NG")}
                 </p>
               </div>
@@ -270,9 +258,9 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
               <div
                 aria-hidden="true"
                 style={{
-                  border: "1px solid var(--border)",
+                  border: "1px solid var(--hairline)",
                   padding: "28px 32px",
-                  backgroundColor: "var(--surface)",
+                  backgroundColor: "rgba(17,17,17,0.04)",
                   filter: "blur(5px)",
                   userSelect: "none",
                   pointerEvents: "none",
@@ -284,7 +272,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                     style={{
                       height: 13,
                       width: `${w}%`,
-                      backgroundColor: "rgba(10,10,10,0.1)",
+                      backgroundColor: "rgba(17,17,17,0.1)",
                       borderRadius: 3,
                       marginBottom: i === 6 ? 0 : 14,
                     }}
@@ -297,7 +285,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  backgroundColor: "rgba(250,250,248,0.88)",
+                  backgroundColor: "rgba(248,237,235,0.92)",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -330,9 +318,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                   }}
                 >
                   One-time{" "}
-                  <span style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-                    ₦
-                  </span>
+                  <span style={{ fontFamily: "'Aileron', system-ui, sans-serif" }}>₦</span>
                   10,000 — permanent access to all gated deal details.
                 </p>
                 <button
@@ -342,8 +328,8 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                     fontSize: 14,
                     letterSpacing: "0.04em",
                     padding: "10px 24px",
-                    backgroundColor: "#CF9A0A",
-                    color: "#0A0A0A",
+                    backgroundColor: "var(--crimson)",
+                    color: "var(--cream)",
                     border: "none",
                     cursor: "pointer",
                     fontWeight: 500,

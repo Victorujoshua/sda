@@ -1,4 +1,4 @@
-﻿type Variant = "applicant" | "investor";
+type Variant = "applicant" | "investor";
 
 const STEP_LABELS: Record<Variant, string[]> = {
   applicant: [
@@ -61,12 +61,12 @@ export default function SignupProgress({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: isActive ? "#CF9A0A" : isCompleted ? "#0A0A0A" : "transparent",
+                  backgroundColor: isActive ? "var(--crimson)" : isCompleted ? "var(--ink)" : "transparent",
                   border: isUpcoming ? "1px solid rgba(0,0,0,0.2)" : "none",
                   fontFamily: "var(--sr)",
                   fontSize: "17px",
                   fontWeight: 600,
-                  color: isActive ? "#0A0A0A" : isCompleted ? "#FAFAF8" : "rgba(0,0,0,0.3)",
+                  color: isActive ? "var(--cream)" : isCompleted ? "var(--cream)" : "rgba(0,0,0,0.3)",
                 }}>
                   {isCompleted ? "✓" : stepNumber}
                 </div>
@@ -77,7 +77,7 @@ export default function SignupProgress({
                     fontFamily: "var(--sr)",
                     fontSize: "17px",
                     fontWeight: 500,
-                    color: isActive ? "#0A0A0A" : isCompleted ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.35)",
+                    color: isActive ? "var(--ink)" : isCompleted ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.35)",
                     margin: 0,
                     lineHeight: 1.4,
                   }}>

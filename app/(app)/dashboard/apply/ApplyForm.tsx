@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -70,12 +70,12 @@ const FUNDING_TYPE_LABELS: Record<string, string> = {
 const inputStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
-  border: "1px solid rgba(0,0,0,0.15)",
+  border: "1px solid var(--hairline)",
   padding: "12px 16px",
   fontFamily: "var(--in)",
   fontSize: "17px",
-  color: "#0A0A0A",
-  backgroundColor: "#FFFFFF",
+  color: "var(--ink)",
+  backgroundColor: "var(--cream)",
   outline: "none",
   boxSizing: "border-box",
 };
@@ -85,14 +85,14 @@ const labelStyle: React.CSSProperties = {
   fontFamily: "var(--in)",
   fontSize: "15px",
   fontWeight: 500,
-  color: "#0A0A0A",
+  color: "var(--ink)",
   marginBottom: "6px",
 };
 
 const errorStyle: React.CSSProperties = {
   fontFamily: "var(--in)",
   fontSize: "15px",
-  color: "#991B1B",
+  color: "var(--maroon)",
   marginTop: "5px",
 };
 
@@ -245,8 +245,8 @@ export default function ApplyForm({
     fontFamily: "var(--sr)",
     fontSize: "17px",
     fontWeight: 600,
-    backgroundColor: "#CF9A0A",
-    color: "#0A0A0A",
+    backgroundColor: "var(--crimson)",
+    color: "var(--cream)",
     border: "none",
     padding: "14px 32px",
     cursor: "pointer",
@@ -255,37 +255,37 @@ export default function ApplyForm({
 
   const disabledBtnStyle: React.CSSProperties = {
     ...primaryBtnStyle,
-    backgroundColor: "#b8870a",
+    backgroundColor: "var(--maroon)",
     cursor: "not-allowed",
   };
 
   return (
-    <div className="sda-signup-grid">
-      <div className="sda-signup-inner">
+    <div className="imani-signup-grid">
+      <div className="imani-signup-inner">
 
         {/* Milestone sidebar */}
-        <div className="sda-signup-sidebar">
+        <div className="imani-signup-sidebar">
           <SignupProgress currentStep={milestoneStep} variant="applicant" />
         </div>
 
         {/* Form column */}
-        <div className="sda-signup-form-col">
+        <div className="imani-signup-form-col">
 
           {/* Mobile step indicator */}
-          <div className="sda-mobile-steps">
+          <div className="imani-mobile-steps">
             <MobileStepIndicator currentStep={milestoneStep} totalSteps={6} />
           </div>
 
           {/* Step heading */}
-          <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "#0A0A0A", margin: "0 0 8px" }}>
+          <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "var(--ink)", margin: "0 0 8px" }}>
             {STEP_HEADINGS[step - 1]}
           </h1>
-          <p style={{ fontFamily: "var(--in)", fontSize: "18px", color: "rgba(0,0,0,0.5)", margin: "0 0 40px" }}>
+          <p style={{ fontFamily: "var(--in)", fontSize: "18px", color: "rgba(17,17,17,0.5)", margin: "0 0 40px" }}>
             {STEP_SUBS[step - 1]}
           </p>
 
           {serverError && (
-            <div style={{ border: "1px solid #991B1B", padding: "12px 16px", marginBottom: 24, fontFamily: "var(--in)", fontSize: 16, color: "#991B1B" }}>
+            <div style={{ border: "1px solid rgba(178,35,41,0.3)", backgroundColor: "rgba(178,35,41,0.06)", padding: "12px 16px", marginBottom: 24, fontFamily: "var(--in)", fontSize: 16, color: "var(--maroon)" }}>
               {serverError}
             </div>
           )}
@@ -311,7 +311,7 @@ export default function ApplyForm({
               <div style={fieldStyle}>
                 <label style={labelStyle}>
                   Phone number{" "}
-                  <span style={{ color: "rgba(0,0,0,0.4)", fontWeight: 400, fontSize: "14px" }}>(optional)</span>
+                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(optional)</span>
                 </label>
                 <input {...register("contact_phone")} type="tel" style={inputStyle} placeholder="+234 800 000 0000" />
               </div>
@@ -323,7 +323,7 @@ export default function ApplyForm({
             <div>
               <div style={fieldStyle}>
                 <label style={labelStyle}>Tell us about your business</label>
-                <p style={{ fontFamily: "var(--in)", fontSize: 15, color: "rgba(0,0,0,0.5)", lineHeight: 1.6, margin: "0 0 10px" }}>
+                <p style={{ fontFamily: "var(--in)", fontSize: 15, color: "rgba(17,17,17,0.5)", lineHeight: 1.6, margin: "0 0 10px" }}>
                   What problem do you solve, who are your customers, and what traction do you have? (minimum 50 characters)
                 </p>
                 <textarea {...register("business_description")} rows={7} style={{ ...inputStyle, resize: "vertical", lineHeight: 1.7 }} placeholder="We help Nigerian SMEs…" />
@@ -332,7 +332,7 @@ export default function ApplyForm({
               <div style={fieldStyle}>
                 <label style={labelStyle}>
                   Monthly revenue (₦){" "}
-                  <span style={{ color: "rgba(0,0,0,0.4)", fontWeight: 400, fontSize: "14px" }}>(optional)</span>
+                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(optional)</span>
                 </label>
                 <input
                   {...register("monthly_revenue", {
@@ -350,7 +350,7 @@ export default function ApplyForm({
             <div>
               <div style={fieldStyle}>
                 <label style={labelStyle}>Funding amount requested (₦)</label>
-                <p style={{ fontFamily: "var(--in)", fontSize: 15, color: "rgba(0,0,0,0.5)", margin: "0 0 10px" }}>
+                <p style={{ fontFamily: "var(--in)", fontSize: 15, color: "rgba(17,17,17,0.5)", margin: "0 0 10px" }}>
                   Maximum ₦5,000,000 per application.
                 </p>
                 <input
@@ -365,8 +365,8 @@ export default function ApplyForm({
                 <label style={labelStyle}>Funding structure</label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 4 }}>
                   {(["equity", "debt", "asset", "revenue_based"] as const).map((type) => (
-                    <label key={type} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontFamily: "var(--in)", fontSize: 17, color: "#0A0A0A" }}>
-                      <input {...register("funding_type")} type="radio" value={type} style={{ accentColor: "#CF9A0A", width: 16, height: 16 }} />
+                    <label key={type} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontFamily: "var(--in)", fontSize: 17, color: "var(--ink)" }}>
+                      <input {...register("funding_type")} type="radio" value={type} style={{ accentColor: "var(--crimson)", width: 16, height: 16 }} />
                       {FUNDING_TYPE_LABELS[type]}
                     </label>
                   ))}
@@ -382,14 +382,14 @@ export default function ApplyForm({
               <div style={fieldStyle}>
                 <label style={labelStyle}>
                   Financial statements{" "}
-                  <span style={{ color: "rgba(0,0,0,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF or Excel, max 10MB)</span>
+                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF or Excel, max 10MB)</span>
                 </label>
                 {docUploaded.financials ? (
-                  <div style={{ padding: "12px 16px", border: "1px solid rgba(0,0,0,0.15)", fontFamily: "var(--in)", fontSize: 16, color: "#2D6A4F" }}>
+                  <div style={{ padding: "12px 16px", border: "1px solid var(--hairline)", fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }}>
                     ✓ {docUploaded.financials} uploaded
                   </div>
                 ) : (
-                  <input type="file" accept=".pdf,.xlsx,.xls,.csv" onChange={(e) => setFinancialFile(e.target.files?.[0] ?? null)} style={{ fontFamily: "var(--in)", fontSize: 16, color: "#0A0A0A" }} />
+                  <input type="file" accept=".pdf,.xlsx,.xls,.csv" onChange={(e) => setFinancialFile(e.target.files?.[0] ?? null)} style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }} />
                 )}
                 {docErrors.financials && <p style={errorStyle}>{docErrors.financials}</p>}
               </div>
@@ -397,14 +397,14 @@ export default function ApplyForm({
               <div style={fieldStyle}>
                 <label style={labelStyle}>
                   Bank statements{" "}
-                  <span style={{ color: "rgba(0,0,0,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF, last 6 months, max 10MB)</span>
+                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF, last 6 months, max 10MB)</span>
                 </label>
                 {docUploaded.bank_statement ? (
-                  <div style={{ padding: "12px 16px", border: "1px solid rgba(0,0,0,0.15)", fontFamily: "var(--in)", fontSize: 16, color: "#2D6A4F" }}>
+                  <div style={{ padding: "12px 16px", border: "1px solid var(--hairline)", fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }}>
                     ✓ {docUploaded.bank_statement} uploaded
                   </div>
                 ) : (
-                  <input type="file" accept=".pdf" onChange={(e) => setBankFile(e.target.files?.[0] ?? null)} style={{ fontFamily: "var(--in)", fontSize: 16, color: "#0A0A0A" }} />
+                  <input type="file" accept=".pdf" onChange={(e) => setBankFile(e.target.files?.[0] ?? null)} style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }} />
                 )}
                 {docErrors.bank_statement && <p style={errorStyle}>{docErrors.bank_statement}</p>}
               </div>
@@ -426,23 +426,23 @@ export default function ApplyForm({
               <ReviewRow label="Funding structure" value={watchedValues.funding_type ? FUNDING_TYPE_LABELS[watchedValues.funding_type] : "—"} />
 
               {(docUploaded.financials || docUploaded.bank_statement) && (
-                <div style={{ borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: 16, marginTop: 16 }}>
-                  <p style={{ fontFamily: "var(--in)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(0,0,0,0.5)", margin: "0 0 8px" }}>Documents</p>
-                  {docUploaded.financials && <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "#2D6A4F", margin: "0 0 4px" }}>✓ Financial statements: {docUploaded.financials}</p>}
-                  {docUploaded.bank_statement && <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "#2D6A4F", margin: 0 }}>✓ Bank statements: {docUploaded.bank_statement}</p>}
+                <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: 16, marginTop: 16 }}>
+                  <p style={{ fontFamily: "var(--in)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(17,17,17,0.5)", margin: "0 0 8px" }}>Documents</p>
+                  {docUploaded.financials && <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)", margin: "0 0 4px" }}>✓ Financial statements: {docUploaded.financials}</p>}
+                  {docUploaded.bank_statement && <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)", margin: 0 }}>✓ Bank statements: {docUploaded.bank_statement}</p>}
                 </div>
               )}
             </div>
           )}
 
           {/* Navigation */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 40, paddingTop: 32, borderTop: "1px solid rgba(0,0,0,0.1)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 40, paddingTop: 32, borderTop: "1px solid var(--hairline)" }}>
             {step > 1 && (
               <button
                 type="button"
                 onClick={() => setStep((s) => s - 1)}
                 disabled={isPending || docUploading}
-                style={{ fontFamily: "var(--in)", fontSize: 15, letterSpacing: "0.04em", padding: "12px 24px", background: "transparent", border: "1px solid rgba(0,0,0,0.2)", color: "#0A0A0A", cursor: "pointer" }}
+                style={{ fontFamily: "var(--in)", fontSize: 15, letterSpacing: "0.04em", padding: "12px 24px", background: "transparent", border: "1px solid var(--hairline)", color: "var(--ink)", cursor: "pointer" }}
               >
                 Back
               </button>
@@ -471,7 +471,7 @@ export default function ApplyForm({
                 type="button"
                 onClick={handleSaveAndExit}
                 disabled={isPending || docUploading}
-                style={{ fontFamily: "var(--in)", fontSize: 15, background: "none", border: "none", color: "rgba(0,0,0,0.45)", cursor: "pointer", padding: "12px 0", marginLeft: 4, letterSpacing: "0.02em" }}
+                style={{ fontFamily: "var(--in)", fontSize: 15, background: "none", border: "none", color: "rgba(17,17,17,0.45)", cursor: "pointer", padding: "12px 0", marginLeft: 4, letterSpacing: "0.02em" }}
               >
                 Save and exit
               </button>
@@ -485,11 +485,11 @@ export default function ApplyForm({
 
 function ReviewRow({ label, value, multiline = false }: { label: string; value: string | undefined; multiline?: boolean }) {
   return (
-    <div style={{ borderTop: "1px solid rgba(0,0,0,0.1)", padding: "14px 0", display: multiline ? "block" : "flex", justifyContent: "space-between", gap: 24 }}>
-      <span style={{ fontFamily: "var(--in)", fontSize: 14, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "rgba(0,0,0,0.45)", flexShrink: 0, ...(multiline ? { display: "block", marginBottom: 6 } : {}) }}>
+    <div style={{ borderTop: "1px solid var(--hairline)", padding: "14px 0", display: multiline ? "block" : "flex", justifyContent: "space-between", gap: 24 }}>
+      <span style={{ fontFamily: "var(--in)", fontSize: 14, textTransform: "uppercase" as const, letterSpacing: "0.08em", color: "rgba(17,17,17,0.45)", flexShrink: 0, ...(multiline ? { display: "block", marginBottom: 6 } : {}) }}>
         {label}
       </span>
-      <span style={{ fontFamily: "var(--in)", fontSize: 17, color: "#0A0A0A", textAlign: multiline ? "left" : "right", lineHeight: 1.6, wordBreak: "break-word" }}>
+      <span style={{ fontFamily: "var(--in)", fontSize: 17, color: "var(--ink)", textAlign: multiline ? "left" : "right", lineHeight: 1.6, wordBreak: "break-word" }}>
         {value || "—"}
       </span>
     </div>

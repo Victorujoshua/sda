@@ -11,7 +11,7 @@ const Skel = ({
     style={{
       width: w,
       height: h,
-      backgroundColor: "var(--surface)",
+      backgroundColor: "rgba(17,17,17,0.06)",
       marginBottom: mb || undefined,
     }}
   />
@@ -22,13 +22,13 @@ export default function DashboardLoading() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
+        backgroundColor: "var(--cream)",
         color: "var(--ink)",
       }}
     >
       <header
         style={{
-          borderBottom: "1px solid var(--border)",
+          borderBottom: "1px solid var(--hairline)",
           padding: "0 40px",
           height: 56,
           display: "flex",
@@ -45,7 +45,7 @@ export default function DashboardLoading() {
         <Skel w={280} h={38} mb={48} />
 
         <div
-          style={{ border: "1px solid var(--border)", padding: 28 }}
+          style={{ border: "1px solid var(--hairline)", padding: 28 }}
         >
           <Skel w={140} h={10} mb={12} />
           <Skel w={220} h={22} mb={8} />
@@ -56,7 +56,7 @@ export default function DashboardLoading() {
 
         <div
           style={{
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             padding: "20px 28px",
             marginTop: 24,
           }}

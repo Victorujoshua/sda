@@ -8,7 +8,7 @@ export default function AuthLayout({
   return (
     <>
       <Nav />
-      <div className="sda-page-content">
+      <div className="imani-page-content">
         {children}
       </div>
     </>

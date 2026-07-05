@@ -118,9 +118,7 @@ export default function MembershipModal({
           if (vData.success) {
             onSuccess?.();
           } else {
-            setError(
-              "Something went wrong. No money was taken. Try again."
-            );
+            setError("Something went wrong. No money was taken. Try again.");
             setLoading(false);
           }
         } catch {
@@ -129,7 +127,7 @@ export default function MembershipModal({
         }
       },
       onCancel: () => {
-        // Paystack popup closed without payment — keep SDA modal open
+        // Paystack popup closed without payment — keep modal open
         setLoading(false);
       },
     });
@@ -139,7 +137,7 @@ export default function MembershipModal({
 
   return (
     <>
-      <style>{`@keyframes sda-spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes imani-spin { to { transform: rotate(360deg); } }`}</style>
 
       {/* Backdrop */}
       <div
@@ -161,11 +159,11 @@ export default function MembershipModal({
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            backgroundColor: "var(--paper)",
+            backgroundColor: "var(--cream)",
             maxWidth: 480,
             width: "100%",
             borderRadius: 8,
-            borderTop: "2px solid #CF9A0A",
+            borderTop: "2px solid var(--crimson)",
             position: "relative",
             maxHeight: "90vh",
             overflowY: "auto",
@@ -219,9 +217,7 @@ export default function MembershipModal({
               }}
             >
               A one-time{" "}
-              <span style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-                ₦
-              </span>
+              <span style={{ fontFamily: "'Aileron', system-ui, sans-serif" }}>₦</span>
               10,000 diligence and administrative fee gives you permanent access
               to gated deal details across all active opportunities on the
               platform.
@@ -262,8 +258,8 @@ export default function MembershipModal({
               <div
                 style={{
                   padding: "12px 16px",
-                  border: "1px solid var(--danger)",
-                  backgroundColor: "rgba(153,27,27,0.06)",
+                  border: "1px solid rgba(178,35,41,0.3)",
+                  backgroundColor: "rgba(178,35,41,0.06)",
                   marginBottom: 20,
                 }}
               >
@@ -271,7 +267,7 @@ export default function MembershipModal({
                   style={{
                     fontFamily: "var(--in)",
                     fontSize: 14,
-                    color: "var(--danger)",
+                    color: "var(--maroon)",
                     margin: "0 0 10px",
                   }}
                 >
@@ -284,8 +280,8 @@ export default function MembershipModal({
                     fontSize: 13,
                     letterSpacing: "0.04em",
                     padding: "6px 14px",
-                    backgroundColor: "var(--danger)",
-                    color: "#FAFAF8",
+                    backgroundColor: "var(--crimson)",
+                    color: "var(--cream)",
                     border: "none",
                     cursor: "pointer",
                   }}
@@ -310,10 +306,10 @@ export default function MembershipModal({
                     width: 16,
                     height: 16,
                     borderRadius: "50%",
-                    border: "2px solid var(--border)",
-                    borderTopColor: "#CF9A0A",
+                    border: "2px solid var(--hairline)",
+                    borderTopColor: "var(--crimson)",
                     flexShrink: 0,
-                    animation: "sda-spin 0.8s linear infinite",
+                    animation: "imani-spin 0.8s linear infinite",
                   }}
                 />
                 <p
@@ -339,17 +335,15 @@ export default function MembershipModal({
                     fontSize: 14,
                     letterSpacing: "0.04em",
                     padding: "11px 24px",
-                    backgroundColor: "#CF9A0A",
-                    color: "#0A0A0A",
+                    backgroundColor: "var(--crimson)",
+                    color: "var(--cream)",
                     border: "none",
                     cursor: "pointer",
                     fontWeight: 500,
                   }}
                 >
                   Pay{" "}
-                  <span style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-                    ₦
-                  </span>
+                  <span style={{ fontFamily: "'Aileron', system-ui, sans-serif" }}>₦</span>
                   10,000
                 </button>
                 <button
@@ -360,8 +354,8 @@ export default function MembershipModal({
                     letterSpacing: "0.03em",
                     padding: "11px 20px",
                     backgroundColor: "transparent",
-                    color: "var(--muted)",
-                    border: "1px solid var(--border)",
+                    color: "var(--ink)",
+                    border: "1px solid var(--hairline)",
                     cursor: "pointer",
                   }}
                 >

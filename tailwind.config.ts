@@ -34,7 +34,7 @@ const config: Config = {
         },
         input: "hsl(var(--input))",
         ring:  "hsl(var(--ring))",
-        /* SDA brand tokens — direct hex via CSS variable */
+        /* Legacy SDA Tailwind keys — aliases for Imani token CSS vars */
         ink:     "var(--ink)",
         paper:   "var(--paper)",
         accent:  "var(--accent)",
@@ -44,6 +44,11 @@ const config: Config = {
         success: "var(--success)",
         warning: "var(--warning)",
         danger:  "var(--danger)",
+        /* Imani Ventures tokens */
+        cream:      "var(--cream)",
+        crimson:    "var(--crimson)",
+        maroon:     "var(--maroon)",
+        terracotta: "var(--terracotta)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -51,8 +56,12 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sora:  ["var(--sr)", "system-ui", "sans-serif"],
-        inter: ["var(--in)", "system-ui", "sans-serif"],
+        /* These now resolve to Satoshi/Aileron via --sr/--in — kept for Phase 2 sweep */
+        sora:    ["var(--sr)", "system-ui", "sans-serif"],
+        inter:   ["var(--in)", "system-ui", "sans-serif"],
+        /* Imani Ventures explicit font keys */
+        satoshi: ["'Satoshi'", "system-ui", "sans-serif"],
+        aileron: ["'Aileron'", "system-ui", "sans-serif"],
       },
     },
   },

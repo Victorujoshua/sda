@@ -1,0 +1,64 @@
+-- ============================================================
+-- Imani Ventures Platform — Phase 6 Rebrand Audit
+-- Migration: 20260703000001_imani_rebrand
+-- ============================================================
+--
+-- PURPOSE
+-- -------
+-- Documents the Phase 6 code-level rebrand audit findings.
+-- This migration contains NO data-altering statements.
+-- It is a record of what was checked and why no DB renames
+-- were required.
+--
+-- AUDIT FINDINGS
+-- --------------
+-- 1. TABLE NAMES — all brand-neutral (no sda_* names):
+--    profiles, applications, deals, portfolio_companies,
+--    audit_log, membership_payments
+--    → No renames required.
+--
+-- 2. COLUMN NAMES — all brand-neutral (no sda_* columns):
+--    has_paid_membership, is_blacklisted, is_active,
+--    paystack_reference, amount_kobo, etc.
+--    → No renames required.
+--
+-- 3. AUDIT EVENT STRINGS — all brand-neutral:
+--    application.submitted, application.approved,
+--    application.rejected, application.under_review,
+--    user.blacklisted, user.unblacklisted,
+--    user.deactivated, user.reactivated,
+--    deal.created, deal.updated, deal.deactivated,
+--    portfolio.created, portfolio.updated
+--    → No UPDATE statements required.
+--
+-- 4. PAYSTACK REFERENCE PREFIX — changed in code only:
+--    Old: sda_mem_<user_id>_<timestamp>
+--    New: imani_mem_<user_id>_<timestamp>
+--    Existing rows in membership_payments retain their
+--    sda_mem_* reference values — these are correct and
+--    must not be changed (they match records in Paystack).
+--    Only new references generated after this deploy use
+--    the imani_mem_* prefix.
+--    → No data UPDATE required or allowed.
+--
+-- 5. ENUM VALUES — all brand-neutral:
+--    user_role: applicant, investor, admin
+--    funding_type: equity, debt, asset, revenue_based
+--    application_status: draft, pending, under_review,
+--                        approved, rejected
+--    → No ALTER TYPE required.
+--
+-- CONCLUSION
+-- ----------
+-- The DB schema was designed with brand-neutral identifiers
+-- from the start. No DDL or DML changes are needed.
+-- This migration is a no-op that exists as an audit record.
+-- ============================================================
+
+BEGIN;
+
+-- Audit record: rebrand Phase 6 schema review completed 2026-07-03.
+-- No DDL or DML changes were required. See comments above for details.
+SELECT 1 AS rebrand_audit_noop;
+
+COMMIT;

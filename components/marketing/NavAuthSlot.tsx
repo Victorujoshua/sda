@@ -52,7 +52,7 @@ export default function NavAuthSlot({
     return (
       <Link
         href="/signup"
-        className="sda-btn-nav-cta"
+        className="imani-btn-nav-cta"
         style={{
           fontFamily: "var(--in)",
           fontSize: "16px",
@@ -74,7 +74,7 @@ export default function NavAuthSlot({
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <Link
         href={dest.href}
-        className="sda-btn-nav-cta"
+        className="imani-btn-nav-cta"
         style={{
           fontFamily: "var(--in)",
           fontSize: "16px",
@@ -96,8 +96,8 @@ export default function NavAuthSlot({
             width: 32,
             height: 32,
             borderRadius: "50%",
-            backgroundColor: "#0f2744",
-            color: "#CF9A0A",
+            backgroundColor: "var(--ink)",
+            color: "var(--cream)",
             fontFamily: "var(--sr)",
             fontSize: 13,
             fontWeight: 600,
@@ -121,9 +121,8 @@ export default function NavAuthSlot({
               top: "calc(100% + 8px)",
               right: 0,
               width: 180,
-              backgroundColor: "#FAFAF8",
-              borderRadius: 4,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.22)",
+              backgroundColor: "var(--cream)",
+              border: "1px solid var(--hairline)",
               overflow: "hidden",
               zIndex: 200,
             }}
@@ -134,7 +133,7 @@ export default function NavAuthSlot({
                 fontFamily: "var(--in)",
                 fontSize: 12,
                 color: "var(--muted)",
-                borderBottom: "1px solid var(--border)",
+                borderBottom: "1px solid var(--hairline)",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -142,7 +141,7 @@ export default function NavAuthSlot({
             >
               {email}
             </div>
-            <button onClick={handleLogout} className="sda-nav-dropdown-logout">
+            <button onClick={handleLogout} className="imani-nav-dropdown-logout">
               Log out
             </button>
           </div>

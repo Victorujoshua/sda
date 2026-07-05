@@ -7,9 +7,9 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ backgroundColor: "#0A0A0A", color: "#FAFAF8", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "var(--cream)", color: "var(--ink)", minHeight: "100vh" }}>
       <Nav />
-      <div className="sda-page-content">
+      <div className="imani-page-content">
         {children}
       </div>
       <Footer />

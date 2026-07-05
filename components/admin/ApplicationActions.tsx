@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ const btnBase: React.CSSProperties = {
   fontSize: 14,
   letterSpacing: "0.04em",
   padding: "9px 20px",
-  border: "none",
+  border: "1px solid var(--hairline)",
   cursor: "pointer",
 };
 
@@ -63,12 +63,12 @@ export default function ApplicationActions({
 
   const textareaStyle: React.CSSProperties = {
     width: "100%",
-    border: "1px solid var(--border)",
+    border: "1px solid var(--hairline)",
     padding: "10px 14px",
     fontFamily: "var(--in)",
     fontSize: 16,
     color: "var(--ink)",
-    backgroundColor: "#fff",
+    backgroundColor: "var(--cream)",
     resize: "vertical",
     outline: "none",
     boxSizing: "border-box",
@@ -81,12 +81,13 @@ export default function ApplicationActions({
       {error && (
         <div
           style={{
-            border: "1px solid var(--danger)",
+            border: "1px solid rgba(178,35,41,0.3)",
+            backgroundColor: "rgba(178,35,41,0.06)",
             padding: "10px 14px",
             marginBottom: 16,
             fontFamily: "var(--in)",
             fontSize: 15,
-            color: "var(--danger)",
+            color: "var(--maroon)",
           }}
         >
           {error}
@@ -102,9 +103,8 @@ export default function ApplicationActions({
               disabled={isPending}
               style={{
                 ...btnBase,
-                backgroundColor: "var(--surface)",
+                backgroundColor: "rgba(17,17,17,0.04)",
                 color: "var(--ink)",
-                border: "1px solid var(--border)",
               }}
             >
               Mark under review
@@ -117,8 +117,9 @@ export default function ApplicationActions({
               disabled={isPending}
               style={{
                 ...btnBase,
-                backgroundColor: "#CF9A0A",
-                color: "#0A0A0A",
+                backgroundColor: "var(--crimson)",
+                color: "var(--cream)",
+                border: "none",
               }}
             >
               Approve for funding
@@ -133,8 +134,9 @@ export default function ApplicationActions({
             disabled={isPending}
             style={{
               ...btnBase,
-              backgroundColor: "var(--danger)",
-              color: "#FAFAF8",
+              backgroundColor: "var(--cream)",
+              color: "var(--maroon)",
+              border: "1px solid var(--maroon)",
             }}
           >
             Reject
@@ -146,7 +148,7 @@ export default function ApplicationActions({
       {showReject && (
         <div
           style={{
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             padding: "20px",
             marginBottom: 16,
           }}
@@ -177,8 +179,9 @@ export default function ApplicationActions({
               disabled={isPending || !rejectionReason.trim()}
               style={{
                 ...btnBase,
-                backgroundColor: "var(--danger)",
-                color: "#FAFAF8",
+                backgroundColor: "var(--maroon)",
+                color: "var(--cream)",
+                border: "none",
                 opacity: !rejectionReason.trim() ? 0.5 : 1,
               }}
             >
@@ -189,7 +192,6 @@ export default function ApplicationActions({
               style={{
                 ...btnBase,
                 background: "none",
-                border: "1px solid var(--border)",
                 color: "var(--ink)",
               }}
             >
@@ -202,7 +204,7 @@ export default function ApplicationActions({
       {/* Blacklist actions */}
       <div
         style={{
-          borderTop: "1px solid var(--border)",
+          borderTop: "1px solid var(--hairline)",
           paddingTop: 20,
           marginTop: 8,
         }}
@@ -226,7 +228,7 @@ export default function ApplicationActions({
               style={{
                 fontFamily: "var(--in)",
                 fontSize: 15,
-                color: "var(--danger)",
+                color: "var(--maroon)",
                 margin: "0 0 12px",
               }}
             >
@@ -237,9 +239,8 @@ export default function ApplicationActions({
               disabled={isPending}
               style={{
                 ...btnBase,
-                backgroundColor: "var(--surface)",
+                backgroundColor: "rgba(17,17,17,0.04)",
                 color: "var(--ink)",
-                border: "1px solid var(--border)",
               }}
             >
               Remove blacklist
@@ -255,9 +256,9 @@ export default function ApplicationActions({
               disabled={isPending}
               style={{
                 ...btnBase,
-                backgroundColor: "var(--surface)",
-                color: "var(--danger)",
-                border: "1px solid var(--border)",
+                backgroundColor: "var(--cream)",
+                color: "var(--maroon)",
+                border: "1px solid var(--maroon)",
               }}
             >
               Blacklist applicant
@@ -266,7 +267,7 @@ export default function ApplicationActions({
             {showBlacklist && (
               <div
                 style={{
-                  border: "1px solid var(--border)",
+                  border: "1px solid var(--hairline)",
                   padding: "20px",
                   marginTop: 14,
                 }}
@@ -297,8 +298,9 @@ export default function ApplicationActions({
                     disabled={isPending || !blacklistReason.trim()}
                     style={{
                       ...btnBase,
-                      backgroundColor: "var(--danger)",
-                      color: "#FAFAF8",
+                      backgroundColor: "var(--maroon)",
+                      color: "var(--cream)",
+                      border: "none",
                       opacity: !blacklistReason.trim() ? 0.5 : 1,
                     }}
                   >
@@ -309,7 +311,6 @@ export default function ApplicationActions({
                     style={{
                       ...btnBase,
                       background: "none",
-                      border: "1px solid var(--border)",
                       color: "var(--ink)",
                     }}
                   >

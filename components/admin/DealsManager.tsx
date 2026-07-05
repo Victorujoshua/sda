@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -18,12 +18,12 @@ type Deal = {
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  border: "1px solid var(--border)",
+  border: "1px solid var(--hairline)",
   padding: "8px 12px",
   fontFamily: "var(--in)",
   fontSize: 16,
   color: "var(--ink)",
-  backgroundColor: "#fff",
+  backgroundColor: "var(--cream)",
   outline: "none",
   boxSizing: "border-box",
 };
@@ -86,7 +86,7 @@ function DealRow({ deal }: { deal: Deal }) {
   return (
     <div
       style={{
-        border: "1px solid var(--border)",
+        border: "1px solid var(--hairline)",
         marginBottom: 12,
       }}
     >
@@ -115,11 +115,16 @@ function DealRow({ deal }: { deal: Deal }) {
             </span>
             <span
               style={{
-                fontFamily: "var(--in)",
-                fontSize: 13,
+                display: "inline-block",
+                fontFamily: "var(--sr)",
+                fontSize: 11,
+                fontWeight: 500,
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
-                color: deal.is_active ? "var(--success)" : "var(--muted)",
+                padding: "4px 10px",
+                borderRadius: "100px",
+                backgroundColor: "rgba(17,17,17,0.06)",
+                color: "var(--ink)",
               }}
             >
               {deal.is_active ? "Active" : "Inactive"}
@@ -153,19 +158,20 @@ function DealRow({ deal }: { deal: Deal }) {
       {expanded && (
         <div
           style={{
-            borderTop: "1px solid var(--border)",
+            borderTop: "1px solid var(--hairline)",
             padding: "24px 20px",
           }}
         >
           {error && (
             <div
               style={{
-                border: "1px solid var(--danger)",
+                border: "1px solid rgba(178,35,41,0.3)",
+                backgroundColor: "rgba(178,35,41,0.06)",
                 padding: "10px 14px",
                 marginBottom: 20,
                 fontFamily: "var(--in)",
                 fontSize: 15,
-                color: "var(--danger)",
+                color: "var(--maroon)",
               }}
             >
               {error}
@@ -303,7 +309,7 @@ function DealRow({ deal }: { deal: Deal }) {
                 letterSpacing: "0.04em",
                 padding: "9px 20px",
                 backgroundColor: "var(--ink)",
-                color: "#FAFAF8",
+                color: "var(--cream)",
                 border: "none",
                 cursor: isPending ? "not-allowed" : "pointer",
                 opacity: isPending ? 0.7 : 1,
@@ -317,7 +323,7 @@ function DealRow({ deal }: { deal: Deal }) {
                 style={{
                   fontFamily: "var(--in)",
                   fontSize: 15,
-                  color: "var(--success)",
+                  color: "var(--ink)",
                 }}
               >
                 Saved
@@ -334,8 +340,8 @@ function DealRow({ deal }: { deal: Deal }) {
                   letterSpacing: "0.04em",
                   padding: "9px 20px",
                   backgroundColor: "transparent",
-                  color: "var(--danger)",
-                  border: "1px solid var(--border)",
+                  color: "var(--maroon)",
+                  border: "1px solid var(--maroon)",
                   cursor: isPending ? "not-allowed" : "pointer",
                   marginLeft: "auto",
                 }}
@@ -356,7 +362,7 @@ export default function DealsManager({ deals }: { deals: Deal[] }) {
       {deals.length === 0 ? (
         <div
           style={{
-            border: "1px solid var(--border)",
+            border: "1px solid var(--hairline)",
             padding: "48px 32px",
             textAlign: "center",
           }}

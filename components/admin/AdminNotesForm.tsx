@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { saveAdminNotes } from "@/app/actions/admin";
@@ -50,7 +50,7 @@ export default function AdminNotesForm({
             color: isPending
               ? "var(--muted)"
               : saved
-              ? "var(--success)"
+              ? "var(--ink)"
               : "transparent",
           }}
         >
@@ -65,12 +65,12 @@ export default function AdminNotesForm({
         placeholder="Notes visible to admins only…"
         style={{
           width: "100%",
-          border: "1px solid var(--border)",
+          border: "1px solid var(--hairline)",
           padding: "10px 14px",
           fontFamily: "var(--in)",
           fontSize: 16,
           color: "var(--ink)",
-          backgroundColor: "#fff",
+          backgroundColor: "var(--cream)",
           resize: "vertical",
           outline: "none",
           lineHeight: 1.6,

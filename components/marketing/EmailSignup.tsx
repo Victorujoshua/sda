@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 
 export default function EmailSignup() {
@@ -15,18 +15,18 @@ export default function EmailSignup() {
   return (
     <section style={{
       padding: "48px 40px",
-      borderBottom: "1px solid rgba(255,255,255,0.1)",
+      borderBottom: "1px solid var(--hairline)",
     }}>
       <p style={{
         fontFamily: "var(--in)",
         fontSize: "15px",
-        color: "rgba(255,255,255,0.35)",
+        color: "rgba(17,17,17,0.45)",
         maxWidth: "500px",
         marginBottom: "20px",
         lineHeight: 1.6,
         letterSpacing: "0.04em",
       }}>
-        Sign up for SDA deal flow — updates on new opportunities, portfolio news,
+        Sign up for Imani Ventures deal flow — updates on new opportunities, portfolio news,
         and what we have been backing.
       </p>
 
@@ -35,7 +35,7 @@ export default function EmailSignup() {
         maxWidth: "500px",
         display: "flex",
         alignItems: "center",
-        borderBottom: "1px solid rgba(255,255,255,0.25)",
+        borderBottom: "1px solid var(--hairline)",
       }}>
         <input
           type="email"
@@ -43,7 +43,7 @@ export default function EmailSignup() {
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           placeholder="Enter your email"
-          className="sda-email-input"
+          className="imani-email-input"
           style={{
             flex: 1,
             background: "transparent",
@@ -52,13 +52,13 @@ export default function EmailSignup() {
             fontFamily: "var(--sr)",
             fontSize: "18px",
             fontWeight: 300,
-            color: "#FAFAF8",
+            color: "var(--ink)",
             padding: "12px 0",
           }}
         />
         <button
           onClick={handleSubmit}
-          className="sda-email-arrow"
+          className="imani-email-arrow"
           style={{
             background: "none",
             border: "none",
