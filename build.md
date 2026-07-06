@@ -6,7 +6,7 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Favicon set to /images/favicon.png (brand icon, PNG) for browser + Apple touch icon (2026-07-06).
+Last completed: Full mobile responsiveness pass — all marketing, app, and auth pages made responsive at 768px and 480px breakpoints (2026-07-06).
 Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -4223,3 +4223,21 @@ Build Log — 2026-07-06 Favicon
   - app/layout.tsx: icons.icon and icons.apple updated from /favicon.ico + /apple-touch-icon.png to /images/favicon.png.
   - File already in public/images/favicon.png (brand cross icon, PNG). No file move needed.
   - Known open issue for favicon marked resolved in build.md.
+
+Build Log — 2026-07-06 Mobile responsiveness pass
+  Objective: Make all pages responsive at 768px and 480px breakpoints.
+
+  app/globals.css: Added .imani-page-main, .imani-inner-pad (page padding reductions), .imani-page-h1 (52px->36px/30px), .imani-footer-top (stack vertically), .imani-about-stats (3-col->1-col), .imani-instruments-grid (2-col->1-col), .imani-hiw-grid + .imani-hiw-card (2x2->1-col, border/padding reset), .imani-opp-filter-form (stack + full-width inputs), .imani-marketing-nav + .imani-app-nav (padding 40px->20px), .imani-footer (padding). Also reduced hero h1 from 48px->40px at 768px, 34px at 480px.
+
+  Components updated with new classNames:
+  - components/marketing/Nav.tsx: imani-marketing-nav on <nav>
+  - components/app/AppNav.tsx: imani-app-nav on <nav>
+  - components/marketing/Footer.tsx: imani-footer on <footer>, imani-footer-top on top row div
+  - app/(marketing)/about/page.tsx: imani-page-main, imani-page-h1, imani-about-stats
+  - app/(marketing)/apply/page.tsx: imani-page-main, imani-page-h1, imani-instruments-grid
+  - app/(marketing)/faq/page.tsx: imani-page-main, imani-page-h1
+  - app/(marketing)/investors/page.tsx: imani-page-main, imani-page-h1, imani-hiw-grid, imani-hiw-card
+  - app/(marketing)/opportunities/page.tsx: imani-inner-pad, imani-opp-filter-form
+  - app/(app)/dashboard/page.tsx: imani-inner-pad
+
+  Build: NEXT_TURBO=0 npx next build -> GREEN. 33 routes, zero errors (2026-07-06).

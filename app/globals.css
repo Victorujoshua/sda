@@ -450,3 +450,47 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 @media (max-width: 480px) {
   .imani-pf-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }
+
+/* ── Global mobile responsiveness ───────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Nav padding */
+  .imani-marketing-nav { padding-left: 20px !important; padding-right: 20px !important; }
+  .imani-app-nav       { padding-left: 20px !important; padding-right: 20px !important; }
+
+  /* Page-level padding (marketing pages + app pages) */
+  .imani-page-main  { padding: 80px 24px 40px !important; }
+  .imani-inner-pad  { padding: 80px 20px 40px !important; }
+
+  /* Hero h1 already at 48px — drop further on small screens */
+  .imani-hero-h1    { font-size: 40px !important; }
+
+  /* Generic page h1 (about, apply, faq, investors) */
+  .imani-page-h1    { font-size: 36px !important; }
+
+  /* Footer: stack logo + nav vertically */
+  .imani-footer-top { flex-direction: column !important; gap: 32px !important; align-items: flex-start !important; }
+  .imani-footer      { padding: 32px 24px 24px !important; }
+
+  /* About: 3-col stats → single column */
+  .imani-about-stats { grid-template-columns: 1fr !important; }
+
+  /* Apply: 2-col instruments → single column */
+  .imani-instruments-grid { grid-template-columns: 1fr !important; }
+
+  /* Investors: How it works 2×2 → single column */
+  .imani-hiw-grid { grid-template-columns: 1fr !important; }
+  .imani-hiw-card { border-right: none !important; padding-left: 0 !important; padding-right: 0 !important; padding: 24px 0 !important; }
+
+  /* Opportunities filter: already wraps, just tighten inputs */
+  .imani-opp-filter-input { width: 100% !important; }
+  .imani-opp-filter-form  { flex-direction: column !important; align-items: stretch !important; }
+  .imani-opp-filter-form > div { width: 100% !important; }
+  .imani-opp-filter-form select,
+  .imani-opp-filter-form input { width: 100% !important; box-sizing: border-box; }
+}
+
+@media (max-width: 480px) {
+  .imani-page-h1 { font-size: 30px !important; }
+  .imani-hero-h1 { font-size: 34px !important; }
+}

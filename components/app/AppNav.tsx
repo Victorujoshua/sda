@@ -17,6 +17,7 @@ export default function AppNav({ userName, userRole }: Props) {
 
   return (
     <nav
+      className="imani-app-nav"
       style={{
         position: "fixed",
         top: 0,

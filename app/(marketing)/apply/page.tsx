@@ -47,7 +47,7 @@ const INSTRUMENTS = [
 
 export default function ApplyPage() {
   return (
-    <main style={{ padding: "120px 40px 80px" }}>
+    <main className="imani-page-main" style={{ padding: "120px 40px 80px" }}>
       {/* Header */}
       <p style={{
         fontFamily: "var(--in)",
@@ -59,7 +59,7 @@ export default function ApplyPage() {
       }}>
         Apply for funding
       </p>
-      <h1 style={{
+      <h1 className="imani-page-h1" style={{
         fontFamily: "var(--sr)",
         fontSize: "52px",
         fontWeight: 300,
@@ -153,7 +153,7 @@ export default function ApplyPage() {
       }}>
         Funding instruments
       </h2>
-      <div style={{
+      <div className="imani-instruments-grid" style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         gap: "16px",

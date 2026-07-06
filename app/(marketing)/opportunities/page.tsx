@@ -68,7 +68,7 @@ export default async function OpportunitiesPage({
         color: "var(--ink)",
       }}
     >
-      <div style={{ maxWidth: 1040, margin: "0 auto", padding: "72px 40px" }}>
+      <div className="imani-inner-pad" style={{ maxWidth: 1040, margin: "0 auto", padding: "72px 40px" }}>
         {/* Header */}
         <p
           style={{
@@ -112,6 +112,7 @@ export default async function OpportunitiesPage({
         {/* Filters */}
         <form
           method="get"
+          className="imani-opp-filter-form"
           style={{
             display: "flex",
             gap: 12,

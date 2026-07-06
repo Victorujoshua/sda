@@ -12,13 +12,13 @@ const FOOTER_NAV = [
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   return (
-    <footer style={{
+    <footer className="imani-footer" style={{
       backgroundColor: "var(--ink)",
       padding: "32px 40px 24px",
       borderTop: "1px solid rgba(255,255,255,0.08)",
     }}>
       {/* Top row: logotype left, nav right */}
-      <div style={{
+      <div className="imani-footer-top" style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "flex-start",

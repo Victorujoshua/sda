@@ -165,7 +165,7 @@ const FAQ_GROUPS = [
 
 export default function FAQPage() {
   return (
-    <main style={{ padding: "120px 40px 80px", maxWidth: "800px" }}>
+    <main className="imani-page-main" style={{ padding: "120px 40px 80px", maxWidth: "800px" }}>
       <p style={{
         fontFamily: "var(--in)",
         fontSize: "13px",
@@ -176,7 +176,7 @@ export default function FAQPage() {
       }}>
         FAQ
       </p>
-      <h1 style={{
+      <h1 className="imani-page-h1" style={{
         fontFamily: "var(--sr)",
         fontSize: "52px",
         fontWeight: 300,

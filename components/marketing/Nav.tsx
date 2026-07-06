@@ -90,7 +90,7 @@ export default function Nav() {
 
   return (
     <>
-      <nav style={{
+      <nav className="imani-marketing-nav" style={{
         position: "fixed",
         top: 0,
         left: 0,

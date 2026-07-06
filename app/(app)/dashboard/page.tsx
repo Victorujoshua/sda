@@ -67,7 +67,7 @@ export default async function DashboardPage({
       }}
     >
       <div
-        style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px" }}
+        className="imani-inner-pad" style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px" }}
       >
         <p
           style={{

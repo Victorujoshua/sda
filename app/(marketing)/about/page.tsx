@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main style={{ padding: "120px 40px 80px", maxWidth: "860px" }}>
+    <main className="imani-page-main" style={{ padding: "120px 40px 80px", maxWidth: "860px" }}>
       {/* Eyebrow */}
       <p style={{
         fontFamily: "var(--in)",
@@ -29,7 +29,7 @@ export default function AboutPage() {
         About Imani Ventures
       </p>
 
-      <h1 style={{
+      <h1 className="imani-page-h1" style={{
         fontFamily: "var(--sr)",
         fontSize: "52px",
         fontWeight: 300,
@@ -86,7 +86,7 @@ export default function AboutPage() {
       </div>
 
       {/* Stats row */}
-      <div style={{
+      <div className="imani-about-stats" style={{
         marginTop: "64px",
         borderTop: "1px solid var(--hairline)",
         paddingTop: "40px",

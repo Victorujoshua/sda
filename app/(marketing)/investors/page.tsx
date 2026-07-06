@@ -41,7 +41,7 @@ const HOW_IT_WORKS = [
 
 export default function InvestorsPage() {
   return (
-    <main style={{ padding: "120px 40px 80px" }}>
+    <main className="imani-page-main" style={{ padding: "120px 40px 80px" }}>
       {/* Header */}
       <div style={{
         display: "flex",
@@ -61,7 +61,7 @@ export default function InvestorsPage() {
           }}>
             For investors
           </p>
-          <h1 style={{
+          <h1 className="imani-page-h1" style={{
             fontFamily: "var(--sr)",
             fontSize: "52px",
             fontWeight: 300,
@@ -143,7 +143,7 @@ export default function InvestorsPage() {
       }}>
         How it works
       </h2>
-      <div style={{
+      <div className="imani-hiw-grid" style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         borderTop: "1px solid var(--hairline)",
@@ -151,6 +151,7 @@ export default function InvestorsPage() {
         {HOW_IT_WORKS.map(({ step, title, body }, i) => (
           <div
             key={step}
+            className="imani-hiw-card"
             style={{
               borderBottom: "1px solid var(--hairline)",
               borderRight: i % 2 === 0 ? "1px solid var(--hairline)" : "none",
