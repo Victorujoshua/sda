@@ -10,9 +10,7 @@ const NAV_LINKS = [
   { label: "Funding types", href: "/#funding-options" },
   { label: "Portfolio",     href: "/portfolio" },
   { label: "For investors", href: "/investors" },
-  { label: "Insights",      href: "#" },
   { label: "About",         href: "/about" },
-  { label: "Contact",       href: "#" },
 ];
 
 const ROLE_DESTINATIONS: Record<string, { label: string; href: string }> = {

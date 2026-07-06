@@ -137,7 +137,7 @@ export default function PortfolioView() {
             margin: "0 0 16px",
           }}
         >
-          Businesses we&apos;ve backed.
+          Businesses we have funded
         </h1>
         <p
           style={{

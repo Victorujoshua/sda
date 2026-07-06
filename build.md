@@ -6,7 +6,7 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Removed AgriPrime Foods and Maidstone Bakery from portfolio page. Portfolio now shows 4 companies: Fundora HQ, Kidcode, Rent & Rig Limited, My Little Big Surprise (2026-07-05).
+Last completed: Removed "Insights" and "Contact" nav links from Nav.tsx (2026-07-06).
 Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -22,7 +22,8 @@ Known open issues:
   - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
-Last updated: 2026-07-05.
+Last updated: 2026-07-06.
+GitHub: commit 80a924f pushed to master (github.com/Victorujoshua/sda) — 97 files, full rebrand + portfolio cleanup. Vercel auto-deploy should be triggering.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -4181,3 +4182,11 @@ Private documents, signed URLs only, admin-only.
 All writes through server actions.
 Update this file after every session. Stale build.md is a bug.
 Do not hallucinate libraries, env vars, or API shapes.
+Build Log — 2026-07-06 Copy change
+  Portfolio page heading updated.
+  - app/(marketing)/portfolio/PortfolioView.tsx:140: "Businesses we've backed." → "Businesses we have funded"
+
+Build Log — 2026-07-06 Nav cleanup
+  Removed two placeholder nav links with no destination pages.
+  - components/marketing/Nav.tsx: removed { label: "Insights", href: "#" } and { label: "Contact", href: "#" }
+  Nav now has 4 links: Funding types, Portfolio, For investors, About.
