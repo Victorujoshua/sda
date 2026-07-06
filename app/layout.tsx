@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description:
     "Backing early-stage Nigerian businesses with traction. Apply for funding or explore live opportunities.",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/images/favicon.png",
+    apple: "/images/favicon.png",
   },
   openGraph: {
     siteName: "Imani Ventures",

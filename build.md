@@ -6,7 +6,7 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Investors page header converted to 2-col layout — text/CTAs left, investor.png right (2026-07-06).
+Last completed: Favicon set to /images/favicon.png (brand icon, PNG) for browser + Apple touch icon (2026-07-06).
 Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -14,7 +14,7 @@ Known open issues:
   - Phase 4 DEFERRED: Loops email templates still SDA-branded. Will be re-done in Imani palette in a later phase.
   - Contact emails in Terms (legal@sda.ng) and Privacy (privacy@sda.ng) still point to sda.ng — update once @imaniventures.org mailboxes are live.
   - OG image asset (/og-image.png) not yet created — placeholder reference added to metadata. Drop a 1200×630 cream/ink/crimson image into /public/og-image.png.
-  - Favicon (/favicon.ico) and Apple touch icon (/apple-touch-icon.png) not yet created — placeholder references added. Drop into /public/.
+  - Favicon: RESOLVED — /images/favicon.png (brand icon PNG) set for both browser icon and Apple touch icon.
   - Security check 3 (details_gated REVOKE) unconfirmed applied — treat as FAIL until re-tested.
   - Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard.
   - Membership fee migration (20260701000001_membership_fee.sql) not yet applied.
@@ -4218,3 +4218,8 @@ Build Log — 2026-07-06 Investors page header image
   - app/(marketing)/investors/page.tsx: wrapped header section in flex row — left col (maxWidth 560px) holds eyebrow, h1, body, CTAs; right col (flex 1) holds investor.png.
   - Added next/image import. Image src: /images/investor.png, width 720 height 540, width 100% auto height.
   - Removed maxWidth caps from h1 and body text (now constrained by left column width instead).
+
+Build Log — 2026-07-06 Favicon
+  - app/layout.tsx: icons.icon and icons.apple updated from /favicon.ico + /apple-touch-icon.png to /images/favicon.png.
+  - File already in public/images/favicon.png (brand cross icon, PNG). No file move needed.
+  - Known open issue for favicon marked resolved in build.md.
