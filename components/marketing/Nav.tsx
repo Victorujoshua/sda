@@ -105,7 +105,7 @@ export default function Nav() {
         transition: "background-color 0.3s ease, box-shadow 0.3s ease",
       }}>
         {/* Left: wordmark */}
-        <Wordmark variant="inverse" />
+        <Wordmark variant="inverse" height={51} />
 
         {/* Desktop nav links + auth slot — hidden on mobile */}
         <div className="imani-nav-desktop" style={{
@@ -167,7 +167,7 @@ export default function Nav() {
           alignItems: "center",
           marginBottom: "48px",
         }}>
-          <Wordmark variant="inverse" />
+          <Wordmark variant="inverse" height={51} />
           <button
             className="imani-nav-close"
             onClick={() => setIsOpen(false)}

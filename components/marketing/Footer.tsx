@@ -7,7 +7,6 @@ const FOOTER_NAV = [
   { label: "For investors", href: "/investors" },
   { label: "About",         href: "/about" },
   { label: "Apply",         href: "/apply" },
-  { label: "Contact",       href: "#" },
 ];
 
 export default function Footer() {
@@ -24,7 +23,9 @@ export default function Footer() {
         justifyContent: "space-between",
         alignItems: "flex-start",
       }}>
-        <Wordmark variant="inverse" size={64} />
+        <div className="imani-footer-logo-wrap">
+          <Wordmark variant="inverse" height={200} />
+        </div>
         <nav style={{
           display: "flex",
           flexDirection: "column",

@@ -6,7 +6,7 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Removed "Insights" and "Contact" nav links from Nav.tsx (2026-07-06).
+Last completed: Investors page header converted to 2-col layout — text/CTAs left, investor.png right (2026-07-06).
 Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -23,7 +23,7 @@ Known open issues:
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
 Last updated: 2026-07-06.
-GitHub: commit 80a924f pushed to master (github.com/Victorujoshua/sda) — 97 files, full rebrand + portfolio cleanup. Vercel auto-deploy should be triggering.
+GitHub: commit bffa6f8 pushed to master (github.com/Victorujoshua/sda) — nav cleanup + portfolio copy. Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -4190,3 +4190,31 @@ Build Log — 2026-07-06 Nav cleanup
   Removed two placeholder nav links with no destination pages.
   - components/marketing/Nav.tsx: removed { label: "Insights", href: "#" } and { label: "Contact", href: "#" }
   Nav now has 4 links: Funding types, Portfolio, For investors, About.
+
+Build Log — 2026-07-06 Logo image swap
+  Replaced text-based Wordmark with real logo images (public/images/color logo.png, public/images/white logo.png).
+  - components/brand/Wordmark.tsx: now renders next/image; variant="inverse" -> white logo (dark surfaces); variant="default" -> color logo (light surfaces); prop renamed size -> height (default 32px).
+  - components/marketing/Footer.tsx: updated to height={44}, removed Contact link to match nav.
+  - Marketing Nav (dark bg) uses white logo via existing variant="inverse". AppNav + admin layout (cream bg) use color logo via existing variant="default". No changes needed to callers.
+  - Build: NEXT_TURBO=0 npx next build -> GREEN. 33 routes, zero errors (2026-07-06).
+
+Build Log — 2026-07-06 Logo sizing
+  - components/marketing/Nav.tsx: Wordmark height 32px -> 51px (+60%) on both desktop and mobile drawer.
+  - components/marketing/Footer.tsx: Wordmark height 44px -> 400px (user-specified). Logo is a wide horizontal image (~4:1 ratio); at 400px tall it renders ~1600px wide and may overflow footer container — flagged to user.
+
+Build Log — 2026-07-06 Footer logo responsive sizing
+  - components/marketing/Footer.tsx: wrapped Wordmark in .imani-footer-logo-wrap div.
+  - app/globals.css: added @media (max-width: 768px) rule — .imani-footer-logo-wrap img height: 100px !important (overrides inline style set by Wordmark).
+  - Desktop: 200px height. Mobile: 100px height.
+
+Build Log — 2026-07-06 Investors page How it works grid
+  - app/(marketing)/investors/page.tsx: HOW_IT_WORKS section changed from single-column vertical list to 2-column CSS grid (2 up, 2 down).
+  - Container: display grid, gridTemplateColumns 1fr 1fr, borderTop hairline.
+  - Left-column cards (i%2===0): borderRight hairline, paddingRight 40px.
+  - Right-column cards (i%2===1): no borderRight, paddingLeft 40px.
+  - All cards retain borderBottom hairline. Removed maxWidth cap on body text.
+
+Build Log — 2026-07-06 Investors page header image
+  - app/(marketing)/investors/page.tsx: wrapped header section in flex row — left col (maxWidth 560px) holds eyebrow, h1, body, CTAs; right col (flex 1) holds investor.png.
+  - Added next/image import. Image src: /images/investor.png, width 720 height 540, width 100% auto height.
+  - Removed maxWidth caps from h1 and body text (now constrained by left column width instead).

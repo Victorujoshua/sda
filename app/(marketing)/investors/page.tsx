@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "For Investors — Imani Ventures",
@@ -42,74 +43,93 @@ export default function InvestorsPage() {
   return (
     <main style={{ padding: "120px 40px 80px" }}>
       {/* Header */}
-      <p style={{
-        fontFamily: "var(--in)",
-        fontSize: "13px",
-        textTransform: "uppercase",
-        letterSpacing: "0.14em",
-        color: "rgba(17,17,17,0.35)",
-        marginBottom: "20px",
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "64px",
+        marginBottom: "80px",
       }}>
-        For investors
-      </p>
-      <h1 style={{
-        fontFamily: "var(--sr)",
-        fontSize: "52px",
-        fontWeight: 300,
-        lineHeight: 1.06,
-        letterSpacing: "-0.025em",
-        color: "var(--ink)",
-        marginBottom: "20px",
-        maxWidth: "680px",
-      }}>
-        Access curated deals in{" "}
-        <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(17,17,17,0.45)" }}>
-          Nigerian early-stage companies.
-        </em>
-      </h1>
-      <p style={{
-        fontFamily: "var(--in)",
-        fontSize: "18px",
-        lineHeight: 1.7,
-        color: "rgba(17,17,17,0.65)",
-        maxWidth: "560px",
-        marginBottom: "48px",
-      }}>
-        Imani Ventures conducts initial screening, reviews financials, and structures deal
-        summaries so you can evaluate opportunities quickly and confidently.
-      </p>
-
-      <div style={{ display: "flex", gap: "16px", marginBottom: "80px" }}>
-        <Link
-          href="/opportunities"
-          style={{
-            display: "inline-block",
-            backgroundColor: "var(--crimson)",
-            color: "#FAFAF8",
+        {/* Left: text + CTAs */}
+        <div style={{ flex: "0 0 auto", maxWidth: "560px" }}>
+          <p style={{
             fontFamily: "var(--in)",
-            fontSize: "14px",
-            letterSpacing: "0.04em",
-            padding: "12px 28px",
-            textDecoration: "none",
-          }}
-        >
-          Explore Opportunities
-        </Link>
-        <Link
-          href="/signup/investor"
-          style={{
-            display: "inline-block",
-            border: "1px solid var(--hairline)",
+            fontSize: "13px",
+            textTransform: "uppercase",
+            letterSpacing: "0.14em",
+            color: "rgba(17,17,17,0.35)",
+            marginBottom: "20px",
+          }}>
+            For investors
+          </p>
+          <h1 style={{
+            fontFamily: "var(--sr)",
+            fontSize: "52px",
+            fontWeight: 300,
+            lineHeight: 1.06,
+            letterSpacing: "-0.025em",
             color: "var(--ink)",
+            marginBottom: "20px",
+          }}>
+            Access curated deals in{" "}
+            <em style={{ fontStyle: "normal", fontWeight: 300, color: "rgba(17,17,17,0.45)" }}>
+              Nigerian early-stage companies.
+            </em>
+          </h1>
+          <p style={{
             fontFamily: "var(--in)",
-            fontSize: "14px",
-            letterSpacing: "0.04em",
-            padding: "12px 28px",
-            textDecoration: "none",
-          }}
-        >
-          Create account
-        </Link>
+            fontSize: "18px",
+            lineHeight: 1.7,
+            color: "rgba(17,17,17,0.65)",
+            marginBottom: "48px",
+          }}>
+            Imani Ventures conducts initial screening, reviews financials, and structures deal
+            summaries so you can evaluate opportunities quickly and confidently.
+          </p>
+          <div style={{ display: "flex", gap: "16px" }}>
+            <Link
+              href="/opportunities"
+              style={{
+                display: "inline-block",
+                backgroundColor: "var(--crimson)",
+                color: "#FAFAF8",
+                fontFamily: "var(--in)",
+                fontSize: "14px",
+                letterSpacing: "0.04em",
+                padding: "12px 28px",
+                textDecoration: "none",
+              }}
+            >
+              Explore Opportunities
+            </Link>
+            <Link
+              href="/signup/investor"
+              style={{
+                display: "inline-block",
+                border: "1px solid var(--hairline)",
+                color: "var(--ink)",
+                fontFamily: "var(--in)",
+                fontSize: "14px",
+                letterSpacing: "0.04em",
+                padding: "12px 28px",
+                textDecoration: "none",
+              }}
+            >
+              Create account
+            </Link>
+          </div>
+        </div>
+
+        {/* Right: image */}
+        <div className="imani-investors-hero-img" style={{ flex: 1, minWidth: 0 }}>
+          <Image
+            src="/images/investor.png"
+            alt="Nigerian entrepreneurs and business owners"
+            width={720}
+            height={540}
+            style={{ width: "100%", height: "auto", display: "block" }}
+            priority
+          />
+        </div>
       </div>
 
       {/* How it works */}
@@ -123,13 +143,19 @@ export default function InvestorsPage() {
       }}>
         How it works
       </h2>
-      <div style={{ borderTop: "1px solid var(--hairline)" }}>
-        {HOW_IT_WORKS.map(({ step, title, body }) => (
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        borderTop: "1px solid var(--hairline)",
+      }}>
+        {HOW_IT_WORKS.map(({ step, title, body }, i) => (
           <div
             key={step}
             style={{
               borderBottom: "1px solid var(--hairline)",
-              padding: "32px 0",
+              borderRight: i % 2 === 0 ? "1px solid var(--hairline)" : "none",
+              padding: "32px 40px 32px 0",
+              paddingLeft: i % 2 === 1 ? "40px" : "0",
               display: "grid",
               gridTemplateColumns: "48px 1fr",
               gap: "32px",
@@ -160,7 +186,6 @@ export default function InvestorsPage() {
                 lineHeight: 1.65,
                 color: "rgba(17,17,17,0.65)",
                 margin: 0,
-                maxWidth: "480px",
               }}>
                 {body}
               </p>

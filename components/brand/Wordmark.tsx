@@ -1,29 +1,26 @@
 import Link from "next/link";
+import Image from "next/image";
 
 type WordmarkProps = {
   variant?: "default" | "inverse";
-  size?: number;
+  height?: number;
 };
 
-export default function Wordmark({ variant = "default", size = 20 }: WordmarkProps) {
-  const color = variant === "inverse" ? "var(--cream)" : "var(--ink)";
+export default function Wordmark({ variant = "default", height = 32 }: WordmarkProps) {
+  const src = variant === "inverse"
+    ? "/images/white%20logo.png"
+    : "/images/color%20logo.png";
 
   return (
-    <Link
-      href="/"
-      style={{
-        fontFamily: "'Satoshi', system-ui, sans-serif",
-        fontSize: size,
-        fontWeight: 700,
-        fontStyle: "normal",
-        color,
-        textDecoration: "none",
-        letterSpacing: "-0.01em",
-        display: "inline-block",
-        lineHeight: 1,
-      }}
-    >
-      Imani Ventures
+    <Link href="/" style={{ display: "inline-flex", alignItems: "center", lineHeight: 0 }}>
+      <Image
+        src={src}
+        alt="Imani Ventures"
+        height={height}
+        width={height * 4}
+        style={{ height, width: "auto" }}
+        priority
+      />
     </Link>
   );
 }

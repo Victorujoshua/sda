@@ -160,6 +160,11 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
 }
 .imani-footer-link:hover { color: rgba(255, 255, 255, 0.7); }
 
+@media (max-width: 768px) {
+  .imani-footer-logo-wrap img { height: 100px !important; }
+  .imani-investors-hero-img { display: none; }
+}
+
 .imani-email-input::placeholder {
   color: rgba(17, 17, 17, 0.3);
   font-family: var(--sr);
