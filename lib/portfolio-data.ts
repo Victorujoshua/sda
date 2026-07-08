@@ -18,7 +18,7 @@ export const PORTFOLIO_COMPANIES: PortfolioCompany[] = [
     city: "Lagos",
     initials: "FH",
     tags: ["Equity", "Active"],
-    image: "/images/portfolio-fundora.png",
+    image: "/images/fundora portfolio.png",
   },
   {
     name: "Kidcode",
@@ -27,7 +27,7 @@ export const PORTFOLIO_COMPANIES: PortfolioCompany[] = [
     city: "Abuja",
     initials: "KC",
     tags: ["Revenue-based", "Active"],
-    image: "/images/portfolio-Kidcode.png",
+    image: "/images/kidcode portfolio.png",
   },
   {
     name: "Rent & Rig Limited",
@@ -36,7 +36,7 @@ export const PORTFOLIO_COMPANIES: PortfolioCompany[] = [
     city: "Lagos",
     initials: "RR",
     tags: ["Debt", "Active"],
-    image: "/images/portfolio-rent and rig.png",
+    image: "/images/Rent and rig portfolio.png",
   },
 ];
 

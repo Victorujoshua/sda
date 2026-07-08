@@ -24,6 +24,7 @@ interface Company {
   location: string;
   fundingAmount: string;
   image?: string;
+  modalImage?: string;
   logo?: string;
 }
 
@@ -31,7 +32,8 @@ const COMPANIES: Company[] = [
   {
     name: "Fundora HQ",
     initials: "FH",
-    image: "/images/portfolio-fundora.png",
+    image: "/images/fundora portfolio.png",
+    modalImage: "/images/fundora-picture.png",
     logo: "/images/Fundora white.png",
     industry: "Technology",
     shortDescription: "Financial infrastructure for small businesses",
@@ -45,7 +47,8 @@ const COMPANIES: Company[] = [
   {
     name: "Kidcode",
     initials: "KC",
-    image: "/images/portfolio-Kidcode.png",
+    image: "/images/kidcode portfolio.png",
+    modalImage: "/images/kidcode-picture.png",
     logo: "/images/Kidcode white.png",
     industry: "Technology",
     shortDescription: "Technology education for children aged 7–17",
@@ -59,7 +62,8 @@ const COMPANIES: Company[] = [
   {
     name: "Rent & Rig Limited",
     initials: "RR",
-    image: "/images/portfolio-rent and rig.png",
+    image: "/images/Rent and rig portfolio.png",
+    modalImage: "/images/Rig-picture.png",
     logo: "/images/rent and rig white.png",
     industry: "Services",
     shortDescription: "Equipment rental and logistics for construction and events",
@@ -350,10 +354,10 @@ export default function PortfolioView() {
                 overflow: "hidden",
               }}
             >
-              {selected.image ? (
+              {(selected.modalImage ?? selected.image) ? (
                 <>
                   <Image
-                    src={selected.image}
+                    src={(selected.modalImage ?? selected.image)!}
                     alt={selected.name}
                     fill
                     sizes="400px"
@@ -498,34 +502,12 @@ export default function PortfolioView() {
                 fontSize: "15px",
                 lineHeight: 1.75,
                 color: "rgba(255,255,255,0.65)",
-                margin: "0 0 28px",
+                margin: 0,
                 flex: 1,
               }}>
                 {selected.description}
               </p>
 
-              {/* Funding amount */}
-              <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: "20px" }}>
-                <p style={{
-                  fontFamily: "var(--in)",
-                  fontSize: "11px",
-                  color: "rgba(255,255,255,0.35)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  margin: "0 0 6px",
-                }}>
-                  Funding amount
-                </p>
-                <p style={{
-                  fontFamily: "var(--in)",
-                  fontSize: "22px",
-                  fontWeight: 500,
-                  color: "var(--crimson)",
-                  margin: 0,
-                }}>
-                  {selected.fundingAmount}
-                </p>
-              </div>
             </div>
           </div>
         </div>

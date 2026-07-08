@@ -6,7 +6,7 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Portfolio modal widened to 1100px (2026-07-08).
+Last completed: Portfolio modal left column now shows photo images separate from card logo images (2026-07-08).
 Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -194,6 +194,57 @@ Known open issues:
   - /faq not linked from Nav — reachable directly but no nav entry
   - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce.
 Last updated: 2026-07-03 (session 80)
+Build Log — 2026-07-08 Portfolio modal — separate photo images
+  User request: use different images in the modal popup vs the card grid.
+
+  Approach: added modalImage?: string field to Company interface. Modal left column
+  uses (modalImage ?? image) so cards keep the logo-on-dark graphic and the modal
+  shows a contextual photo.
+
+  Changes — app/(marketing)/portfolio/PortfolioView.tsx:
+    - Added modalImage?: string to Company interface.
+    - Added modalImage paths to three companies:
+        Fundora HQ       → /images/fundora-picture.png  (two founders smiling)
+        Kidcode          → /images/kidcode-picture.png  (boy at laptop)
+        Rent & Rig       → /images/Rig-picture.png      (woman with delivery truck)
+    - Modal left column Image src: selected.image → (selected.modalImage ?? selected.image)
+      with non-null assertion — falls back to card image if modalImage absent.
+
+  New files added by user to public/images/:
+    fundora-picture.png, kidcode-picture.png, Rig-picture.png
+
+  No build run (interface + data change only).
+
+Build Log — 2026-07-08 Portfolio image swap
+  User request: replace portfolio card/modal images with new brand assets.
+
+  New files added by user to public/images/:
+    fundora portfolio.png     → Fundora HQ (dark maroon bg, white "f." monogram)
+    kidcode portfolio.png     → Kidcode (dark maroon bg, blue+coral wordmark)
+    Rent and rig portfolio.png → Rent & Rig Limited (dark maroon bg, truck logo)
+
+  Path updates (both files):
+    app/(marketing)/portfolio/PortfolioView.tsx
+    lib/portfolio-data.ts
+      Fundora:    /images/portfolio-fundora.png      → /images/fundora portfolio.png
+      Kidcode:    /images/portfolio-Kidcode.png      → /images/kidcode portfolio.png
+      Rent & Rig: /images/portfolio-rent and rig.png → /images/Rent and rig portfolio.png
+
+  Old portfolio-* filenames no longer referenced in code (files remain in public/images/).
+  No build run (path-only change).
+
+Build Log — 2026-07-08 Portfolio modal — remove funding amount
+  User request: remove funding amount from the modal.
+
+  Changes — app/(marketing)/portfolio/PortfolioView.tsx:
+    - Removed "Funding amount" label + fundingAmount value block (div with borderTop).
+    - Removed bottom margin (0 0 28px → 0) on description paragraph — no longer
+      needs to push down to a funding section.
+    - fundingAmount field still present on Company interface and COMPANIES data
+      (no data cleanup needed — just not displayed in modal).
+
+  No build run (JSX-only removal).
+
 Build Log — 2026-07-08 Portfolio modal width increase
   User request: make modal wider for more column breathing room.
   Change — app/(marketing)/portfolio/PortfolioView.tsx: maxWidth 900px → 1100px.
