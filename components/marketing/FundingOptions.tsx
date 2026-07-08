@@ -36,7 +36,7 @@ export default function FundingOptions() {
     <section
       id="funding-options"
       style={{
-        backgroundColor: "var(--ink)",
+        backgroundColor: "#5B0D1B",
         padding: "72px 40px",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
       }}
@@ -81,7 +81,7 @@ export default function FundingOptions() {
           <div
             key={item.type}
             style={{
-              backgroundColor: "var(--ink)",
+              backgroundColor: "#5B0D1B",
               padding: "40px 36px",
               ...("fullWidth" in item && item.fullWidth ? { gridColumn: "1 / -1" } : {}),
             }}

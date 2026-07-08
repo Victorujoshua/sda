@@ -65,7 +65,7 @@ with the right capital structure.
       <div className="imani-intro-video-col" style={{
         position: "relative",
         overflow: "hidden",
-        backgroundColor: "#F8EDEB",
+        backgroundColor: "#B22325",
       }}>
         <IntroAnimation />
       </div>

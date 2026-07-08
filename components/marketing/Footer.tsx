@@ -13,7 +13,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   return (
     <footer className="imani-footer" style={{
-      backgroundColor: "var(--ink)",
+      backgroundColor: "#5B0D1B",
       padding: "32px 40px 24px",
       borderTop: "1px solid rgba(255,255,255,0.08)",
     }}>

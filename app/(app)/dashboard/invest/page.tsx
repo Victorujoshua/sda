@@ -141,7 +141,7 @@ export default async function InvestorDashboardPage() {
               fontSize: 14,
               letterSpacing: "0.04em",
               padding: "10px 22px",
-              backgroundColor: "var(--crimson)",
+              backgroundColor: "#C4693A",
               color: "var(--cream)",
               textDecoration: "none",
               flexShrink: 0,
@@ -217,7 +217,7 @@ export default async function InvestorDashboardPage() {
                 fontSize: 14,
                 letterSpacing: "0.04em",
                 padding: "10px 22px",
-                backgroundColor: "var(--crimson)",
+                backgroundColor: "#C4693A",
                 color: "var(--cream)",
                 textDecoration: "none",
               }}

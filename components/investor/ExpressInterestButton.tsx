@@ -72,7 +72,7 @@ export default function ExpressInterestButton({
           fontSize: 15,
           letterSpacing: "0.04em",
           padding: "12px 28px",
-          backgroundColor: "var(--crimson)",
+          backgroundColor: "#C4693A",
           color: "var(--cream)",
           border: "none",
           cursor: isPending ? "not-allowed" : "pointer",

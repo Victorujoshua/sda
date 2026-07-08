@@ -90,7 +90,7 @@ export default function InvestorsPage() {
               href="/opportunities"
               style={{
                 display: "inline-block",
-                backgroundColor: "var(--crimson)",
+                backgroundColor: "#C4693A",
                 color: "#FAFAF8",
                 fontFamily: "var(--in)",
                 fontSize: "14px",

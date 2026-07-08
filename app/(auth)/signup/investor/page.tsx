@@ -146,7 +146,7 @@ export default function InvestorSignupPage() {
                     fontFamily: "var(--sr)",
                     fontSize: "17px",
                     fontWeight: 600,
-                    backgroundColor: loading ? "var(--maroon)" : "var(--crimson)",
+                    backgroundColor: loading ? "var(--maroon)" : "#C4693A",
                     color: "var(--cream)",
                     border: "none",
                     padding: "14px 32px",

@@ -49,7 +49,7 @@ export default function PortfolioGrid() {
             {/* Photo area */}
             <div style={{
               height: "200px",
-              backgroundColor: "var(--ink)",
+              backgroundColor: "#5B0D1B",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

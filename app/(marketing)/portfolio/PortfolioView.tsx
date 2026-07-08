@@ -341,7 +341,7 @@ export default function PortfolioView() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: "var(--ink)",
+              backgroundColor: "#5B0D1B",
               border: "1px solid rgba(255,255,255,0.12)",
               maxWidth: "560px",
               width: "100%",

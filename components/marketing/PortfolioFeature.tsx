@@ -44,7 +44,7 @@ export default function PortfolioFeature() {
 
       {/* Right — company list */}
       <div style={{
-        backgroundColor: "var(--ink)",
+        backgroundColor: "#B22325",
         padding: "40px",
       }}>
         <span style={{

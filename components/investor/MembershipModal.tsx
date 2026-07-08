@@ -335,7 +335,7 @@ export default function MembershipModal({
                     fontSize: 14,
                     letterSpacing: "0.04em",
                     padding: "11px 24px",
-                    backgroundColor: "var(--crimson)",
+                    backgroundColor: "#C4693A",
                     color: "var(--cream)",
                     border: "none",
                     cursor: "pointer",

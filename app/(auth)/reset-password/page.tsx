@@ -115,7 +115,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            style={{ fontFamily: "var(--in)", fontSize: "15px", fontWeight: 500, letterSpacing: "0.04em", backgroundColor: loading ? "var(--maroon)" : "var(--crimson)", color: "var(--cream)", border: "none", padding: "13px 24px", cursor: loading ? "not-allowed" : "pointer", width: "100%" }}
+            style={{ fontFamily: "var(--in)", fontSize: "15px", fontWeight: 500, letterSpacing: "0.04em", backgroundColor: loading ? "var(--maroon)" : "#C4693A", color: "var(--cream)", border: "none", padding: "13px 24px", cursor: loading ? "not-allowed" : "pointer", width: "100%" }}
           >
             {loading ? "Updating…" : "Update password"}
           </button>

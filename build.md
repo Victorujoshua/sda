@@ -6,7 +6,7 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Full mobile responsiveness pass — all marketing, app, and auth pages made responsive at 768px and 480px breakpoints (2026-07-06).
+Last completed: Favicon verified — /images/favicon.png already wired in app/layout.tsx icons metadata (2026-07-08). No code change needed.
 Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -194,6 +194,177 @@ Known open issues:
   - /faq not linked from Nav — reachable directly but no nav entry
   - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce.
 Last updated: 2026-07-03 (session 80)
+Build Log — 2026-07-08 Sitewide colour sweep
+  User request: intelligently apply homepage colour palette to all other pages including dashboard.
+
+  Colour rules applied:
+    Dark section/container backgrounds (var(--ink) as full-section bg) → #5B0D1B
+    Primary user-facing CTA buttons (var(--crimson) on action buttons) → #C4693A
+    Left unchanged: small accent dots/markers, step-indicator circles (SignupProgress,
+      MobileStepIndicator), admin action buttons (approve/reject/blacklist/invite),
+      error-page retry buttons, active filter pills, avatar circles.
+
+  Files changed — dark backgrounds (#5B0D1B):
+    components/marketing/Footer.tsx — footer section background
+    components/marketing/PortfolioGrid.tsx — card photo placeholder area
+    app/(marketing)/about/page.tsx — stats card backgrounds
+    app/(marketing)/portfolio/PortfolioView.tsx — detail modal background
+    app/(marketing)/opportunities/page.tsx — "View details →" secondary button
+
+  Files changed — CTA buttons (#C4693A):
+    app/(auth)/login/page.tsx — Sign in submit button
+    app/(auth)/signup/page.tsx — Create account submit button
+    app/(auth)/signup/investor/page.tsx — Create account submit button
+    app/(auth)/forgot-password/page.tsx — Send reset link button
+    app/(auth)/reset-password/page.tsx — Update password button
+    app/(marketing)/apply/page.tsx — Apply CTA
+    app/(marketing)/investors/page.tsx — Investors page CTA
+    app/(marketing)/opportunities/page.tsx — Login prompt + Create account prompt
+    app/(marketing)/opportunities/[id]/page.tsx — Sign in prompt
+    app/(app)/dashboard/page.tsx — 3× applicant dashboard CTAs (replace_all)
+    app/(app)/dashboard/apply/ApplyForm.tsx — form submit button
+    app/(app)/dashboard/invest/page.tsx — 2× investor dashboard CTAs (replace_all)
+    components/investor/PathCUnlockView.tsx — unlock CTA
+    components/investor/MembershipModal.tsx — Pay button (line 338; Try again at 283 left as crimson)
+    components/investor/ExpressInterestButton.tsx — express interest CTA
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-08).
+
+Build Log — 2026-07-08 HeroTicker strip + hover background update
+  User requests: (1) remove hover background colour on tiles; (2) set strip default
+  background to #5B0D1B with hover matching.
+
+  Changes — components/marketing/HeroTicker.tsx:
+    - LogoTile backgroundColor: hovered ? "#5B0D1B" : "transparent" → "transparent" (hover removed).
+    - Ticker strip container background: "rgba(255,255,255,0.06)" → "#5B0D1B".
+    - Tiles are transparent so they show the strip background (#5B0D1B) at rest and on hover —
+      no visible colour change on hover. Color logo crossfade unchanged.
+
+  No build run (style-only changes).
+
+Build Log — 2026-07-08 Nav background colour update
+  User request: change nav bar black background to #5B0D1B.
+
+  Changes:
+    components/marketing/Nav.tsx:
+      - navBg (scrolled/non-homepage state): "#0A0A0A" → "#5B0D1B".
+      - Homepage at top-of-page remains transparent (unchanged).
+    app/globals.css:
+      - .imani-nav-drawer--open background-color: #0A0A0A → #5B0D1B.
+      - Mobile drawer now matches the nav bar colour.
+
+  No build run (style-only changes).
+
+Build Log — 2026-07-08 PortfolioFeature right column background
+  User request: change Portfolio Feature section right column background from black to #B22325.
+
+  Change — components/marketing/PortfolioFeature.tsx:
+    - Right column backgroundColor: "var(--ink)" → "#B22325".
+    - rgba(255,255,255,0.08) badge and rgba(0,0,0,0.3) avatar placeholder unchanged —
+      both still readable against the new crimson-red background.
+
+  No build run (style-only change).
+
+Build Log — 2026-07-08 HeroTicker white logo opacity
+  User request: reduce white portfolio logo opacity — first to 0.85 (−15%), then to 0.70 (−30%).
+
+  Change — components/marketing/HeroTicker.tsx:
+    - White logo Image opacity at rest: 1 → 0.70.
+    - Hover fade-out (opacity 0) unchanged.
+
+  No build run (style-only change).
+
+Build Log — 2026-07-08 Intro right column background update
+  User request: change right-side background of the "This is not a marketplace" section to #B22325.
+
+  Changes:
+    components/marketing/Intro.tsx:
+      - Right column wrapper backgroundColor: "#F8EDEB" → "#B22325".
+    components/marketing/IntroAnimation.tsx:
+      - Animation container backgroundColor: "#F8EDEB" → "#B22325".
+      Both layers updated so no cream bleeds through if the video doesn't fill the frame.
+
+  Note: #B22325 is nearly identical to --crimson: #B22329 (4-unit difference on blue channel).
+  Left as explicit hex per user spec. Could be aliased to var(--crimson) in a future cleanup.
+
+  No build run (style-only changes).
+
+Build Log — 2026-07-08 HeroTicker heading + hover colour update
+  User request: change "Businesses we have funded" bar background to #5B0D1B;
+  change ticker tile hover background to the same colour.
+
+  Changes — components/marketing/HeroTicker.tsx:
+    - Heading bar background: "#C4693A" → "#5B0D1B".
+    - LogoTile hover backgroundColor: "var(--crimson)" → "#5B0D1B".
+
+  No build run (style-only changes).
+
+Build Log — 2026-07-08 Hero + nav CTA colour alignment
+  User requests: (1) nav CTA changed from #5B0D1B → #C4693A; (2) Hero "Apply for funding"
+  button matched to nav CTA colour.
+
+  Changes:
+    app/globals.css:
+      - .imani-btn-nav-cta background-color: #5B0D1B → #C4693A.
+    components/marketing/Hero.tsx:
+      - "Apply for funding" Link: added backgroundColor: "#C4693A" inline override
+        (overrides imani-btn-primary class default of cream).
+      - Text color: "#0A0A0A" → "var(--cream)" — cream text on terracotta-orange bg for legibility.
+
+  Both buttons now read #C4693A, consistent with the HeroTicker heading bar colour.
+  No build run (style-only changes).
+
+Build Log — 2026-07-08 Nav CTA colour update
+  User request: change "Apply Now" header button background to #5B0D1B.
+
+  Change — app/globals.css:
+    - .imani-btn-nav-cta background-color: var(--crimson) → #5B0D1B.
+    - Hover state (var(--maroon) / #6D1626) unchanged — still a natural darker pressed state.
+    - Class covers both desktop nav CTA and mobile drawer CTA — both updated by this one change.
+    - Hardcoded hex used (not a token), consistent with FundingOptions change this session.
+
+  No build run (CSS-only change).
+
+Build Log — 2026-07-08 FundingOptions colour update
+  User request: change "How capital is structured" section background from black to #5B0D1B,
+  then match card backgrounds to the new section colour.
+
+  Changes — components/marketing/FundingOptions.tsx:
+    - <section> backgroundColor: "var(--ink)" → "#5B0D1B".
+    - Card <div> backgroundColor: "var(--ink)" → "#5B0D1B".
+    - Grid gap container (rgba(255,255,255,0.08)) unchanged — still provides hairline
+      separation between cards against the matching background.
+    - Hardcoded hex used (not a token). Closest token is --maroon: #6D1626 — different value;
+      left as explicit #5B0D1B per user spec.
+
+  No build run (inline style value changes only).
+
+Build Log — 2026-07-08 Heading bar background colour update
+  User request: change heading bar background from var(--ink) to #C4693A.
+
+  Change — components/marketing/HeroTicker.tsx:
+    - Heading bar background: "var(--ink)" → "#C4693A".
+    - Hardcoded hex used (not a token). Nearest brand token is --terracotta: #C16B3A — close
+      but not identical. User chose the specific value; left as-is pending token confirmation.
+
+  No build run (single inline style value change).
+
+Build Log — 2026-07-08 Ink heading bar above Hero ticker
+  Added full-width ink heading bar to components/marketing/HeroTicker.tsx, directly above the
+  auto-scrolling logo strip. The bar is part of the HeroTicker component — one export, heading + strip.
+
+  Changes — components/marketing/HeroTicker.tsx:
+    - New <div> inserted above the overflow/ticker strip container.
+    - background: var(--ink) (#111111).
+    - paddingTop/Bottom: 14px; paddingLeft: 40px (matches Hero content left margin).
+    - <span> text: "Businesses we have funded", Satoshi 500 (var(--sr)), 12px,
+      uppercase, letter-spacing 0.14em, color var(--cream).
+    - Static in document flow — NOT position: fixed.
+    - No border, no divider. Sits flush against the ticker strip below.
+    - Ticker scroll behaviour, logo content, and animation loop: unchanged.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 33 routes, zero errors (2026-07-08).
+
 Build Log — Rebrand Phase 1 (2026-07-03)
   Objective: Foundation-only token + font swap. No page copy, no component styling.
   

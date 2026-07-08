@@ -50,7 +50,7 @@ function LogoTile({
         borderRight: "1px solid rgba(255,255,255,0.10)",
         cursor: "default",
         flexShrink: 0,
-        backgroundColor: hovered ? "var(--crimson)" : "transparent",
+        backgroundColor: "transparent",
         transition: "background-color 200ms",
       }}
     >
@@ -63,7 +63,7 @@ function LogoTile({
           priority
           style={{
             objectFit: "contain",
-            opacity: hovered ? 0 : 1,
+            opacity: hovered ? 0 : 0.50,
             transition: "opacity 200ms",
           }}
         />
@@ -138,9 +138,33 @@ export default function HeroTicker() {
     <div style={{ position: "relative", zIndex: 1, width: "100%" }}>
       <div
         style={{
+          width: "100%",
+          background: "#5B0D1B",
+          paddingTop: "14px",
+          paddingBottom: "14px",
+          paddingLeft: "40px",
+          paddingRight: "0",
+          borderBottom: "1px solid rgba(255,255,255,0.10)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--sr)",
+            fontWeight: 500,
+            fontSize: "12px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "var(--cream)",
+          }}
+        >
+          Businesses we have funded
+        </span>
+      </div>
+      <div
+        style={{
           overflow: "hidden",
           width: "100%",
-          background: "rgba(255,255,255,0.06)",
+          background: "#5B0D1B",
           height: "140px",
         }}
       >

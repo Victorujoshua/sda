@@ -328,7 +328,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                     fontSize: 14,
                     letterSpacing: "0.04em",
                     padding: "10px 24px",
-                    backgroundColor: "var(--crimson)",
+                    backgroundColor: "#C4693A",
                     color: "var(--cream)",
                     border: "none",
                     cursor: "pointer",

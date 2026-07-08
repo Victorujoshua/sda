@@ -66,7 +66,8 @@ Just real businesses, real numbers, and disciplined capital.
             style={{
               fontFamily: "var(--in)",
               fontSize: "16px",
-              color: "#0A0A0A",
+              color: "var(--cream)",
+              backgroundColor: "#C4693A",
               padding: "10px 22px",
               textDecoration: "none",
               letterSpacing: "0.04em",

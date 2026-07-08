@@ -74,7 +74,7 @@ export default function Nav() {
   }, []);
 
   const isDark = !isHomepage || scrolled;
-  const navBg = isDark ? "#0A0A0A" : "transparent";
+  const navBg = isDark ? "#5B0D1B" : "transparent";
   const navShadow = isDark ? "0 1px 0 rgba(255,255,255,0.08)" : "none";
 
   const mobileDest =

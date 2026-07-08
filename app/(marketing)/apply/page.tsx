@@ -195,7 +195,7 @@ export default function ApplyPage() {
         href="/signup"
         style={{
           display: "inline-block",
-          backgroundColor: "var(--crimson)",
+          backgroundColor: "#C4693A",
           color: "#FAFAF8",
           fontFamily: "var(--in)",
           fontSize: "14px",

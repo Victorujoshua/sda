@@ -2,7 +2,7 @@
 
 export default function IntroAnimation() {
   return (
-    <div style={{ position: "absolute", inset: 0, backgroundColor: "#F8EDEB" }}>
+    <div style={{ position: "absolute", inset: 0, backgroundColor: "#B22325" }}>
       <video
         src="/videos/imani_reel.mp4"
         autoPlay

@@ -101,7 +101,7 @@ export default function AboutPage() {
           { stat: "Nigeria", label: "focus market" },
         ].map(({ stat, label }) => (
           <div key={label} style={{
-            backgroundColor: "var(--ink)",
+            backgroundColor: "#5B0D1B",
             padding: "32px 24px",
           }}>
             <p style={{

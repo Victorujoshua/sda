@@ -203,7 +203,7 @@ export default async function OpportunityDetailPage({
                   fontSize: 14,
                   letterSpacing: "0.04em",
                   padding: "10px 22px",
-                  backgroundColor: "var(--crimson)",
+                  backgroundColor: "#C4693A",
                   color: "#FAFAF8",
                   textDecoration: "none",
                 }}

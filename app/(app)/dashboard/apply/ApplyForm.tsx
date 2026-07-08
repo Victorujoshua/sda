@@ -245,7 +245,7 @@ export default function ApplyForm({
     fontFamily: "var(--sr)",
     fontSize: "17px",
     fontWeight: 600,
-    backgroundColor: "var(--crimson)",
+    backgroundColor: "#C4693A",
     color: "var(--cream)",
     border: "none",
     padding: "14px 32px",
