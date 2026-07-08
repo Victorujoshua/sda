@@ -6,7 +6,7 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Favicon verified — /images/favicon.png already wired in app/layout.tsx icons metadata (2026-07-08). No code change needed.
+Last completed: Portfolio modal widened to 1100px (2026-07-08).
 Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -194,6 +194,87 @@ Known open issues:
   - /faq not linked from Nav — reachable directly but no nav entry
   - (UNRESOLVED as of session 47) User reported "page not loading" after AppNav change — could not reproduce.
 Last updated: 2026-07-03 (session 80)
+Build Log — 2026-07-08 Portfolio modal width increase
+  User request: make modal wider for more column breathing room.
+  Change — app/(marketing)/portfolio/PortfolioView.tsx: maxWidth 900px → 1100px.
+  No build run (single value change).
+
+Build Log — 2026-07-08 Portfolio modal — two-column redesign
+  User request: wider modal, two-column layout — logo + image on left, all info on right.
+
+  Changes — app/(marketing)/portfolio/PortfolioView.tsx:
+    - Modal maxWidth: 560px → 900px. overflow changed from overflowY:auto on wrapper
+      to overflow:hidden on wrapper + overflowY:auto on right column only.
+    - Layout: single column → display:flex with two columns.
+    - Left column (flex 0 0 42%, #1C1A18):
+        Company photo (Image fill, objectFit cover) with dark gradient overlay
+        (linear-gradient to top — heavier at bottom and top, lighter in middle).
+        White logo pinned top-left (position:absolute, 150×48px, zIndex:2).
+        Fallback if no image: initials centered at low opacity.
+    - Right column (flex 1, #5B0D1B, overflowY auto):
+        Close ×  button at top-right.
+        Company name (h2), location (p), tags row, description (flex:1 so it
+        pushes funding to bottom), funding amount pinned at bottom with top border.
+    - Modal header/body divider removed — right column is now a single flex column.
+
+  No build run (JSX restructure only; prior green build still valid).
+
+Build Log — 2026-07-08 Remove My Little Big Surprise from portfolio
+  User request: delete My Little Big Surprise from the portfolio page.
+
+  Changes:
+    app/(marketing)/portfolio/PortfolioView.tsx:
+      - Removed My Little Big Surprise entry from COMPANIES array.
+      - Removed "Retail" from INDUSTRIES tuple — no remaining company uses that sector.
+    lib/portfolio-data.ts:
+      - Removed My Little Big Surprise entry from PORTFOLIO_COMPANIES array.
+      - HOMEPAGE_PORTFOLIO = slice(0, 3) unchanged — still returns Fundora, Kidcode, Rent & Rig.
+
+  Portfolio now shows 3 companies: Fundora HQ, Kidcode, Rent & Rig Limited.
+  Filter tabs: All, Services, Technology.
+
+  No build run (data/array change only).
+
+Build Log — 2026-07-08 Portfolio modal logos
+  User request: add company logo to each portfolio modal.
+
+  Changes — app/(marketing)/portfolio/PortfolioView.tsx:
+    - Added logo?: string field to Company interface.
+    - Added logo paths to three companies:
+        Fundora HQ       → /images/Fundora white.png
+        Kidcode          → /images/Kidcode white.png
+        Rent & Rig       → /images/rent and rig white.png
+      White logo variants used (modal bg is dark #5B0D1B).
+    - Modal header: if selected.logo, renders a 140×40px relative-positioned <Image>
+      above the company h2, objectPosition left center, objectFit contain.
+    - My Little Big Surprise: no logo file available — falls back gracefully (no logo rendered,
+      company name shown as before). Add logo when asset is provided.
+
+  No build run (TSX/Image-only change; prior green build still valid).
+
+Build Log — 2026-07-08 Favicon — app/favicon.png (App Router convention)
+  User request: set public/images/favicon.png as the browser favicon.
+
+  Investigation:
+    - public/images/favicon.png confirmed present.
+    - app/favicon.ico existed (25931 bytes — default/old Next.js favicon). Removed.
+    - No other stale favicon files found (app/icon.png, app/icon.svg, app/apple-icon.png,
+      public/favicon.ico all absent).
+
+  Changes:
+    - Copied public/images/favicon.png → app/favicon.png.
+      Next.js App Router auto-detects app/favicon.png and serves it as the browser icon
+      without any manual <link> tag or metadata entry.
+    - Deleted app/favicon.ico (stale).
+    - app/layout.tsx icons metadata (icon + apple: "/images/favicon.png") already present
+      from a prior session — kept as Belt-and-suspenders fallback.
+
+  Note: browser favicon cache can persist. Hard-refresh (Ctrl+Shift+R) or incognito tab
+  required to see the updated icon immediately after deploy.
+
+  Pushed to GitHub: commit 360ff6f (32 files, covers all colour palette + favicon work).
+  Vercel auto-deploy triggered.
+
 Build Log — 2026-07-08 Sitewide colour sweep
   User request: intelligently apply homepage colour palette to all other pages including dashboard.
 

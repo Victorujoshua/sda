@@ -5,7 +5,6 @@ import Image from "next/image";
 
 const INDUSTRIES = [
   "All",
-  "Retail",
   "Services",
   "Technology",
 ] as const;
@@ -25,6 +24,7 @@ interface Company {
   location: string;
   fundingAmount: string;
   image?: string;
+  logo?: string;
 }
 
 const COMPANIES: Company[] = [
@@ -32,10 +32,11 @@ const COMPANIES: Company[] = [
     name: "Fundora HQ",
     initials: "FH",
     image: "/images/portfolio-fundora.png",
+    logo: "/images/Fundora white.png",
     industry: "Technology",
     shortDescription: "Financial infrastructure for small businesses",
     description:
-      "Fundora HQ builds payment and financial management tools for Nigerian SMEs, enabling merchants to accept payments, manage invoices, and access working capital. The business serves over 800 active merchants across Lagos and Abuja.",
+      "Fundora HQ is the cornerstone of our portfolio and a bold step toward redefining wealth creation in Africa. As a fintech marketplace for investment and insurance products, Fundora provides Nigerians with seamless access to both local and global capital market opportunities, democratising financial access in a way that has historically been limited. Built on the vision of financial inclusion and long-term prosperity, Fundora goes beyond access. It empowers individuals and families to build, preserve, and grow wealth across generations. With a clear ambition to shape Africa’s next generation of wealthy families, Fundora sits at the intersection of technology, finance, and opportunity, creating a smarter, more inclusive financial future.",
     status: "Active",
     fundingType: "Equity",
     location: "Lagos",
@@ -45,10 +46,11 @@ const COMPANIES: Company[] = [
     name: "Kidcode",
     initials: "KC",
     image: "/images/portfolio-Kidcode.png",
+    logo: "/images/Kidcode white.png",
     industry: "Technology",
     shortDescription: "Technology education for children aged 7–17",
     description:
-      "Kidcode runs after-school and weekend coding bootcamps across Abuja, covering Python, web development, and robotics. Over 1,200 students have completed at least one term since the programme launched in 2023.",
+      "Kidcode redefines children’s fashion through the lens of identity and expression. Rooted in the belief that every child possesses a distinct creative code, the brand designs refined, high-quality clothing that enables freedom of movement, imagination, and self-discovery. Serving children aged 2–11, Kidcode seamlessly balances sophistication, comfort, and durability. It is not simply apparel, it is a considered approach to nurturing confidence, individuality, and style from the earliest years.",
     status: "Active",
     fundingType: "Revenue-based",
     location: "Abuja",
@@ -58,26 +60,15 @@ const COMPANIES: Company[] = [
     name: "Rent & Rig Limited",
     initials: "RR",
     image: "/images/portfolio-rent and rig.png",
+    logo: "/images/rent and rig white.png",
     industry: "Services",
     shortDescription: "Equipment rental and logistics for construction and events",
     description:
-      "Rent & Rig provides short-term rental of generators, scaffolding, and earthmoving equipment across Lagos. The business operates a fleet of over 40 units serving construction contractors and event management companies.",
+      "Rent & Rig elevates event experiences through cutting-edge visual technology. Specialising in high-quality LED screen rentals for corporate events, the business delivers seamless, impactful display solutions designed to engage audiences and enhance brand presence. From conferences and product launches to large-scale corporate gatherings, Rent & Rig ensures every visual moment is delivered with precision and clarity. Built on reliability, technical expertise, and a commitment to excellence, Rent & Rig transforms spaces into immersive environments, where content isn’t just seen, but experienced.",
     status: "Active",
     fundingType: "Debt",
     location: "Lagos",
     fundingAmount: "₦4,500,000",
-  },
-  {
-    name: "My Little Big Surprise",
-    initials: "ML",
-    industry: "Retail",
-    shortDescription: "Curated gifting and experience boxes for individuals and corporates",
-    description:
-      "My Little Big Surprise curates themed gift boxes sourced from Nigerian artisans and small producers. The business fulfils orders across 12 states and serves both personal milestone gifting and corporate gifting programmes.",
-    status: "Active",
-    fundingType: "Equity",
-    location: "Lagos",
-    fundingAmount: "₦1,500,000",
   },
 ];
 
@@ -341,170 +332,197 @@ export default function PortfolioView() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: "#5B0D1B",
+              display: "flex",
               border: "1px solid rgba(255,255,255,0.12)",
-              maxWidth: "560px",
+              maxWidth: "1100px",
               width: "100%",
               maxHeight: "90vh",
-              overflowY: "auto",
+              overflow: "hidden",
             }}
           >
-            {/* Modal header */}
+            {/* Left column — image + logo */}
             <div
               style={{
-                padding: "24px 28px 20px",
-                borderBottom: "1px solid rgba(255,255,255,0.12)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: "16px",
+                flex: "0 0 42%",
+                position: "relative",
+                minHeight: "480px",
+                backgroundColor: "#1C1A18",
+                overflow: "hidden",
               }}
             >
-              <div>
-                <h2
-                  style={{
+              {selected.image ? (
+                <>
+                  <Image
+                    src={selected.image}
+                    alt={selected.name}
+                    fill
+                    sizes="400px"
+                    style={{ objectFit: "cover" }}
+                  />
+                  <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.4) 100%)",
+                  }} />
+                </>
+              ) : (
+                <div style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}>
+                  <span style={{
                     fontFamily: "var(--sr)",
-                    fontSize: "24px",
+                    fontSize: "56px",
                     fontWeight: 300,
-                    letterSpacing: "-0.015em",
-                    color: "#FAFAF8",
-                    margin: "0 0 6px",
-                  }}
-                >
-                  {selected.name}
-                </h2>
-                <p
-                  style={{
-                    fontFamily: "var(--in)",
-                    fontSize: "11px",
-                    color: "rgba(255,255,255,0.35)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    margin: 0,
-                  }}
-                >
-                  {selected.location}, Nigeria
-                </p>
-              </div>
-              <button
-                onClick={closeModal}
-                aria-label="Close"
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "rgba(255,255,255,0.35)",
-                  cursor: "pointer",
-                  fontSize: "22px",
-                  lineHeight: 1,
-                  padding: "2px 4px",
-                  flexShrink: 0,
-                  transition: "color 120ms",
-                }}
-              >
-                ×
-              </button>
+                    color: "rgba(255,255,255,0.15)",
+                  }}>
+                    {selected.initials}
+                  </span>
+                </div>
+              )}
+              {/* Logo pinned top-left over image */}
+              {selected.logo && (
+                <div style={{
+                  position: "absolute",
+                  top: "24px",
+                  left: "24px",
+                  zIndex: 2,
+                  width: "150px",
+                  height: "48px",
+                }}>
+                  <Image
+                    src={selected.logo}
+                    alt={`${selected.name} logo`}
+                    fill
+                    sizes="150px"
+                    style={{ objectFit: "contain", objectPosition: "left center" }}
+                  />
+                </div>
+              )}
             </div>
 
-            {/* Modal body */}
-            <div style={{ padding: "24px 28px 28px" }}>
+            {/* Right column — all info */}
+            <div style={{
+              flex: 1,
+              backgroundColor: "#5B0D1B",
+              overflowY: "auto",
+              padding: "24px 28px 28px",
+              display: "flex",
+              flexDirection: "column",
+            }}>
+              {/* Close button */}
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+                <button
+                  onClick={closeModal}
+                  aria-label="Close"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "rgba(255,255,255,0.35)",
+                    cursor: "pointer",
+                    fontSize: "22px",
+                    lineHeight: 1,
+                    padding: "2px 4px",
+                    transition: "color 120ms",
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Name + location */}
+              <h2 style={{
+                fontFamily: "var(--sr)",
+                fontSize: "24px",
+                fontWeight: 300,
+                letterSpacing: "-0.015em",
+                color: "#FAFAF8",
+                margin: "0 0 6px",
+              }}>
+                {selected.name}
+              </h2>
+              <p style={{
+                fontFamily: "var(--in)",
+                fontSize: "11px",
+                color: "rgba(255,255,255,0.35)",
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                margin: "0 0 24px",
+              }}>
+                {selected.location}, Nigeria
+              </p>
 
               {/* Tags row */}
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "8px",
-                  marginBottom: "24px",
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "var(--in)",
-                    fontSize: "10px",
-                    color: "rgba(255,255,255,0.5)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    padding: "4px 10px",
-                  }}
-                >
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "24px" }}>
+                <span style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "10px",
+                  color: "rgba(255,255,255,0.5)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  padding: "4px 10px",
+                }}>
                   {selected.industry}
                 </span>
-                <span
-                  style={{
-                    fontFamily: "var(--in)",
-                    fontSize: "10px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    border: "1px solid rgba(178,35,41,0.3)",
-                    padding: "4px 10px",
-                    color: "var(--crimson)",
-                  }}
-                >
+                <span style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "10px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  border: "1px solid rgba(178,35,41,0.3)",
+                  padding: "4px 10px",
+                  color: "var(--crimson)",
+                }}>
                   {selected.fundingType}
                 </span>
-                <span
-                  style={{
-                    fontFamily: "var(--in)",
-                    fontSize: "10px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    padding: "4px 10px",
-                    color:
-                      selected.status === "Active"
-                        ? "var(--crimson)"
-                        : "rgba(255,255,255,0.3)",
-                    border:
-                      selected.status === "Active"
-                        ? "1px solid rgba(178,35,41,0.3)"
-                        : "1px solid rgba(255,255,255,0.1)",
-                  }}
-                >
+                <span style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "10px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  padding: "4px 10px",
+                  color: selected.status === "Active" ? "var(--crimson)" : "rgba(255,255,255,0.3)",
+                  border: selected.status === "Active" ? "1px solid rgba(178,35,41,0.3)" : "1px solid rgba(255,255,255,0.1)",
+                }}>
                   ● {selected.status}
                 </span>
               </div>
 
               {/* Description */}
-              <p
-                style={{
-                  fontFamily: "var(--in)",
-                  fontSize: "15px",
-                  lineHeight: 1.75,
-                  color: "rgba(255,255,255,0.65)",
-                  margin: "0 0 28px",
-                }}
-              >
+              <p style={{
+                fontFamily: "var(--in)",
+                fontSize: "15px",
+                lineHeight: 1.75,
+                color: "rgba(255,255,255,0.65)",
+                margin: "0 0 28px",
+                flex: 1,
+              }}>
                 {selected.description}
               </p>
 
               {/* Funding amount */}
-              <div
-                style={{
-                  borderTop: "1px solid rgba(255,255,255,0.12)",
-                  paddingTop: "20px",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "var(--in)",
-                    fontSize: "11px",
-                    color: "rgba(255,255,255,0.35)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    margin: "0 0 6px",
-                  }}
-                >
+              <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: "20px" }}>
+                <p style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "11px",
+                  color: "rgba(255,255,255,0.35)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  margin: "0 0 6px",
+                }}>
                   Funding amount
                 </p>
-                <p
-                  style={{
-                    fontFamily: "var(--in)",
-                    fontSize: "22px",
-                    fontWeight: 500,
-                    color: "var(--crimson)",
-                    margin: 0,
-                  }}
-                >
+                <p style={{
+                  fontFamily: "var(--in)",
+                  fontSize: "22px",
+                  fontWeight: 500,
+                  color: "var(--crimson)",
+                  margin: 0,
+                }}>
                   {selected.fundingAmount}
                 </p>
               </div>

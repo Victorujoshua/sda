@@ -54,7 +54,7 @@ export default function Hero() {
           marginTop: "24px",
           marginBottom: 0,
         }}>
-          We connect vetted investors with revenuegenerating businesses through structured financing.<br />
+          We connect vetted investors with revenue generating businesses through structured financing.<br />
 No speculation. No guesswork.<br />
 Just real businesses, real numbers, and disciplined capital.
         </p>

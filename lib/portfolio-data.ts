@@ -38,14 +38,6 @@ export const PORTFOLIO_COMPANIES: PortfolioCompany[] = [
     tags: ["Debt", "Active"],
     image: "/images/portfolio-rent and rig.png",
   },
-  {
-    name: "My Little Big Surprise",
-    description: "Curated gifting and experiences",
-    sector: "Retail",
-    city: "Lagos",
-    initials: "ML",
-    tags: ["Equity", "Active"],
-  },
 ];
 
 // Homepage grid shows first 3 only (spec: MLBS omitted from 3-col grid)
