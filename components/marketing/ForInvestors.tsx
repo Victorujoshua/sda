@@ -71,8 +71,8 @@ export default function ForInvestors() {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: "15px",
-            fontWeight: 400,
+            fontSize: "18px",
+            fontWeight: 600,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
             color: "rgba(17,17,17,0.35)",

@@ -43,7 +43,8 @@ export default function FundingOptions() {
     >
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "17px",
+        fontSize: "18px",
+        fontWeight: 600,
         textTransform: "uppercase",
         letterSpacing: "0.12em",
         color: "rgba(255,255,255,0.45)",
@@ -124,7 +125,8 @@ export default function FundingOptions() {
       {/* Closing statement */}
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "15px",
+        fontSize: "18px",
+        fontWeight: 600,
         textTransform: "uppercase",
         letterSpacing: "0.12em",
         color: "rgba(255,255,255,0.45)",

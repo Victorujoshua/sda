@@ -19,43 +19,35 @@ export default function Intro() {
           fontWeight: 400,
           lineHeight: 1.8,
           color: "rgba(17,17,17,0.65)",
-          marginBottom: "32px",
+          marginBottom: "24px",
         }}>
           Imani Ventures is a private capital platform built for MSMEs that are already in motion.
 We focus on businesses with proven traction, clear financial visibility, and the capacity to grow
 with the right capital structure.
         </p>
 
+        <p style={{
+          fontFamily: "var(--in)",
+          fontSize: "18px",
+          fontWeight: 400,
+          lineHeight: 1.8,
+          color: "rgba(17,17,17,0.65)",
+          marginBottom: "32px",
+        }}>
+          On the other side, we provide investors with access to curated opportunities structured around real cash flow, not just projections.
+        </p>
+
         <div style={{ marginBottom: "32px" }}>
           <p style={{
             fontFamily: "var(--sr)",
-            fontSize: "48px",
+            fontSize: "32px",
             fontWeight: 300,
             lineHeight: 1.1,
             color: "var(--ink)",
             margin: 0,
           }}>
-            This is not a marketplace for ideas.
-          </p>
-          <p style={{
-            fontFamily: "var(--sr)",
-            fontSize: "48px",
-            fontWeight: 300,
-            lineHeight: 1.1,
-            color: "var(--ink)",
-            margin: 0,
-          }}>
-            It is access to businesses
-          </p>
-          <p style={{
-            fontFamily: "var(--sr)",
-            fontSize: "48px",
-            fontWeight: 300,
-            lineHeight: 1.1,
-            color: "var(--crimson)",
-            margin: 0,
-          }}>
-             with evidence.
+            This is not a marketplace for ideas. It is access to businesses{" "}
+            <span style={{ color: "var(--crimson)" }}>with evidence.</span>
           </p>
         </div>
 

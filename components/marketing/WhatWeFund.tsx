@@ -18,7 +18,8 @@ export default function WhatWeFund() {
         <p
           style={{
             fontFamily: "var(--in)",
-            fontSize: "15px",
+            fontSize: "18px",
+            fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
             color: "rgba(17,17,17,0.35)",

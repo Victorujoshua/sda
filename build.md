@@ -22,7 +22,7 @@ Known open issues:
   - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
-Last updated: 2026-07-06.
+Last updated: 2026-07-09 (session 12).
 GitHub: commit bffa6f8 pushed to master (github.com/Victorujoshua/sda) — nav cleanup + portfolio copy. Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
@@ -480,6 +480,94 @@ Build Log — 2026-07-08 Heading bar background colour update
       but not identical. User chose the specific value; left as-is pending token confirmation.
 
   No build run (single inline style value change).
+
+Build Log — 2026-07-09 Footer logo — switched to white.png
+  Footer logo changed from <Wordmark variant="inverse" /> to a direct <Image> using /images/white.png (height 96, width auto).
+  Nav continues to use <Wordmark variant="inverse" /> unchanged.
+  Wordmark import removed from Footer.tsx; next/image import added.
+  Files changed: components/marketing/Footer.tsx
+
+Build Log — 2026-07-09 Footer logo size + padding
+  Wordmark height increased 200% (32px → 96px).
+  Footer padding updated from "72px 40px 32px" → "100px 40px" (100px top/bottom, 40px left/right).
+  Files changed: components/marketing/Footer.tsx
+
+Build Log — 2026-07-09 Footer refactor — 4-column editorial layout
+  Refactored marketing footer to 4-column editorial layout (Company / For Businesses / For Investors / Legal) on ink #111111 background with crimson #B22329 column headers.
+  Left brand column: Wordmark inverse variant (height 32) + descriptor paragraph (Aileron 15px, cream 70% opacity).
+  Four link columns: crimson uppercase headers (Satoshi 500, 13px, letter-spacing 0.06em), links in cream 75% opacity, hover → full cream.
+  Bottom row: copyright left (Aileron 13px, cream 60%), inline SVG social icons right (X, Instagram, LinkedIn) at cream 60%, hover → crimson.
+  Hairline divider: rgba(248,237,235,0.15).
+  Responsive: 4-col at desktop (≥1024px), 2×2 grid at tablet (≤1023px), single-column at mobile (≤479px). No clipping at 375px.
+  Embedded <style> tag for hover states and responsive grid — no globals.css changes.
+  Build: NEXT_TURBO=0 npx next build → GREEN. Zero errors, zero warnings.
+
+  Omitted routes (dead links — do not exist in codebase):
+    - /contact → dropped from Company column; no contact page exists
+    - /funding-types → no standalone page; "Funding types" links to /#funding-options (homepage anchor) instead
+
+  Open items:
+    - Social URLs (X, Instagram, LinkedIn) are # placeholders — real handles must be filled in before launch
+    - /contact page does not exist — create or permanently omit from footer
+
+  Files changed: components/marketing/Footer.tsx
+
+Build Log — 2026-07-09 Section title typography sweep
+  Updated all uppercase section title labels sitewide: fontSize → 18px, fontWeight → 600.
+  Files changed (8 instances across 7 files):
+    - components/marketing/WhatWeFund.tsx ("What we fund")
+    - components/marketing/FundingOptions.tsx ("How capital is structured", "The goal is simple")
+    - components/marketing/HomeFAQ.tsx
+    - components/marketing/HowItWorks.tsx
+    - components/marketing/PortfolioFeature.tsx ("Portfolio")
+    - components/marketing/WhatWeLookFor.tsx ("What we look for")
+    - components/marketing/ForInvestors.tsx ("For Investors")
+
+Build Log — 2026-07-09 Intro second body paragraph added
+  Added second body paragraph below the first: "On the other side, we provide investors with access to curated opportunities structured around real cash flow, not just projections."
+  Same Aileron 18px / weight 400 / rgba(17,17,17,0.65) style as first paragraph.
+  First paragraph marginBottom reduced from 32px → 24px to tighten spacing between the two.
+  Files changed: components/marketing/Intro.tsx
+
+Build Log — 2026-07-09 Intro heading consolidated to one paragraph
+  Merged three separate <p> elements into one. "with evidence." kept in crimson via inline <span>.
+  Files changed: components/marketing/Intro.tsx
+
+Build Log — 2026-07-09 Intro heading + HeroTicker container size
+  HeroTicker tile container reduced 40%: minWidth 12rem → 7.2rem, width 25vw → 15vw, minHeight 8.75rem → 5.25rem, strip height 140px → 84px.
+  Intro section heading font size reduced: 48px → 32px across all three heading <p> elements.
+  Files changed: components/marketing/HeroTicker.tsx, components/marketing/Intro.tsx
+
+Build Log — 2026-07-09 HeroTicker logo size reduction
+  Reduced logo image size by 30%: maxWidth 200px → 140px, height 64px → 45px.
+  Files changed: components/marketing/HeroTicker.tsx
+
+Build Log — 2026-07-09 HeroTicker label + opacity updates
+  Background opacity: rgba(255,255,255,0.6) → rgba(255,255,255,0.4) (60% transparent).
+  Heading label: color var(--ink) → #ffffff, weight 500 → 700, size 12px → 16px.
+  Files changed: components/marketing/HeroTicker.tsx
+
+Build Log — 2026-07-09 HeroTicker background opacity iterations
+  Iterated HeroTicker background: #F8C3BC → #ffffff → rgba(255,255,255,0.8) → rgba(255,255,255,0.6).
+  Final value: rgba(255,255,255,0.6) (60% opaque / 40% transparent white) on both heading bar and logo strip.
+  Files changed: components/marketing/HeroTicker.tsx
+
+Build Log — 2026-07-09 HeroTicker background + logo simplification
+  Changed HeroTicker strip and heading bar background from #5B0D1B to #F8C3BC (light blush).
+  Removed hover swap mechanic — now shows color logos only at full opacity, no white logo layer.
+  Removed useState import (no longer needed).
+  Updated tile divider from rgba(255,255,255,0.10) → var(--hairline) for light background.
+  Updated heading label color from var(--cream) → var(--ink) for legibility on light background.
+
+  Files changed: components/marketing/HeroTicker.tsx
+
+Build Log — 2026-07-09 HeroTicker heading bar centered
+  Centered the "Businesses we have funded" label in components/marketing/HeroTicker.tsx.
+
+  Changes — components/marketing/HeroTicker.tsx:
+    - Added textAlign: "center" to the heading bar container div.
+    - Added paddingRight: "40px" (was 0) to balance the existing paddingLeft: "40px".
+    - Label text, font, colour, and strip animation: unchanged.
 
 Build Log — 2026-07-08 Ink heading bar above Hero ticker
   Added full-width ink heading bar to components/marketing/HeroTicker.tsx, directly above the

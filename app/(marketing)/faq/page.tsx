@@ -52,7 +52,7 @@ const FAQ_GROUPS = [
       {
         question: "Do all investments rely on exits?",
         answer:
-          "No. Only equity investments depend on future exits. Revenue-based, debt, and profit-sharing structures provide returns over time without requiring a sale of the business.",
+          "No. Only equity investments depend on future exits. </br>Revenue-based, debt, and profit-sharing structures provide returns over time without requiring a sale of the business.",
       },
       {
         question: "What is revenue-based financing?",
@@ -185,7 +185,7 @@ export default function FAQPage() {
         color: "var(--ink)",
         marginBottom: "56px",
       }}>
-        Common questions.
+        Frequently Asked Questions.
       </h1>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>

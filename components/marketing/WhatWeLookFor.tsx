@@ -15,7 +15,8 @@ export default function WhatWeLookFor() {
     }}>
       <p style={{
         fontFamily: "var(--in)",
-        fontSize: "17px",
+        fontSize: "18px",
+        fontWeight: 600,
         textTransform: "uppercase",
         letterSpacing: "0.12em",
         color: "rgba(17,17,17,0.35)",

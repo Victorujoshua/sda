@@ -11,13 +11,14 @@ export default function PortfolioFeature() {
       }}>
         <p style={{
           fontFamily: "var(--in)",
-          fontSize: "15px",
+          fontSize: "18px",
+          fontWeight: 600,
           textTransform: "uppercase",
           letterSpacing: "0.12em",
           color: "rgba(17,17,17,0.35)",
           marginBottom: "20px",
         }}>
-          Portfolio feature
+          Portfolio
         </p>
         <blockquote style={{
           fontFamily: "var(--sr)",
@@ -38,7 +39,6 @@ export default function PortfolioFeature() {
           color: "rgba(17,17,17,0.4)",
           letterSpacing: "0.04em",
         }}>
-          Imani Ventures Investment Team
         </p>
       </div>
 

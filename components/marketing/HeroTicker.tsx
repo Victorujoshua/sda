@@ -1,83 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 const LOGOS = [
-  {
-    name: "Rent & Rig",
-    white: "/images/rent and rig white.png",
-    color: "/images/rent and rig color.png",
-  },
-  {
-    name: "Kidcode",
-    white: "/images/Kidcode white.png",
-    color: "/images/Kidcode color.png",
-  },
-  {
-    name: "Fundora",
-    white: "/images/Fundora white.png",
-    color: "/images/Fundora color.png",
-  },
+  { name: "Rent & Rig", src: "/images/rent and rig color.png" },
+  { name: "Kidcode", src: "/images/Kidcode color.png" },
+  { name: "Fundora", src: "/images/Fundora color.png" },
 ];
 
-function LogoTile({
-  name,
-  white,
-  color,
-  suffix,
-}: {
-  name: string;
-  white: string;
-  color: string;
-  suffix: string;
-}) {
-  const [hovered, setHovered] = useState(false);
-
+function LogoTile({ name, src, suffix }: { name: string; src: string; suffix: string }) {
   return (
     <div
       key={`${name}-${suffix}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       style={{
-        minWidth: "12rem",
-        width: "25vw",
-        minHeight: "8.75rem",
+        minWidth: "7.2rem",
+        width: "15vw",
+        minHeight: "5.25rem",
         padding: "1.4rem 0",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        borderRight: "1px solid rgba(255,255,255,0.10)",
+        borderRight: "1px solid var(--hairline)",
         cursor: "default",
         flexShrink: 0,
-        backgroundColor: "transparent",
-        transition: "background-color 200ms",
       }}
     >
-      <div style={{ position: "relative", width: "75%", maxWidth: "200px", height: "64px" }}>
+      <div style={{ position: "relative", width: "75%", maxWidth: "140px", height: "45px" }}>
         <Image
-          src={white}
+          src={src}
           alt={name}
           fill
           sizes="200px"
           priority
-          style={{
-            objectFit: "contain",
-            opacity: hovered ? 0 : 0.50,
-            transition: "opacity 200ms",
-          }}
-        />
-        <Image
-          src={color}
-          alt=""
-          aria-hidden
-          fill
-          sizes="200px"
-          style={{
-            objectFit: "contain",
-            opacity: hovered ? 1 : 0,
-            transition: "opacity 200ms",
-          }}
+          style={{ objectFit: "contain" }}
         />
       </div>
     </div>
@@ -139,22 +95,23 @@ export default function HeroTicker() {
       <div
         style={{
           width: "100%",
-          background: "#5B0D1B",
+          background: "rgba(255,255,255,0.4)",
           paddingTop: "14px",
           paddingBottom: "14px",
           paddingLeft: "40px",
-          paddingRight: "0",
-          borderBottom: "1px solid rgba(255,255,255,0.10)",
+          paddingRight: "40px",
+          textAlign: "center",
+          borderBottom: "1px solid var(--hairline)",
         }}
       >
         <span
           style={{
             fontFamily: "var(--sr)",
-            fontWeight: 500,
-            fontSize: "12px",
+            fontWeight: 700,
+            fontSize: "16px",
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "var(--cream)",
+            color: "#ffffff",
           }}
         >
           Businesses we have funded
@@ -164,8 +121,8 @@ export default function HeroTicker() {
         style={{
           overflow: "hidden",
           width: "100%",
-          background: "#5B0D1B",
-          height: "140px",
+          background: "rgba(255,255,255,0.4)",
+          height: "84px",
         }}
       >
         <div
