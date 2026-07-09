@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import NavAuthSlot from "./NavAuthSlot";
-import Wordmark from "@/components/brand/Wordmark";
+import Image from "next/image";
 
 const NAV_LINKS = [
   { label: "Funding types", href: "/#funding-options" },
@@ -74,8 +74,9 @@ export default function Nav() {
   }, []);
 
   const isDark = !isHomepage || scrolled;
-  const navBg = isDark ? "#5B0D1B" : "transparent";
-  const navShadow = isDark ? "0 1px 0 rgba(255,255,255,0.08)" : "none";
+  const navBg = isDark ? "#ffffff" : "transparent";
+  const navShadow = isDark ? "0 1px 0 rgba(0,0,0,0.08)" : "none";
+  const navLinkColor = isDark ? "rgba(17,17,17,0.65)" : "rgba(255,255,255,0.5)";
 
   const mobileDest =
     auth.status === "in" && auth.role
@@ -105,7 +106,16 @@ export default function Nav() {
         transition: "background-color 0.3s ease, box-shadow 0.3s ease",
       }}>
         {/* Left: wordmark */}
-        <Wordmark variant="inverse" height={51} />
+        <Link href="/" style={{ display: "inline-flex", lineHeight: 0 }}>
+          <Image
+            src="/images/logo 2.png"
+            alt="Imani Ventures"
+            height={41}
+            width={164}
+            style={{ height: 41, width: "auto" }}
+            priority
+          />
+        </Link>
 
         {/* Desktop nav links + auth slot — hidden on mobile */}
         <div className="imani-nav-desktop" style={{
@@ -131,6 +141,7 @@ export default function Nav() {
                     fontSize: "18px",
                     textDecoration: "none",
                     letterSpacing: "0.01em",
+                    color: navLinkColor,
                   }}
                 >
                   {link.label}
@@ -167,7 +178,16 @@ export default function Nav() {
           alignItems: "center",
           marginBottom: "48px",
         }}>
-          <Wordmark variant="inverse" height={51} />
+          <Link href="/" style={{ display: "inline-flex", lineHeight: 0 }}>
+            <Image
+              src="/images/logo 2.png"
+              alt="Imani Ventures"
+              height={41}
+              width={164}
+              style={{ height: 41, width: "auto" }}
+              priority
+            />
+          </Link>
           <button
             className="imani-nav-close"
             onClick={() => setIsOpen(false)}

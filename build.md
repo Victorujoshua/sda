@@ -22,7 +22,7 @@ Known open issues:
   - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
-Last updated: 2026-07-09 (session 12).
+Last updated: 2026-07-09 (session 16).
 GitHub: commit bffa6f8 pushed to master (github.com/Victorujoshua/sda) — nav cleanup + portfolio copy. Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
@@ -480,6 +480,31 @@ Build Log — 2026-07-08 Heading bar background colour update
       but not identical. User chose the specific value; left as-is pending token confirmation.
 
   No build run (single inline style value change).
+
+Build Log — 2026-07-09 Footer padding + logo size
+  Footer logo reduced 20%: height 96px → 77px, width 384 → 308.
+  Footer padding updated: "100px 40px" → "100px 40px 20px" (20px bottom).
+  Files changed: components/marketing/Footer.tsx
+
+Build Log — 2026-07-09 Nav logo size + scroll background
+  Logo reduced 20%: height 51px → 41px (both desktop nav and mobile drawer).
+  Scrolled/solid nav background changed from #5B0D1B → #ffffff (white).
+  Nav shadow updated from rgba(255,255,255,0.08) → rgba(0,0,0,0.08) to suit light bg.
+  Nav link colour now adapts: rgba(17,17,17,0.65) on white bg, rgba(255,255,255,0.5) on transparent.
+  navLinkColor variable added; inline color style applied to desktop nav links.
+  Files changed: components/marketing/Nav.tsx
+
+Build Log — 2026-07-09 Nav logo — switched to logo 2.png
+  Nav logo changed from <Wordmark variant="inverse" /> to a direct <Image> using /images/logo 2.png (height 51, width auto).
+  Both instances updated: desktop nav bar and mobile drawer.
+  Wordmark import removed from Nav.tsx; next/image import added.
+  Footer continues to use /images/white.png unchanged.
+  Files changed: components/marketing/Nav.tsx
+
+Build Log — 2026-07-09 GitHub push
+  Committed and pushed all session changes to origin/master (commit 4ac68af).
+  14 files changed. Vercel auto-deploy triggered.
+  No code changes — push only.
 
 Build Log — 2026-07-09 Footer logo — switched to white.png
   Footer logo changed from <Wordmark variant="inverse" /> to a direct <Image> using /images/white.png (height 96, width auto).

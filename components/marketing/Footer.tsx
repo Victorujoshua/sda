@@ -140,7 +140,7 @@ export default function Footer() {
         className="imani-footer"
         style={{
           backgroundColor: "#111111",
-          padding: "100px 40px",
+          padding: "100px 40px 20px",
           borderTop: "1px solid rgba(248,237,235,0.08)",
         }}
       >
@@ -152,9 +152,9 @@ export default function Footer() {
                 <Image
                   src="/images/white.png"
                   alt="Imani Ventures"
-                  height={96}
-                  width={384}
-                  style={{ height: 96, width: "auto" }}
+                  height={77}
+                  width={308}
+                  style={{ height: 77, width: "auto" }}
                   priority
                 />
               </Link>
