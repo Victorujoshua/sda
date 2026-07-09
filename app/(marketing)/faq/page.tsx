@@ -15,6 +15,25 @@ export const metadata: Metadata = {
   },
 };
 
+const ul = (items: string[]) => (
+  <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" }}>
+    {items.map((item, i) => (
+      <li key={i} style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+        <span style={{
+          display: "inline-block",
+          width: "7px",
+          height: "7px",
+          borderRadius: "50%",
+          backgroundColor: "var(--crimson)",
+          flexShrink: 0,
+          marginTop: "2px",
+        }} />
+        <span>{item}</span>
+      </li>
+    ))}
+  </ul>
+);
+
 const FAQ_GROUPS = [
   {
     title: "About Imani Ventures",
@@ -41,13 +60,22 @@ const FAQ_GROUPS = [
     items: [
       {
         question: "What types of investments are available?",
-        answer:
-          "Imani Ventures offers different structures depending on the business and investor preference: revenue-based financing, fixed return financing, profit-sharing agreements, equity investments, and hybrid structures combining income and upside.",
+        answer: ul([
+          "Revenue-based financing",
+          "Fixed return financing",
+          "Profit-sharing agreements",
+          "Equity investments",
+          "Hybrid structures combining income and upside",
+        ]),
       },
       {
         question: "How do investors make money?",
-        answer:
-          "Returns depend on the structure selected. Revenue-based financing provides periodic payments tied to business revenue. Fixed return financing offers structured repayments over time. Profit sharing provides payments linked to profitability. Equity offers long-term value through growth or exit.",
+        answer: ul([
+          "Revenue-based financing — periodic payments tied to business revenue",
+          "Fixed return financing — structured repayments over time",
+          "Profit sharing — payments linked to profitability",
+          "Equity — long-term value through growth or exit",
+        ]),
       },
       {
         question: "Do all investments rely on exits?",
@@ -76,13 +104,20 @@ const FAQ_GROUPS = [
       },
       {
         question: "How are businesses selected?",
-        answer:
-          "We only work with businesses that have verifiable revenue, can provide financial records and bank statements, demonstrate operational consistency, and show realistic potential for growth. This helps ensure opportunities are grounded in actual performance.",
+        answer: ul([
+          "Verifiable revenue",
+          "Financial records and bank statements",
+          "Demonstrated operational consistency",
+          "Realistic potential for growth",
+        ]),
       },
       {
         question: "What risks should I be aware of?",
-        answer:
-          "Key risks include business underperformance, delayed or reduced payments, and limited or no exit for equity investments. Investments should be made with a clear understanding of these risks.",
+        answer: ul([
+          "Business underperformance",
+          "Delayed or reduced payments",
+          "Limited or no exit for equity investments",
+        ]),
       },
     ],
   },
@@ -91,8 +126,13 @@ const FAQ_GROUPS = [
     items: [
       {
         question: "How does the investment process work?",
-        answer:
-          "The process has five steps: investors apply and are onboarded, opportunities are shared privately, investors review deal details and structure, investment commitments are made, then funds are deployed and tracked.",
+        answer: ul([
+          "Investors apply and are onboarded",
+          "Opportunities are shared privately",
+          "Investors review deal details and structure",
+          "Investment commitments are made",
+          "Funds are deployed and tracked",
+        ]),
       },
       {
         question: "Is there a fee to access full deal details?",
@@ -131,8 +171,11 @@ const FAQ_GROUPS = [
     items: [
       {
         question: "How do I track my investments?",
-        answer:
-          "Investors receive periodic updates including business performance, payment schedules and progress, and key developments.",
+        answer: ul([
+          "Business performance reports",
+          "Payment schedules and progress",
+          "Key developments",
+        ]),
       },
       {
         question: "What happens if a business fails?",
@@ -146,13 +189,22 @@ const FAQ_GROUPS = [
     items: [
       {
         question: "Who qualifies for funding?",
-        answer:
-          "We fund businesses that have at least 6 months of revenue, can provide financial records, have clear operational activity, and need structured capital to grow.",
+        answer: ul([
+          "At least 6 months of revenue",
+          "Financial records available",
+          "Clear operational activity",
+          "Need for structured capital to grow",
+        ]),
       },
       {
         question: "What types of funding can I apply for?",
-        answer:
-          "Businesses can apply for revenue-based financing, fixed return financing, profit-sharing structures, equity, and hybrid funding.",
+        answer: ul([
+          "Revenue-based financing",
+          "Fixed return financing",
+          "Profit-sharing structures",
+          "Equity",
+          "Hybrid funding",
+        ]),
       },
       {
         question: "Why does Imani Ventures operate this model?",

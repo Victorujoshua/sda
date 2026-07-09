@@ -22,7 +22,7 @@ Known open issues:
   - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
-Last updated: 2026-07-09 (session 16).
+Last updated: 2026-07-09 (session 19).
 GitHub: commit bffa6f8 pushed to master (github.com/Victorujoshua/sda) — nav cleanup + portfolio copy. Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
@@ -480,6 +480,27 @@ Build Log — 2026-07-08 Heading bar background colour update
       but not identical. User chose the specific value; left as-is pending token confirmation.
 
   No build run (single inline style value change).
+
+Build Log — 2026-07-09 FAQ bullet style — crimson circles
+  Updated ul() helper in faq/page.tsx: replaced default browser disc bullets with custom 7px crimson filled circles.
+  List uses flex layout (list-style: none), circle is an inline <span> with border-radius 50% and backgroundColor var(--crimson), aligned to text baseline.
+  Files changed: app/(marketing)/faq/page.tsx
+
+Build Log — 2026-07-09 FAQ bulleted answers
+  Converted 8 FAQ answers from flat paragraphs to bulleted lists where content was enumerable.
+  AccordionItem.answer type widened from string → React.ReactNode (accordion.tsx).
+  React import added to accordion.tsx to support ReactNode type.
+  ul() helper added in faq/page.tsx to render consistent <ul><li> lists with shared styling.
+  Bulleted answers: "What types of investments are available?", "How do investors make money?",
+    "How are businesses selected?", "What risks should I be aware of?",
+    "How does the investment process work?", "How do I track my investments?",
+    "Who qualifies for funding?", "What types of funding can I apply for?"
+  Remaining answers (yes/no, policy, explanations) kept as flat paragraphs.
+  Files changed: app/(marketing)/faq/page.tsx, components/ui/accordion.tsx
+
+Build Log — 2026-07-09 GitHub push (session 17)
+  Pushed commit af377f8 to origin/master. Vercel auto-deploy triggered.
+  Included: Nav logo swap, white scroll bg, footer logo + padding tweaks.
 
 Build Log — 2026-07-09 Footer padding + logo size
   Footer logo reduced 20%: height 96px → 77px, width 384 → 308.

@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface AccordionItem {
   question: string;
-  answer: string;
+  answer: React.ReactNode;
 }
 
 interface AccordionGroupProps {
