@@ -59,7 +59,7 @@ export default function AboutPage() {
           color: "rgba(17,17,17,0.65)",
         }}>
           Imani Ventures is a micro angel investment platform repositioned to connect serious
-          capital with early-stage Nigerian businesses that already have traction —
+          capital with early-stage Nigerian businesses that already have traction -
           revenue, customers, and a clear sense of where they are going.
         </p>
         <p style={{
@@ -78,8 +78,8 @@ export default function AboutPage() {
           lineHeight: 1.7,
           color: "rgba(17,17,17,0.65)",
         }}>
-          Our funding instruments — equity, debt, asset financing, and
-          revenue-based funding — are structured to match the stage and shape of
+          Our funding instruments - equity, debt, asset financing, and
+          revenue-based funding are structured to match the stage and shape of
           each business. We work with founders who want a partner, not just a
           cheque.
         </p>
