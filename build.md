@@ -22,7 +22,7 @@ Known open issues:
   - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
-Last updated: 2026-07-09 (session 20).
+Last updated: 2026-07-10 (session 2).
 GitHub: commit bffa6f8 pushed to master (github.com/Victorujoshua/sda) — nav cleanup + portfolio copy. Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
@@ -480,6 +480,18 @@ Build Log — 2026-07-08 Heading bar background colour update
       but not identical. User chose the specific value; left as-is pending token confirmation.
 
   No build run (single inline style value change).
+
+Build Log — 2026-07-10 Mobile nav drawer text → black
+  Updated all text colours in mobile drawer to ink (#111111) to match white background.
+  Nav link colour: #FAFAF8 → #111111. Link dividers: rgba(255,255,255,0.08) → rgba(17,17,17,0.08).
+  CTA buttons (Apply Now, role dest): #FAFAF8 → #111111.
+  Log out button: rgba(255,255,255,0.45) → rgba(17,17,17,0.45).
+  Close button (imani-nav-close): rgba(255,255,255,0.6) → rgba(17,17,17,0.6).
+  Files changed: components/marketing/Nav.tsx, app/globals.css
+
+Build Log — 2026-07-10 Mobile nav drawer background → white
+  Changed .imani-nav-drawer--open background-color from #5B0D1B → #ffffff.
+  Files changed: app/globals.css
 
 Build Log — 2026-07-09 PortfolioFeature right column background
   Changed right column background in PortfolioFeature from #B22325 (crimson) → #5B0D1B (wine).

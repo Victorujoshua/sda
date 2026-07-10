@@ -279,7 +279,7 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   background: none;
   border: none;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(17, 17, 17, 0.6);
   font-size: 28px;
   line-height: 1;
   padding: 4px;
@@ -295,7 +295,7 @@ h1 em, h2 em, h3 em, h4 em, h5 em, h6 em {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background-color: #5B0D1B;
+  background-color: #ffffff;
   padding: 24px;
   overflow-y: auto;
 }

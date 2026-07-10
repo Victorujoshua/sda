@@ -201,7 +201,7 @@ export default function Nav() {
         <nav style={{ flex: 1 }}>
           <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
             {NAV_LINKS.map((link) => (
-              <li key={link.label} style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <li key={link.label} style={{ borderBottom: "1px solid rgba(17,17,17,0.08)" }}>
                 <Link
                   href={link.href}
                   onClick={() => setIsOpen(false)}
@@ -211,7 +211,7 @@ export default function Nav() {
                     fontSize: "32px",
                     fontWeight: 300,
                     fontStyle: "normal",
-                    color: "#FAFAF8",
+                    color: "#111111",
                     textDecoration: "none",
                     padding: "20px 0",
                     letterSpacing: "-0.01em",
@@ -259,7 +259,7 @@ export default function Nav() {
                   textAlign: "center",
                   fontFamily: "var(--in)",
                   fontSize: "18px",
-                  color: "#FAFAF8",
+                  color: "#111111",
                   padding: "14px 20px",
                   textDecoration: "none",
                   letterSpacing: "0.04em",
@@ -272,7 +272,7 @@ export default function Nav() {
                 style={{
                   fontFamily: "var(--in)",
                   fontSize: "16px",
-                  color: "rgba(255,255,255,0.45)",
+                  color: "rgba(17,17,17,0.45)",
                   background: "none",
                   border: "none",
                   cursor: "pointer",
