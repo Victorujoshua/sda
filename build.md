@@ -22,7 +22,7 @@ Known open issues:
   - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
-Last updated: 2026-07-10 (session 3).
+Last updated: 2026-07-11 (session 2).
 GitHub: commit bffa6f8 pushed to master (github.com/Victorujoshua/sda) — nav cleanup + portfolio copy. Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
@@ -480,6 +480,52 @@ Build Log — 2026-07-08 Heading bar background colour update
       but not identical. User chose the specific value; left as-is pending token confirmation.
 
   No build run (single inline style value change).
+
+Build Log — 2026-07-11 inviteAdmin — diagnostic logging + silent error exposure
+  Root cause identified: sendEmail() result was never checked in inviteAdmin() (app/actions/admin.ts).
+  Loops errors were swallowed — DB insert succeeded, UI showed success, email never sent.
+  Before env-var fix: TEMPLATES.ADMIN_INVITE was slug "admin-invite" → Loops rejects with "No matching sends".
+  After env-var fix: reads process.env.LOOPS_TEMPLATE_ADMIN_INVITE — correct opaque ID if Vercel env set.
+
+  Changes to app/actions/admin.ts — inviteAdmin():
+    - Added console.log at every step: actor auth, listUsers, admin_invites insert,
+      actorProfile fetch, Loops send (templateId, API key presence as boolean, dataVariables).
+    - Added console.error at every failure point including Loops result check.
+    - emailResult now captured and logged — error surfaces in server logs even if not returned to UI.
+    - No behavior change beyond logging (invite still returns {} on Loops failure — intentional for now).
+
+  TypeScript: npx tsc --noEmit → zero errors.
+  Next step: trigger one invite from /admin/users and read Vercel function logs — STEP 5 lines will
+    show templateId value and exact Loops error if still failing.
+
+  Files changed: app/actions/admin.ts
+
+Build Log — 2026-07-11 Loops email — fix transactionalId env var refactor
+  Root cause: TEMPLATES object in lib/email/loops.ts had hardcoded slugs (e.g. "admin-invite")
+  instead of the opaque transactionalIds Loops requires. Loops logs "No matching sends" for slugs.
+
+  Fix:
+    - lib/email/loops.ts: TEMPLATES now reads from LOOPS_TEMPLATE_* env vars via process.env.*!
+    - Added missing-ID guard in sendEmail() — logs and returns error if templateId is falsy.
+    - .env.local.example: comment updated to explicitly say "opaque transactionalId, NOT slug".
+    - .env.local: already had all 6 IDs populated — no change needed.
+
+  dataVariables verified correct across all 6 sends (no changes needed):
+    APPLICATION_SUBMITTED:    applicant_name, business_name, submitted_date
+    NEW_APPLICATION_ADMIN:    applicant_name, business_name, funding_amount, submitted_date, admin_link
+    APPLICATION_UNDER_REVIEW: applicant_name, business_name
+    APPLICATION_APPROVED:     applicant_name, business_name
+    APPLICATION_REJECTED:     applicant_name, business_name, rejection_reason
+    ADMIN_INVITE:             invite_link, invited_by_name, expires_at
+
+  TypeScript: npx tsc --noEmit → zero errors.
+  Build note: full next build crashes at TS-check step with Windows STATUS_STACK_BUFFER_OVERRUN
+    (Node memory crash) — pre-existing machine issue, unrelated to this change.
+    Vercel builds (Linux) are unaffected. TypeScript confirmed clean via tsc --noEmit.
+
+  Action required: add all 6 LOOPS_TEMPLATE_* values to Vercel environment variables to match .env.local.
+
+  Files changed: lib/email/loops.ts, .env.local.example
 
 Build Log — 2026-07-10 About page copy edits (user-authored)
   User edited app/(marketing)/about/page.tsx — em-dashes replaced with hyphens in two paragraphs.

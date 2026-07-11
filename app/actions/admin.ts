@@ -458,48 +458,70 @@ export async function updatePortfolioCompany(
 export async function inviteAdmin(
   email: string
 ): Promise<{ error?: string }> {
+  console.log("[inviteAdmin] START — raw email:", email);
   const trimmedEmail = email.trim().toLowerCase();
   if (!trimmedEmail) return { error: "Email is required." };
 
-  const actor = await getSuperAdminUser();
+  // STEP 1 — auth guard
+  let actor: { id: string };
+  try {
+    actor = await getSuperAdminUser();
+    console.log("[inviteAdmin] STEP 1 OK — actor id:", actor.id);
+  } catch (e) {
+    console.error("[inviteAdmin] STEP 1 FAIL — getSuperAdminUser threw:", e);
+    throw e;
+  }
+
   const db = createAdminClient();
 
-  // Check email not already an admin or super_admin — look up via auth.users
-  const { data: authUsers } = await db.auth.admin.listUsers();
+  // STEP 2 — check for existing admin
+  console.log("[inviteAdmin] STEP 2 — checking auth.users for:", trimmedEmail);
+  const { data: authUsers, error: listErr } = await db.auth.admin.listUsers();
+  if (listErr) console.warn("[inviteAdmin] STEP 2 WARN — listUsers error:", listErr.message);
   const existingUser = authUsers?.users.find((u) => u.email === trimmedEmail);
   if (existingUser) {
+    console.log("[inviteAdmin] STEP 2 — existing auth user found, id:", existingUser.id);
     const { data: existingProfile } = await db
       .from("profiles")
       .select("role")
       .eq("id", existingUser.id)
       .single();
+    console.log("[inviteAdmin] STEP 2 — existing profile role:", existingProfile?.role ?? "null (no profile row)");
     if (
       existingProfile?.role === "admin" ||
       existingProfile?.role === "super_admin"
     ) {
       return { error: "This email already has an admin account." };
     }
+  } else {
+    console.log("[inviteAdmin] STEP 2 — no existing auth user found");
   }
 
-  // Insert invite — unique index handles duplicate pending invite
+  // STEP 3 — insert invite row
+  console.log("[inviteAdmin] STEP 3 — inserting admin_invite for:", trimmedEmail, "| invited_by:", actor.id);
   const { data: invite, error: inviteError } = await db
     .from("admin_invites")
     .insert({ email: trimmedEmail, invited_by: actor.id })
     .select("token")
     .single();
   if (inviteError) {
+    console.error("[inviteAdmin] STEP 3 FAIL — insert error code:", inviteError.code, "| message:", inviteError.message);
     if (inviteError.code === "23505") {
       return { error: "An invite has already been sent to this email." };
     }
     return { error: inviteError.message };
   }
+  console.log("[inviteAdmin] STEP 3 OK — token:", invite.token);
 
-  // Fetch actor's name for the email
-  const { data: actorProfile } = await db
+  // STEP 4 — fetch actor profile for email copy
+  console.log("[inviteAdmin] STEP 4 — fetching actor profile, id:", actor.id);
+  const { data: actorProfile, error: profileErr } = await db
     .from("profiles")
     .select("full_name")
     .eq("id", actor.id)
     .single();
+  if (profileErr) console.warn("[inviteAdmin] STEP 4 WARN — profile fetch error:", profileErr.message);
+  console.log("[inviteAdmin] STEP 4 — full_name:", actorProfile?.full_name ?? "null → fallback 'Imani Ventures'");
 
   const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/accept-invite?token=${invite.token}`;
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toLocaleDateString("en-GB", {
@@ -508,16 +530,36 @@ export async function inviteAdmin(
     year: "numeric",
   });
 
-  await sendEmail(TEMPLATES.ADMIN_INVITE, trimmedEmail, {
+  // STEP 5 — Loops send
+  const templateId = TEMPLATES.ADMIN_INVITE;
+  console.log("[inviteAdmin] STEP 5 — preparing Loops send");
+  console.log("[inviteAdmin] STEP 5 — templateId:", templateId || "(EMPTY — LOOPS_TEMPLATE_ADMIN_INVITE not set in env!)");
+  console.log("[inviteAdmin] STEP 5 — LOOPS_API_KEY present:", !!process.env.LOOPS_API_KEY);
+  console.log("[inviteAdmin] STEP 5 — to:", trimmedEmail);
+  console.log("[inviteAdmin] STEP 5 — dataVariables:", {
     invite_link: inviteLink,
     invited_by_name: actorProfile?.full_name ?? "Imani Ventures",
     expires_at: expiresAt,
   });
 
+  const emailResult = await sendEmail(templateId, trimmedEmail, {
+    invite_link: inviteLink,
+    invited_by_name: actorProfile?.full_name ?? "Imani Ventures",
+    expires_at: expiresAt,
+  });
+
+  if (emailResult.error) {
+    console.error("[inviteAdmin] STEP 5 FAIL — Loops returned error:", emailResult.error);
+  } else {
+    console.log("[inviteAdmin] STEP 5 OK — Loops send succeeded");
+  }
+
+  // STEP 6 — audit log
   await writeAudit(actor.id, "admin.invited", "admin_invite", invite.token as never, {
     email: trimmedEmail,
   });
 
+  console.log("[inviteAdmin] DONE — returning success");
   revalidatePath("/admin/users");
   return {};
 }
