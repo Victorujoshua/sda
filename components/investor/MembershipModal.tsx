@@ -26,6 +26,7 @@ interface Props {
   onSuccess?: () => void;
   transparentBackdrop?: boolean;
   initialError?: string;
+  cancelLabel?: string;
 }
 
 export default function MembershipModal({
@@ -34,6 +35,7 @@ export default function MembershipModal({
   onSuccess,
   transparentBackdrop = false,
   initialError,
+  cancelLabel = "Maybe later",
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError ?? null);
@@ -359,7 +361,7 @@ export default function MembershipModal({
                     cursor: "pointer",
                   }}
                 >
-                  Maybe later
+                  {cancelLabel}
                 </button>
               </div>
             )}

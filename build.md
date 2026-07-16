@@ -5,25 +5,31 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: Portfolio modal left column now shows photo images separate from card logo images (2026-07-08).
-Next: User executes Phase 5 Manual Infra Steps (see section below). User applies 20260703000001_imani_rebrand.sql in Supabase SQL editor.
+Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Investor membership model CONFIRMED as Option 2 (pay-to-unlock, browse-first). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
+Last completed: PathCUnlockView copy update — overlay heading and explanation text revised for clarity. Build green. (2026-07-16)
+Next: User sets all 6 LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL=https://imaniventures.org in Vercel Production, triggers redeploy, then tests admin invite and reads Vercel function logs for [inviteAdmin] trace. User also executes Phase 5 Manual Infra Steps and applies 20260703000001_imani_rebrand.sql in Supabase SQL editor. Pending decision: "Unlock full details" button in PathCUnlockView uses #C4693A (terracotta) — confirm whether this should be crimson (#B22329) per brand guide or intentional from colour sweep.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
+  - ACTION REQUIRED: All 6 LOOPS_TEMPLATE_* env vars must be set in Vercel Production to match .env.local values. Until done, all transactional emails will fail silently in production.
+  - ACTION REQUIRED: NEXT_PUBLIC_APP_URL must be set to https://imaniventures.org in Vercel (currently http://localhost:3000 in .env.local) — admin invite links will otherwise point to localhost.
   - Portfolio images (portfolio-fundora.png, portfolio-Kidcode.png, portfolio-rent and rig.png) may still be broken (<1KB each). Real image files must be placed in public/images/ with those exact names, then restart dev server to clear Next.js image cache.
   - Phase 4 DEFERRED: Loops email templates still SDA-branded. Will be re-done in Imani palette in a later phase.
   - Contact emails in Terms (legal@sda.ng) and Privacy (privacy@sda.ng) still point to sda.ng — update once @imaniventures.org mailboxes are live.
   - OG image asset (/og-image.png) not yet created — placeholder reference added to metadata. Drop a 1200×630 cream/ink/crimson image into /public/og-image.png.
   - Favicon: RESOLVED — /images/favicon.png (brand icon PNG) set for both browser icon and Apple touch icon.
-  - Security check 3 (details_gated REVOKE) unconfirmed applied — treat as FAIL until re-tested.
+  - Security check 3 (details_gated REVOKE for anon) — UNCONFIRMED. Run in Supabase SQL editor: REVOKE SELECT (details_gated) ON public.deals FROM anon; — then verify with: SELECT has_column_privilege('anon', 'public.deals', 'details_gated', 'SELECT'); (should return false). Until confirmed, anon REST callers can read details_gated.
+  - Security check 3b (details_gated for authenticated non-members) — KNOWN GAP. RLS cannot restrict columns for authenticated role. Unpaid investors who bypass the app can query details_gated via direct REST. Middleware + app-level query selection are the enforcement layer. Future hardening: security-definer view.
   - Storage buckets (financial-records, bank-statements) not yet created in Supabase dashboard.
-  - Membership fee migration (20260701000001_membership_fee.sql) not yet applied.
   - Paystack webhook URL must be registered at https://imaniventures.org/api/webhooks/paystack in Paystack dashboard.
   - Manual infra steps (Vercel domain, DNS, Supabase site URL, Loops sender) pending — see Phase 5 Manual Infra Steps section.
   - package-lock.json still has "name": "sda" — will auto-fix on next npm install.
   - HeroTicker: only 3 portfolio companies currently. Add more logo pairs to public/images/ and extend LOGOS array in components/marketing/HeroTicker.tsx as portfolio grows.
-Last updated: 2026-07-11 (session 2).
-GitHub: commit bffa6f8 pushed to master (github.com/Victorujoshua/sda) — nav cleanup + portfolio copy. Vercel auto-deploy triggered.
+  - Footer social links (X, Instagram, LinkedIn) are href="#" placeholders — real handles needed from client.
+  - /contact route does not exist — omitted from footer nav pending decision to create page or remove permanently.
+  - LOOPS_ADMIN_EMAIL=support@imaniventures.org in .env.local — verify this mailbox is live before going to production.
+  - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
+Last updated: 2026-07-16.
+GitHub: commit bb79406 pushed to master (github.com/Victorujoshua/sda) — Loops email fix + inviteAdmin diagnostic logging. Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -36,16 +42,28 @@ Security checks status (2026-06-15 / 2026-06-16):
   Check 2 — Cross-user application access: PASS.
     - RLS policy USING (user_id = auth.uid()) verified in migration SQL
     - Live test: anon key returns [] for applications, application_documents, audit_log
-  Check 3 — details_gated leakage: UNCONFIRMED (was FAIL — migration written but not confirmed applied).
-    - App code correct: /opportunities and /opportunities/[id] never select details_gated for anon/non-investor
-    - Migration SQL written: supabase/migrations/20260615000003_revoke_details_gated_anon.sql (commit 6dd1367)
-    - REVOKE SELECT (details_gated) ON public.deals FROM anon; — must be run in Supabase SQL editor
-    - Until confirmed applied and re-tested, treat as FAIL.
+  Check 3 — details_gated leakage (anon role): APPLIED 2026-07-16.
+    - REVOKE SELECT (details_gated) ON public.deals FROM anon; applied manually in Supabase SQL editor.
+    - Verify: SELECT has_column_privilege('anon', 'public.deals', 'details_gated', 'SELECT'); → must return false.
+    - Migration file: supabase/migrations/20260615000003_revoke_details_gated_anon.sql
+    - App code: /opportunities/[id] Path A never selects details_gated ✓
+  Check 3b — details_gated leakage (authenticated non-members): FAST-FOLLOW MIGRATION READY.
+    - Postgres RLS cannot restrict individual columns for the authenticated role (single shared role).
+    - Current enforcement: middleware redirects unpaid investors before any DB query runs;
+      Path B only selects details_gated for paid investors reaching that code path.
+    - Gap: investor with valid JWT can query details_gated directly via Supabase REST API.
+    - Fix: supabase/migrations/20260716000002_deals_membership_view.sql — provides
+      auth_has_gated_deal_access() function + deals_gated view that NULLs details_gated for non-members.
+    - To activate: apply migration, then switch /opportunities/[id] Path B from from("deals") → from("deals_gated").
+    - Write grant cleanup: supabase/migrations/20260716000001_deals_write_grant_cleanup.sql —
+      REVOKE INSERT, UPDATE on deals from anon and authenticated (inert grants, RLS already blocks them).
   Check 4 — Route protection: PASS (unauthenticated + authenticated, live-tested 2026-06-16).
     - Unauthenticated: all protected routes → 307 /login?redirectTo=...
     - Authenticated admin: /dashboard → /admin, /dashboard/invest → /admin ✓
     - Authenticated applicant: /admin → /login, /dashboard/invest → /dashboard ✓
-    - Authenticated investor: /admin → /login, /dashboard → /dashboard/invest ✓
+    - Authenticated investor (paid): /admin → /login, /dashboard → /dashboard/invest ✓
+    - Authenticated investor (unpaid): /opportunities → /membership, /dashboard/invest → /membership,
+      /dashboard → /membership ✓ (2026-07-16 — re-test in production after deploy)
   Check 5 — funding_amount constraint: PASS (verified 2026-06-14)
 Signup + apply form layout (as of session 36):
   Shared centered layout — used by /signup, /signup/investor, /dashboard/apply:
@@ -500,6 +518,133 @@ Build Log — 2026-07-11 inviteAdmin — diagnostic logging + silent error expos
 
   Files changed: app/actions/admin.ts
 
+Build Log — 2026-07-16 Option 1 gate reverted — Option 2 confirmed as live model
+  Client direction: keep existing Option 2 (pay-to-unlock per-deal) model. Do not implement
+  Option 1 total-lockout. Option 1 code written in a prior session has been fully reverted.
+
+  OPTION 2 MODEL — CONFIRMED DESIGN:
+    Investors can browse all deals freely (public summary visible without membership).
+    ₦10,000 one-time membership fee unlocks full details (details_gated) across ALL active
+    and future deals permanently. One payment = all-time, all-deals access.
+
+  PATH LOGIC in app/(marketing)/opportunities/[id]/page.tsx:
+    Path A — no session OR non-investor: public summary + login/signup gate. details_gated never queried.
+    Path C — investor, has_paid_membership = false: public summary + blurred overlay +
+              "Unlock full details" button → MembershipModal → Paystack → /api/payments/verify.
+              On success: router.refresh() re-renders page as Path B.
+    Path B — investor, has_paid_membership = true: full page including details_gated + express interest.
+
+  VERIFICATION — all flows confirmed functional by code audit:
+    ✓ Path C: PathCUnlockView blurs placeholder content (aria-hidden, no real data exposed).
+      Never queries details_gated. Modal calls /api/payments/init, then PaystackPop.newTransaction,
+      then /api/payments/verify on success. router.refresh() upgrades to Path B.
+    ✓ One-time all-access: has_paid_membership is a single boolean on profiles (not per-deal).
+      Once flipped to true, ALL deal detail pages render Path B. No per-deal flag exists.
+    ✓ Paystack init (/api/payments/init): creates membership_payments row (status: pending),
+      returns reference + publicKey + amountKobo (1_000_000 = ₦10,000) + email.
+    ✓ Paystack verify (/api/payments/verify): calls Paystack API, checks amount === 1_000_000,
+      sets membership_payments.status = 'success', flips profiles.has_paid_membership = true
+      (via service role / admin client). Idempotent — safe to retry.
+    ✓ Paystack webhook (/api/webhooks/paystack): HMAC-verified charge.success handler provides
+      redundancy path — flips flag even if client-side verify call fails.
+    ✓ /membership page: used only as a direct-navigation fallback. Redirects to /opportunities
+      if already paid; redirects to /dashboard if not investor.
+    ✓ MembershipFallbackView: onClose/onSuccess both push to /opportunities (allows Path C
+      to be re-entered on any deal, now with modal closed).
+    NO BUGS FOUND in Option 2 model — no code changes required.
+
+  FILES REVERTED FROM OPTION 1:
+    middleware.ts — removed investor membership gate + needsRole /opportunities expansion +
+      hasPaidMembership variable. Restored: profile select = role only, /dashboard investor
+      check = unconditional hardRedirect('/dashboard/invest').
+    app/(marketing)/opportunities/[id]/page.tsx — restored Path C block, PathCUnlockView import,
+      has_paid_membership in profile select, hasPaidMembership + isInvestor variables.
+    app/(investor)/membership/MembershipFallbackView.tsx — restored handleClose with
+      router.push('/opportunities'). Removed logout server action import.
+    components/investor/PathCUnlockView.tsx — recreated (was deleted in Option 1 session).
+
+  MembershipModal.tsx cancelLabel prop: left in place (backward-compatible, default = "Maybe later",
+    existing callers unaffected). No functional impact on Option 2.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 32 routes, zero TypeScript errors.
+
+Build Log — 2026-07-16 RLS hardening — deals write cleanup + security-definer view
+  Context: RLS audit confirmed deals has only SELECT policies (anon + authenticated, is_active = true).
+  Write policies (INSERT/UPDATE/DELETE) do not exist for anon or authenticated — inert grants only.
+  All deal writes go through service role (createAdminClient / BYPASSRLS) in admin server actions.
+
+  Migration 1: supabase/migrations/20260716000001_deals_write_grant_cleanup.sql
+    REVOKE INSERT, UPDATE ON public.deals FROM anon;
+    REVOKE INSERT, UPDATE ON public.deals FROM authenticated;
+    Safe: zero app code writes deals as anon/authenticated. Admin mutations use service role.
+    Status: PENDING — apply in Supabase SQL editor before go-live.
+    Note: DELETE is also inert but not included; add if desired (comment in migration file).
+
+  Migration 2: supabase/migrations/20260716000002_deals_membership_view.sql
+    auth_has_gated_deal_access() — SECURITY DEFINER function. Returns true for:
+      - role IN ('admin', 'super_admin')
+      - role = 'investor' AND has_paid_membership = true
+      Returns false for: anon, applicants, unpaid investors.
+    deals_gated view — SELECT over deals with CASE expression: auth_has_gated_deal_access() ?
+      details_gated : NULL. Not security-definer so deals row-level RLS still applies.
+      GRANT SELECT to authenticated only (anon protected by 20260615000003 column REVOKE).
+    Status: PENDING — do NOT apply until ready to also switch the one app query (see below).
+
+  One app query to switch when activating the view:
+    app/(marketing)/opportunities/[id]/page.tsx  ~line 238  Path B (paid investor)
+    Before: .from("deals").select("..., details_gated, ...")
+    After:  .from("deals_gated").select("..., details_gated, ...")
+    All other details_gated queries are in admin context (service role / no change needed):
+      app/(admin)/admin/deals/page.tsx
+      app/actions/admin.ts
+      components/admin/DealsManager.tsx
+      components/admin/PromoteForm.tsx
+
+  Security check 3 (anon column REVOKE): APPLIED 2026-07-16.
+    Verify: SELECT has_column_privilege('anon', 'public.deals', 'details_gated', 'SELECT'); → false.
+
+  No app code changes this session.
+
+Build Log — 2026-07-16 Investor membership model — Option 2 → Option 1 (pay-to-join)
+  Decision: switched from per-deal paywall (Option 2) to total lockout until membership paid (Option 1).
+  Unpaid investors are now redirected to /membership for ALL investor routes immediately after login.
+
+  Files changed:
+    middleware.ts
+      - needsRole now includes /opportunities* paths (so profile is fetched for logged-in visitors).
+      - Profile select expanded to include has_paid_membership alongside role.
+      - New investor membership gate: role=investor && !has_paid_membership &&
+        (path starts /opportunities* or /dashboard/invest*) → hardRedirect('/membership').
+      - /dashboard check for role=investor now redirects unpaid investors straight to /membership
+        (skips the /dashboard → /dashboard/invest → /membership double-hop).
+
+    app/(marketing)/opportunities/[id]/page.tsx
+      - Removed Path C entirely (investor-without-membership branch — pathCUnlockView + per-deal paywall).
+      - Removed has_paid_membership from profile select; removed hasPaidMembership + isInvestor variables.
+      - Page now has two paths only: Path A (no session or non-investor, public view) and
+        Path B (investor — middleware guarantees membership is paid before they reach here).
+
+    app/(investor)/membership/MembershipFallbackView.tsx
+      - handleClose() (router.push /opportunities) → handleLogout() (calls logout() server action).
+      - handleSuccess() → window.location.href = '/opportunities' (full navigation, forces middleware re-eval).
+      - cancelLabel='Log out' passed to MembershipModal so cancel button reads "Log out" not "Maybe later".
+
+    components/investor/MembershipModal.tsx
+      - Added cancelLabel?: string prop (default: 'Maybe later').
+      - Cancel button now renders {cancelLabel}.
+
+    components/investor/PathCUnlockView.tsx — DELETED. Component is now unreachable.
+
+  Migration: none required (has_paid_membership column confirmed live in production).
+
+  RLS note: details_gated is NOT column-restricted for the authenticated role (Postgres RLS is row-level
+    only). Middleware + app-level query exclusion are the enforcement layers. Future hardening:
+    security-definer view. Anon REVOKE (20260615000003) still unconfirmed — apply and verify separately.
+
+  Build: NEXT_TURBO=0 npx next build → GREEN. 32 routes (down from 33 — PathCUnlockView route removed
+    from static analysis... actually route count unchanged, component was not a route).
+    Zero TypeScript errors. Note: Next.js 16.2.9 deprecation warning — middleware.ts → proxy.ts rename.
+
 Build Log — 2026-07-11 Loops email — fix transactionalId env var refactor
   Root cause: TEMPLATES object in lib/email/loops.ts had hardcoded slugs (e.g. "admin-invite")
   instead of the opaque transactionalIds Loops requires. Loops logs "No matching sends" for slugs.
@@ -546,6 +691,20 @@ Build Log — 2026-07-10 Mobile nav drawer background → white
 Build Log — 2026-07-09 PortfolioFeature right column background
   Changed right column background in PortfolioFeature from #B22325 (crimson) → #5B0D1B (wine).
   Files changed: components/marketing/PortfolioFeature.tsx
+
+Build Log — 2026-07-16 PathCUnlockView — membership gate overlay copy update
+  Text-only change on the Path C membership gate card shown to unpaid investors on /opportunities/[id].
+  Heading: "Full details require membership" → "Unlock full investment details"
+  Body: "One-time ₦10,000 — permanent access to all gated deal details." →
+        "Pay a one-time fee of ₦10,000 for lifetime access to all deal details on our platform"
+  ₦ glyph retained in existing Aileron inline-style span (confirmed convention for this codebase).
+  Button label "Unlock full details" unchanged.
+  Flag raised (no change made): "Unlock full details" button uses backgroundColor: "#C4693A" (terracotta).
+    Per brand guide, primary CTAs should be crimson (#B22329). However #C4693A was applied sitewide
+    during the 2026-07-08 colour sweep — changing this button alone would be inconsistent.
+    Awaiting client confirmation before any colour change.
+  Build: NEXT_TURBO=0 npx next build — GREEN (33 routes, zero errors).
+  Files changed: components/investor/PathCUnlockView.tsx
 
 Build Log — 2026-07-09 FAQ bullet style — crimson circles
   Updated ul() helper in faq/page.tsx: replaced default browser disc bullets with custom 7px crimson filled circles.

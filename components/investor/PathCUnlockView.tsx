@@ -305,7 +305,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  Full details require membership
+                  Unlock full investment details
                 </p>
                 <p
                   style={{
@@ -317,9 +317,9 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                     lineHeight: 1.6,
                   }}
                 >
-                  One-time{" "}
+                  Pay a one-time fee of{" "}
                   <span style={{ fontFamily: "'Aileron', system-ui, sans-serif" }}>₦</span>
-                  10,000 — permanent access to all gated deal details.
+                  10,000 for lifetime access to all deal details on our platform
                 </p>
                 <button
                   onClick={() => setModalOpen(true)}
