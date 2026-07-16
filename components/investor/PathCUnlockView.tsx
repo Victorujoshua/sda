@@ -253,7 +253,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
               Full details
             </p>
 
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", minHeight: 360 }}>
               {/* Blurred placeholder — aria-hidden, never contains real deal data */}
               <div
                 aria-hidden="true"
@@ -264,6 +264,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                   filter: "blur(5px)",
                   userSelect: "none",
                   pointerEvents: "none",
+                  minHeight: 360,
                 }}
               >
                 {[88, 72, 95, 64, 80, 55, 90].map((w, i) => (
@@ -292,7 +293,7 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                   justifyContent: "center",
                   gap: 14,
                   textAlign: "center",
-                  padding: "32px 24px",
+                  padding: "20px 24px",
                 }}
               >
                 <p
@@ -319,8 +320,51 @@ export default function PathCUnlockView({ deal }: { deal: Deal }) {
                 >
                   Pay a one-time fee of{" "}
                   <span style={{ fontFamily: "'Aileron', system-ui, sans-serif" }}>₦</span>
-                  10,000 for lifetime access to all deal details on our platform
+                  10,000 to permanently unlock key insights and secure your access to all investment opportunities.
                 </p>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    margin: 0,
+                    padding: 0,
+                    textAlign: "left",
+                    maxWidth: 300,
+                    width: "100%",
+                  }}
+                >
+                  {[
+                    "Full financial metrics and revenue breakdown",
+                    "Complete business plans and growth documentation",
+                    "Official deal terms and investment structures",
+                    "Lifetime access to all current and future deals",
+                  ].map((item, i) => (
+                    <li
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 8,
+                        marginBottom: i < 3 ? 6 : 0,
+                        fontFamily: "var(--in)",
+                        fontSize: 13,
+                        color: "var(--ink)",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 5,
+                          height: 5,
+                          borderRadius: "50%",
+                          backgroundColor: "#B22329",
+                          flexShrink: 0,
+                          marginTop: 5,
+                        }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
                 <button
                   onClick={() => setModalOpen(true)}
                   style={{

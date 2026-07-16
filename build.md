@@ -6,8 +6,8 @@ Imani Ventures Platform — build.md
 ---
 Current State
 Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Investor membership model CONFIRMED as Option 2 (pay-to-unlock, browse-first). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: PathCUnlockView copy update — overlay heading and explanation text revised for clarity. Build green. (2026-07-16)
-Next: User sets all 6 LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL=https://imaniventures.org in Vercel Production, triggers redeploy, then tests admin invite and reads Vercel function logs for [inviteAdmin] trace. User also executes Phase 5 Manual Infra Steps and applies 20260703000001_imani_rebrand.sql in Supabase SQL editor. Pending decision: "Unlock full details" button in PathCUnlockView uses #C4693A (terracotta) — confirm whether this should be crimson (#B22329) per brand guide or intentional from colour sweep.
+Last completed: PathCUnlockView — added 4-item crimson-dot bullet list to membership gate overlay; updated explanation copy; tightened mobile padding. Build green. (2026-07-16)
+Next: Push to production (git commit + push). User sets all 6 LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL=https://imaniventures.org in Vercel Production, triggers redeploy. User executes Phase 5 Manual Infra Steps and applies 20260703000001_imani_rebrand.sql in Supabase SQL editor. Pending decision: "Unlock full details" button uses #C4693A (terracotta) — confirm whether sitewide sweep back to crimson (#B22329) is wanted before changing.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
   - ACTION REQUIRED: All 6 LOOPS_TEMPLATE_* env vars must be set in Vercel Production to match .env.local values. Until done, all transactional emails will fail silently in production.
@@ -29,7 +29,7 @@ Known open issues:
   - LOOPS_ADMIN_EMAIL=support@imaniventures.org in .env.local — verify this mailbox is live before going to production.
   - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
 Last updated: 2026-07-16.
-GitHub: commit bb79406 pushed to master (github.com/Victorujoshua/sda) — Loops email fix + inviteAdmin diagnostic logging. Vercel auto-deploy triggered.
+GitHub: commit 8a56a7d pushed to master (github.com/Victorujoshua/sda) — PathCUnlockView copy update. Vercel auto-deploy triggered. Current session changes not yet pushed.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -704,6 +704,33 @@ Build Log — 2026-07-16 PathCUnlockView — membership gate overlay copy update
     during the 2026-07-08 colour sweep — changing this button alone would be inconsistent.
     Awaiting client confirmation before any colour change.
   Build: NEXT_TURBO=0 npx next build — GREEN (33 routes, zero errors).
+  Files changed: components/investor/PathCUnlockView.tsx
+
+Build Log — 2026-07-16 GitHub push — PathCUnlockView copy + MembershipModal cancelLabel prop
+  Committed and pushed 8a56a7d to origin/master. Vercel auto-deploy triggered.
+  Files staged: components/investor/PathCUnlockView.tsx, components/investor/MembershipModal.tsx, build.md
+  Not staged: supabase/migrations/20260716000001_deals_write_grant_cleanup.sql,
+              supabase/migrations/20260716000002_deals_membership_view.sql (pending apply),
+              .agents/, skills-lock.json (Claude Code internals).
+
+Build Log — 2026-07-16 PathCUnlockView — bullet list added to membership gate overlay
+  Added 4-item feature bullet list to the Path C unlock overlay on /opportunities/[id].
+  Updated explanation copy: "Pay a one-time fee of ₦10,000 to permanently unlock key insights
+    and secure your access to all investment opportunities."
+  Bullet items (listStyle: none, textAlign: left, maxWidth: 300, Aileron 13px, ink colour):
+    - Full financial metrics and revenue breakdown
+    - Complete business plans and growth documentation
+    - Official deal terms and investment structures
+    - Lifetime access to all current and future deals
+  Bullet marker: 5×5px circle, borderRadius 50%, backgroundColor #B22329 (crimson), marginTop 5.
+  Structural change: added minHeight: 360 to position:relative wrapper and blurred placeholder
+    so the absolute overlay has room for the taller content. Without this the bullets would overflow.
+  Mobile: overlay vertical padding tightened from 32px → 20px to keep button visible on small screens.
+  Payment logic, modal wiring, and button unchanged.
+  Button color flag documented: #C4693A (terracotta) — awaiting client confirmation before sitewide
+    sweep to crimson (#B22329). Not changed this session.
+  Build: NEXT_TURBO=0 npx next build — GREEN (33 routes, zero errors).
+  Not yet pushed — push pending.
   Files changed: components/investor/PathCUnlockView.tsx
 
 Build Log — 2026-07-09 FAQ bullet style — crimson circles
