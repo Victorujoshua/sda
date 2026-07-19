@@ -5,9 +5,9 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Investor membership model CONFIRMED as Option 2 (pay-to-unlock, browse-first). Manual step: apply migration 20260703000001_imani_rebrand.sql (audit-only no-op). Phase 5 manual infra steps still pending.
-Last completed: PathCUnlockView — added 4-item crimson-dot bullet list to membership gate overlay; updated explanation copy; tightened mobile padding. Build green. (2026-07-16)
-Next: Push to production (git commit + push). User sets all 6 LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL=https://imaniventures.org in Vercel Production, triggers redeploy. User executes Phase 5 Manual Infra Steps and applies 20260703000001_imani_rebrand.sql in Supabase SQL editor. Pending decision: "Unlock full details" button uses #C4693A (terracotta) — confirm whether sitewide sweep back to crimson (#B22329) is wanted before changing.
+Phase: Admin portal — incremental improvements applied (icons, active state, crimson hero card, bigger logo). Changes not yet committed or deployed. Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Phase 5 manual infra steps still pending.
+Last completed: Admin portal — added lucide icons to sidebar nav items; active menu item now darker (ink/600) vs inactive (42% opacity/400); Total Applications stat card filled crimson with cream text; Imani logo height increased 32→44px. Build GREEN (2026-07-19).
+Next: Commit and push admin changes to trigger Vercel deploy. Then: set all 6 LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL=https://imaniventures.org in Vercel, execute Phase 5 Manual Infra Steps, apply 20260703000001_imani_rebrand.sql in Supabase. Pending decision: "Unlock full details" button terracotta vs crimson.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
   - ACTION REQUIRED: All 6 LOOPS_TEMPLATE_* env vars must be set in Vercel Production to match .env.local values. Until done, all transactional emails will fail silently in production.
@@ -28,8 +28,8 @@ Known open issues:
   - /contact route does not exist — omitted from footer nav pending decision to create page or remove permanently.
   - LOOPS_ADMIN_EMAIL=support@imaniventures.org in .env.local — verify this mailbox is live before going to production.
   - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
-Last updated: 2026-07-16.
-GitHub: commit 8a56a7d pushed to master (github.com/Victorujoshua/sda) — PathCUnlockView copy update. Vercel auto-deploy triggered. Current session changes not yet pushed.
+Last updated: 2026-07-19.
+GitHub: commit 7c9ca3e is HEAD on master and the live Vercel deploy. Current session changes (admin sidebar icons + active state + hero card + logo) are local only — not yet committed or pushed.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -732,6 +732,28 @@ Build Log — 2026-07-16 PathCUnlockView — bullet list added to membership gat
   Build: NEXT_TURBO=0 npx next build — GREEN (33 routes, zero errors).
   Not yet pushed — push pending.
   Files changed: components/investor/PathCUnlockView.tsx
+
+Build Log — 2026-07-19 Admin portal — sidebar icons, active state, crimson hero card, bigger logo
+  Visual improvements to admin portal. No data, routes, or logic changed.
+  Files changed:
+    - components/admin/AdminSidebar.tsx (NEW — client component)
+        Extracts sidebar from layout.tsx into a dedicated client component so usePathname()
+        can detect the active route. Icons added from lucide-react: LayoutDashboard (Overview),
+        FileText (Applications), TrendingUp (Deals), Briefcase (Portfolio), Users (Users).
+        Active item: color var(--ink), fontWeight 600, icon strokeWidth 2.2.
+        Inactive items: rgba(17,17,17,0.42), fontWeight 400, icon strokeWidth 1.6.
+        Logo height increased from default 32 → 44px.
+        All other sidebar styles preserved exactly (cream bg, hairline border, footer layout).
+    - app/(admin)/admin/layout.tsx (MODIFIED)
+        Replaced inline <aside> with <AdminSidebar userName={...} />.
+        Auth logic, role check, and main content layout unchanged.
+    - app/(admin)/admin/page.tsx (MODIFIED)
+        Added hero boolean prop to inline StatCard component.
+        hero=true: crimson bg, no border, cream text at 65%/100%/60% opacity for label/value/sub.
+        hero=false: unchanged cream bg + hairline border + ink text (existing style).
+        "Total applications" card now passes hero prop — the only card with crimson fill.
+  Build: NEXT_TURBO=0 npx next build — GREEN. All 33 routes, TypeScript clean.
+  Not yet committed or pushed — local only.
 
 Build Log — 2026-07-09 FAQ bullet style — crimson circles
   Updated ul() helper in faq/page.tsx: replaced default browser disc bullets with custom 7px crimson filled circles.

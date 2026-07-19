@@ -9,17 +9,19 @@ function StatCard({
   label,
   value,
   sub,
+  hero = false,
 }: {
   label: string;
   value: ReactNode;
   sub?: string;
+  hero?: boolean;
 }) {
   return (
     <div
       className="imani-admin-stat-card"
       style={{
-        backgroundColor: "var(--cream)",
-        border: "1px solid var(--hairline)",
+        backgroundColor: hero ? "var(--crimson)" : "var(--cream)",
+        border: hero ? "none" : "1px solid var(--hairline)",
         padding: "32px 28px",
         display: "flex",
         flexDirection: "column",
@@ -33,7 +35,7 @@ function StatCard({
           fontSize: 13,
           textTransform: "uppercase",
           letterSpacing: "0.08em",
-          color: "rgba(17,17,17,0.4)",
+          color: hero ? "rgba(248,237,235,0.65)" : "rgba(17,17,17,0.4)",
           margin: "0 0 16px",
         }}
       >
@@ -45,7 +47,7 @@ function StatCard({
           fontSize: 36,
           fontWeight: 300,
           letterSpacing: "-0.02em",
-          color: "var(--ink)",
+          color: hero ? "var(--cream)" : "var(--ink)",
           margin: 0,
           lineHeight: 1,
         }}
@@ -56,7 +58,7 @@ function StatCard({
         style={{
           fontFamily: "var(--in)",
           fontSize: 14,
-          color: "rgba(17,17,17,0.45)",
+          color: hero ? "rgba(248,237,235,0.60)" : "rgba(17,17,17,0.45)",
           margin: "12px 0 0",
           minHeight: 20,
         }}
@@ -147,6 +149,7 @@ export default async function AdminOverviewPage() {
           label="Total applications"
           value={fmt(total ?? 0)}
           sub={`${inQueue} awaiting review`}
+          hero
         />
         <StatCard
           label="Approval rate"
