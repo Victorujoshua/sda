@@ -15,11 +15,12 @@ export async function POST(req: NextRequest) {
     .update(rawBody)
     .digest("hex");
 
-  // Constant-time comparison — must be same length
+  // Constant-time comparison
   if (
     sig.length !== expected.length ||
     !crypto.timingSafeEqual(Buffer.from(sig, "hex"), Buffer.from(expected, "hex"))
   ) {
+    console.error("[webhook/paystack] invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
@@ -34,39 +35,73 @@ export async function POST(req: NextRequest) {
     const reference = event.data?.reference as string | undefined;
     const amount = event.data?.amount as number | undefined;
 
+    console.log("[webhook/paystack] charge.success reference:", reference, "amount:", amount);
+
     if (!reference || amount !== AMOUNT_KOBO) {
+      console.log("[webhook/paystack] skipping — reference missing or amount mismatch:", { reference, amount, expected: AMOUNT_KOBO });
       return NextResponse.json({ ok: true });
     }
 
     const db = createAdminClient();
 
-    const { data: payment } = await db
+    const { data: payment, error: lookupError } = await db
       .from("membership_payments")
       .select("id, user_id, status")
       .eq("paystack_reference", reference)
       .maybeSingle();
 
-    if (!payment || payment.status === "success") {
-      return NextResponse.json({ ok: true }); // idempotent
+    if (lookupError) {
+      console.error("[webhook/paystack] membership_payments lookup FAILED:", lookupError);
+      return NextResponse.json({ error: "DB lookup failed" }, { status: 500 });
     }
 
-    await db
+    if (!payment) {
+      // No pending row — payment was not initiated through the app (unusual)
+      console.error("[webhook/paystack] no membership_payments row found for reference:", reference);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (payment.status === "success") {
+      // Idempotent — verify already recorded this
+      console.log("[webhook/paystack] already recorded, skipping. reference:", reference);
+      return NextResponse.json({ ok: true });
+    }
+
+    // Mark payment row as successful
+    const { error: paymentUpdateError } = await db
       .from("membership_payments")
       .update({ status: "success", paid_at: new Date().toISOString() })
       .eq("id", payment.id);
 
-    await db
+    if (paymentUpdateError) {
+      console.error("[webhook/paystack] membership_payments update FAILED:", paymentUpdateError);
+      return NextResponse.json({ error: "DB write failed" }, { status: 500 });
+    }
+
+    // Flip membership flag
+    const { error: profileUpdateError } = await db
       .from("profiles")
       .update({ has_paid_membership: true })
       .eq("id", payment.user_id);
 
-    await db.from("audit_log").insert({
+    if (profileUpdateError) {
+      console.error("[webhook/paystack] profiles.has_paid_membership update FAILED:", profileUpdateError);
+      return NextResponse.json({ error: "DB write failed" }, { status: 500 });
+    }
+
+    console.log("[webhook/paystack] membership activated for user:", payment.user_id, "reference:", reference);
+
+    // Audit — best-effort; never fail the webhook response over this
+    const { error: auditError } = await db.from("audit_log").insert({
       actor_id: payment.user_id,
       action: "membership.paid",
       target_type: "user",
       target_id: payment.user_id,
       metadata: { reference, amount_kobo: amount, source: "webhook" } as never,
     });
+    if (auditError) {
+      console.error("[webhook/paystack] audit_log insert failed (non-fatal):", auditError);
+    }
   }
 
   return NextResponse.json({ ok: true });

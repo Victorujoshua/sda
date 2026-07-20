@@ -119,12 +119,17 @@ export default function MembershipModal({
           const vData = await vRes.json();
           if (vData.success) {
             onSuccess?.();
+          } else if (vRes.status === 402) {
+            // Paystack did not confirm the charge — safe to retry
+            setError("Payment could not be confirmed. If you were charged, contact support.");
+            setLoading(false);
           } else {
-            setError("Something went wrong. No money was taken. Try again.");
+            // 5xx — charge went through but recording failed; webhook will recover
+            setError("Payment received but confirmation failed. Please contact support — your access will be activated shortly.");
             setLoading(false);
           }
         } catch {
-          setError("Something went wrong. No money was taken. Try again.");
+          setError("Network error during confirmation. If you were charged, contact support.");
           setLoading(false);
         }
       },
