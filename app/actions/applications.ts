@@ -38,7 +38,18 @@ export async function saveDraft(
   };
 
   if (applicationId) {
-    // UPDATE — do not overwrite status; it may be 'needs_documents'
+    // Reject field updates when admin has requested additional documents.
+    // The UI never calls saveDraft in this state, but this blocks direct API calls.
+    const { data: current } = await supabase
+      .from("applications")
+      .select("status")
+      .eq("id", applicationId)
+      .eq("user_id", user.id)
+      .single();
+    if ((current?.status as string) === "needs_documents") {
+      return { error: "Application fields cannot be edited when additional documents have been requested. Upload documents and resubmit." };
+    }
+
     const { data, error } = await supabase
       .from("applications")
       .update(fields)

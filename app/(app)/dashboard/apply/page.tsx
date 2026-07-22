@@ -67,7 +67,8 @@ export default async function ApplyPage({
     }
   }
 
-  const startStep = detectStartStep(initialData);
+  const isDocumentsMode = !!(initialData && (initialData as { status: string }).status === "needs_documents");
+  const startStep = isDocumentsMode ? 4 : detectStartStep(initialData);
 
   return (
     <ApplyForm
@@ -76,6 +77,7 @@ export default async function ApplyPage({
       startStep={startStep}
       userId={user.id}
       documentsNote={documentsNote}
+      isDocumentsMode={isDocumentsMode}
     />
   );
 }

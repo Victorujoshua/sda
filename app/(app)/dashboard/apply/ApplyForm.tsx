@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -38,6 +38,7 @@ type Props = {
   startStep: number;
   userId: string;
   documentsNote?: string | null;
+  isDocumentsMode?: boolean;
 };
 
 // Maps apply form step (1-5) to milestone step (3-6)
@@ -108,6 +109,7 @@ export default function ApplyForm({
   startStep,
   userId,
   documentsNote,
+  isDocumentsMode = false,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(startStep);
@@ -122,9 +124,21 @@ export default function ApplyForm({
   const [supportingFiles, setSupportingFiles] = useState<File[]>([]);
   const [supportingUploaded, setSupportingUploaded] = useState<string[]>([]);
   const [supportingDocError, setSupportingDocError] = useState<string | null>(null);
+  const [fundingAmountDisplay, setFundingAmountDisplay] = useState(
+    initialData?.funding_amount != null
+      ? Number(initialData.funding_amount).toLocaleString("en-US")
+      : ""
+  );
+  const [monthlyRevenueDisplay, setMonthlyRevenueDisplay] = useState(
+    initialData?.monthly_revenue != null
+      ? Number(initialData.monthly_revenue).toLocaleString("en-US")
+      : ""
+  );
 
   const {
     register,
+    control,
+    setValue,
     trigger,
     getValues,
     watch,
@@ -226,8 +240,9 @@ export default function ApplyForm({
     setDocErrors((e) => ({ ...e, [type]: undefined }));
   }
 
-  async function handleSupportingDocumentUpload(file: File) {
-    if (!applicationId) return;
+  // Returns true on success, false on failure (so callers can gate further actions).
+  async function handleSupportingDocumentUpload(file: File): Promise<boolean> {
+    if (!applicationId) return false;
     const ext = file.name.split(".").pop();
     const path = `${userId}/${applicationId}/supporting/${Date.now()}.${ext}`;
 
@@ -242,15 +257,16 @@ export default function ApplyForm({
           ? "Supporting documents storage not yet configured. Skip for now."
           : `Upload failed: ${uploadError.message}`
       );
-      return;
+      return false;
     }
 
     const recordResult = await saveDocumentRecord(applicationId, path, "supporting");
     if (recordResult.error) {
       setSupportingDocError(`Failed to record document: ${recordResult.error}`);
-      return;
+      return false;
     }
     setSupportingUploaded((prev) => [...prev, file.name]);
+    return true;
   }
 
   async function handleDocumentsNext() {
@@ -260,11 +276,33 @@ export default function ApplyForm({
     if (financialFile) uploads.push(handleDocumentUpload(financialFile, "financials"));
     if (bankFile) uploads.push(handleDocumentUpload(bankFile, "bank_statement"));
     for (const file of supportingFiles) {
-      uploads.push(handleSupportingDocumentUpload(file));
+      uploads.push(handleSupportingDocumentUpload(file).then(() => undefined));
     }
     await Promise.all(uploads);
     setDocUploading(false);
     setStep(5);
+  }
+
+  // Documents-only mode: upload pending supporting files then resubmit.
+  async function handleDocumentsSubmit() {
+    if (!applicationId) { setServerError("No application found."); return; }
+    setServerError(null);
+    setSupportingDocError(null);
+
+    if (supportingFiles.length > 0) {
+      setDocUploading(true);
+      const toUpload = supportingFiles.filter((f) => !supportingUploaded.includes(f.name));
+      const results = await Promise.all(toUpload.map((f) => handleSupportingDocumentUpload(f)));
+      setDocUploading(false);
+      // If any upload failed, supportingDocError is set — abort before submitting.
+      if (results.some((r) => !r)) return;
+    }
+
+    startTransition(async () => {
+      const result = await submitApplication(applicationId!);
+      if (result.error) { setServerError(result.error); return; }
+      router.push("/dashboard?submitted=true");
+    });
   }
 
   function handleSubmitApplication() {
@@ -276,8 +314,6 @@ export default function ApplyForm({
       router.push("/dashboard?submitted=true");
     });
   }
-
-  const milestoneStep = getMilestoneStep(step);
 
   const primaryBtnStyle: React.CSSProperties = {
     fontFamily: "var(--sr)",
@@ -297,6 +333,270 @@ export default function ApplyForm({
     cursor: "not-allowed",
   };
 
+  // ── Documents-only mode ────────────────────────────────────────────────────
+  // Shown when admin has requested additional documents (status = needs_documents).
+  // Previously submitted answers are displayed as plain read-only text — no form
+  // inputs of any kind. Only the supporting-document uploader and resubmit are
+  // interactive. The multi-step form is not rendered at all.
+  if (isDocumentsMode) {
+    const sectionHeaderStyle: React.CSSProperties = {
+      padding: "10px 20px",
+      backgroundColor: "rgba(17,17,17,0.03)",
+      borderBottom: "1px solid var(--hairline)",
+      fontFamily: "var(--in)",
+      fontSize: 11,
+      textTransform: "uppercase",
+      letterSpacing: "0.12em",
+      color: "rgba(17,17,17,0.4)",
+      fontWeight: 500,
+    };
+
+    return (
+      <div className="imani-signup-grid">
+        <div className="imani-signup-inner">
+          <div className="imani-signup-sidebar">
+            <SignupProgress currentStep={5} variant="applicant" />
+          </div>
+          <div className="imani-signup-form-col">
+            <div className="imani-mobile-steps">
+              <MobileStepIndicator currentStep={5} totalSteps={6} />
+            </div>
+
+            <h1
+              style={{
+                fontFamily: "var(--sr)",
+                fontSize: "32px",
+                fontWeight: 300,
+                letterSpacing: "-0.02em",
+                color: "var(--ink)",
+                margin: "0 0 8px",
+              }}
+            >
+              Upload requested documents
+            </h1>
+            <p
+              style={{
+                fontFamily: "var(--in)",
+                fontSize: "18px",
+                color: "rgba(17,17,17,0.5)",
+                margin: "0 0 36px",
+                lineHeight: 1.55,
+              }}
+            >
+              Your submitted answers are shown below for reference. Add the documents your reviewer has requested, then resubmit.
+            </p>
+
+            {serverError && (
+              <div
+                style={{
+                  border: "1px solid rgba(178,35,41,0.3)",
+                  backgroundColor: "rgba(178,35,41,0.06)",
+                  padding: "12px 16px",
+                  marginBottom: 24,
+                  fontFamily: "var(--in)",
+                  fontSize: 16,
+                  color: "var(--maroon)",
+                }}
+              >
+                {serverError}
+              </div>
+            )}
+
+            {/* ── Read-only summary — all submitted answers ── */}
+            {initialData && (
+              <div
+                style={{
+                  border: "1px solid var(--hairline)",
+                  marginBottom: 36,
+                }}
+              >
+                {/* Business details section */}
+                <div style={sectionHeaderStyle}>Business details</div>
+                <div style={{ padding: "0 20px" }}>
+                  <SummaryRow label="Business name" value={initialData.business_name} />
+                  <SummaryRow label="Founder / primary contact" value={initialData.founder_name} />
+                  <SummaryRow label="Contact email" value={initialData.contact_email} />
+                  {initialData.contact_phone && (
+                    <SummaryRow label="Phone" value={initialData.contact_phone} />
+                  )}
+                  <SummaryRow
+                    label="Business description"
+                    value={initialData.business_description}
+                    multiline
+                  />
+                  {initialData.monthly_revenue != null && (
+                    <SummaryRow
+                      label="Monthly revenue"
+                      value={`₦${Number(initialData.monthly_revenue).toLocaleString("en-NG")}`}
+                    />
+                  )}
+                </div>
+
+                {/* Funding details section */}
+                <div style={{ ...sectionHeaderStyle, borderTop: "1px solid var(--hairline)" }}>
+                  Funding details
+                </div>
+                <div style={{ padding: "0 20px" }}>
+                  <SummaryRow
+                    label="Amount requested"
+                    value={
+                      initialData.funding_amount != null
+                        ? `₦${Number(initialData.funding_amount).toLocaleString("en-NG")}`
+                        : "—"
+                    }
+                  />
+                  <SummaryRow
+                    label="Structure"
+                    value={
+                      initialData.funding_type
+                        ? FUNDING_TYPE_LABELS[initialData.funding_type] ?? initialData.funding_type
+                        : "—"
+                    }
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* ── Admin note banner ── */}
+            {documentsNote && (
+              <div
+                style={{
+                  border: "1px solid rgba(178,35,41,0.35)",
+                  backgroundColor: "rgba(178,35,41,0.06)",
+                  padding: "16px 20px",
+                  marginBottom: 32,
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "var(--in)",
+                    fontSize: 11,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    color: "var(--maroon)",
+                    margin: "0 0 8px",
+                    fontWeight: 500,
+                  }}
+                >
+                  Action required — documents requested
+                </p>
+                <p
+                  style={{
+                    fontFamily: "var(--in)",
+                    fontSize: 15,
+                    color: "var(--ink)",
+                    lineHeight: 1.65,
+                    margin: 0,
+                  }}
+                >
+                  {documentsNote}
+                </p>
+              </div>
+            )}
+
+            {/* ── Supporting documents uploader ── */}
+            <div>
+              <label style={labelStyle}>
+                Supporting documents{" "}
+                <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>
+                  (up to {MAX_SUPPORTING_FILES} files — PDF, Word, Excel, PNG, JPG — max 10 MB each)
+                </span>
+              </label>
+
+              {supportingFiles.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+                  {supportingFiles.map((file, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "10px 14px",
+                        border: "1px solid var(--hairline)",
+                        backgroundColor: supportingUploaded.includes(file.name)
+                          ? "rgba(17,17,17,0.03)"
+                          : "transparent",
+                      }}
+                    >
+                      <span style={{ fontFamily: "var(--in)", fontSize: 15, color: "var(--ink)" }}>
+                        {supportingUploaded.includes(file.name) ? "✓ " : ""}
+                        {file.name}
+                      </span>
+                      {!supportingUploaded.includes(file.name) && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSupportingFiles((prev) => prev.filter((_, j) => j !== i))
+                          }
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "rgba(17,17,17,0.4)",
+                            cursor: "pointer",
+                            fontSize: 20,
+                            lineHeight: 1,
+                            padding: "0 4px",
+                            flexShrink: 0,
+                          }}
+                          aria-label="Remove file"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {supportingFiles.length < MAX_SUPPORTING_FILES ? (
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xlsx,.xls,.csv"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > MAX_FILE_SIZE) {
+                      setSupportingDocError(`"${file.name}" exceeds the 10 MB limit.`);
+                      e.target.value = "";
+                      return;
+                    }
+                    setSupportingDocError(null);
+                    setSupportingFiles((prev) => [...prev, file]);
+                    e.target.value = "";
+                  }}
+                  style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }}
+                />
+              ) : (
+                <p style={{ fontFamily: "var(--in)", fontSize: 14, color: "var(--muted)", margin: 0 }}>
+                  Maximum {MAX_SUPPORTING_FILES} files reached.
+                </p>
+              )}
+
+              {supportingDocError && <p style={errorStyle}>{supportingDocError}</p>}
+            </div>
+
+            {/* ── Submit ── */}
+            <div style={{ marginTop: 40, paddingTop: 32, borderTop: "1px solid var(--hairline)" }}>
+              <button
+                type="button"
+                onClick={handleDocumentsSubmit}
+                disabled={isPending || docUploading}
+                style={isPending || docUploading ? disabledBtnStyle : primaryBtnStyle}
+              >
+                {docUploading ? "Uploading…" : isPending ? "Submitting…" : "Submit updated documents"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Normal multi-step form (draft only) ───────────────────────────────────
+
+  const milestoneStep = getMilestoneStep(step);
+
   return (
     <div className="imani-signup-grid">
       <div className="imani-signup-inner">
@@ -313,43 +613,6 @@ export default function ApplyForm({
           <div className="imani-mobile-steps">
             <MobileStepIndicator currentStep={milestoneStep} totalSteps={6} />
           </div>
-
-          {/* Documents-requested banner — shown on all steps when re-opening */}
-          {documentsNote && (
-            <div
-              style={{
-                border: "1px solid rgba(178,35,41,0.35)",
-                backgroundColor: "rgba(178,35,41,0.06)",
-                padding: "16px 20px",
-                marginBottom: 32,
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "var(--in)",
-                  fontSize: 12,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: "var(--maroon)",
-                  margin: "0 0 8px",
-                  fontWeight: 500,
-                }}
-              >
-                Action required — documents requested
-              </p>
-              <p
-                style={{
-                  fontFamily: "var(--in)",
-                  fontSize: 15,
-                  color: "var(--ink)",
-                  lineHeight: 1.65,
-                  margin: 0,
-                }}
-              >
-                {documentsNote}
-              </p>
-            </div>
-          )}
 
           {/* Step heading */}
           <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "var(--ink)", margin: "0 0 8px" }}>
@@ -409,11 +672,30 @@ export default function ApplyForm({
                   Monthly revenue (₦){" "}
                   <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(optional)</span>
                 </label>
-                <input
-                  {...register("monthly_revenue", {
-                    setValueAs: (v: unknown) => { if (v === "" || v == null) return null; const n = parseFloat(String(v)); return isNaN(n) ? null : n; },
-                  })}
-                  type="number" min="0" step="any" style={inputStyle} placeholder="0"
+                <Controller
+                  name="monthly_revenue"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={monthlyRevenueDisplay}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/[^0-9]/g, "");
+                        if (!digits) {
+                          setMonthlyRevenueDisplay("");
+                          field.onChange(null);
+                          return;
+                        }
+                        const n = parseInt(digits, 10);
+                        setMonthlyRevenueDisplay(n.toLocaleString("en-US"));
+                        field.onChange(n);
+                      }}
+                      onBlur={field.onBlur}
+                      placeholder="0"
+                      style={inputStyle}
+                    />
+                  )}
                 />
                 {errors.monthly_revenue && <p style={errorStyle}>{errors.monthly_revenue.message}</p>}
               </div>
@@ -428,11 +710,30 @@ export default function ApplyForm({
                 <p style={{ fontFamily: "var(--in)", fontSize: 15, color: "rgba(17,17,17,0.5)", margin: "0 0 10px" }}>
                   Maximum ₦5,000,000 per application.
                 </p>
-                <input
-                  {...register("funding_amount", {
-                    setValueAs: (v: unknown) => { if (v === "" || v == null) return undefined; const n = parseFloat(String(v)); return isNaN(n) ? undefined : n; },
-                  })}
-                  type="number" min="1" max="5000000" step="any" style={inputStyle} placeholder="500000"
+                <Controller
+                  name="funding_amount"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={fundingAmountDisplay}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/[^0-9]/g, "");
+                        if (!digits) {
+                          setFundingAmountDisplay("");
+                          field.onChange(undefined);
+                          return;
+                        }
+                        const n = parseInt(digits, 10);
+                        setFundingAmountDisplay(n.toLocaleString("en-US"));
+                        field.onChange(n);
+                      }}
+                      onBlur={field.onBlur}
+                      placeholder="500,000"
+                      style={inputStyle}
+                    />
+                  )}
                 />
                 {errors.funding_amount && <p style={errorStyle}>{errors.funding_amount.message}</p>}
               </div>
@@ -491,11 +792,10 @@ export default function ApplyForm({
                 <label style={labelStyle}>
                   Supporting documents{" "}
                   <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>
-                    (optional — up to {MAX_SUPPORTING_FILES} files, PDF or Excel, max 10 MB each)
+                    (optional — up to {MAX_SUPPORTING_FILES} files — PDF, Word, Excel, PNG, JPG — max 10 MB each)
                   </span>
                 </label>
 
-                {/* Selected file list */}
                 {supportingFiles.length > 0 && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
                     {supportingFiles.map((file, i) => (
@@ -537,11 +837,10 @@ export default function ApplyForm({
                   </div>
                 )}
 
-                {/* Add file input */}
                 {supportingFiles.length < MAX_SUPPORTING_FILES ? (
                   <input
                     type="file"
-                    accept=".pdf,.xlsx,.xls,.csv"
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xlsx,.xls,.csv"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
@@ -651,6 +950,51 @@ function ReviewRow({ label, value, multiline = false }: { label: string; value: 
       <span style={{ fontFamily: "var(--in)", fontSize: 17, color: "var(--ink)", textAlign: multiline ? "left" : "right", lineHeight: 1.6, wordBreak: "break-word" }}>
         {value || "—"}
       </span>
+    </div>
+  );
+}
+
+// Plain-text read-only row for the documents-only summary.
+// Uses <p> for the value — no form inputs — so there is nothing for devtools to re-enable.
+function SummaryRow({ label, value, multiline = false }: { label: string; value: string | undefined; multiline?: boolean }) {
+  return (
+    <div
+      style={{
+        borderTop: "1px solid var(--hairline)",
+        padding: "13px 0",
+        display: multiline ? "block" : "flex",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        gap: 24,
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "var(--in)",
+          fontSize: 12,
+          textTransform: "uppercase",
+          letterSpacing: "0.09em",
+          color: "rgba(17,17,17,0.42)",
+          margin: multiline ? "0 0 5px" : 0,
+          flexShrink: 0,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {label}
+      </p>
+      <p
+        style={{
+          fontFamily: "var(--in)",
+          fontSize: 16,
+          color: "var(--ink)",
+          margin: 0,
+          textAlign: multiline ? "left" : "right",
+          lineHeight: 1.65,
+          wordBreak: "break-word",
+        }}
+      >
+        {value || "—"}
+      </p>
     </div>
   );
 }

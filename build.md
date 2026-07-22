@@ -5,9 +5,9 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: NEEDS_DOCUMENTS FEATURE — LIVE. Both migrations applied and smoke-tested by user (draft save, submit, document upload all confirmed working). All 10 code files shipped. One env var outstanding.
-Last completed: LOOPS_TEMPLATE_DOCUMENTS_REQUESTED added to .env.local.example (2026-07-22). User creating Loops template and adding ID to .env.local + Vercel.
-Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template with variables: applicant_name, business_name, documents_note. Until done, "request documents" email is silent (status change + audit log still work). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
+Phase: NEEDS_DOCUMENTS FEATURE — COMPLETE. Three-layer field-lock enforcement added (UI, server action, DB trigger). Build GREEN (34 routes, 0 errors). Trigger migration file ready for manual apply.
+Last completed: Three-layer needs_documents enforcement implemented (2026-07-22). ApplyForm renders documents-only view when isDocumentsMode; saveDraft blocks field updates at server level; trigger SQL in supabase/migrations/20260722000003_needs_documents_field_lock_trigger.sql (not yet applied — apply manually in Supabase SQL editor).
+Next: (1) Apply 20260722000003 in Supabase SQL editor (trigger). (2) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template with variables: applicant_name, business_name, documents_note. Until done, "request documents" email is silent (status change + audit log still work). (3) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (4) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (5) Run reconciliation SQL for investors with has_paid_membership=false. (6) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
   - ACTION REQUIRED: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED to Vercel env vars + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). Status change + audit log work without it; email is silent until set.
@@ -29,7 +29,7 @@ Known open issues:
   - /contact route does not exist — omitted from footer nav pending decision to create page or remove permanently.
   - LOOPS_ADMIN_EMAIL=support@imaniventures.org in .env.local — verify this mailbox is live before going to production.
   - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
-Last updated: 2026-07-22 (.env.local.example updated with DOCUMENTS_REQUESTED key).
+Last updated: 2026-07-22 (commit 8d21964 pushed to master).
 GitHub: commit 0bbd6e9 pushed to master (github.com/Victorujoshua/sda). Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
@@ -5232,3 +5232,81 @@ Build Log — 2026-07-22 .env.local.example — LOOPS_TEMPLATE_DOCUMENTS_REQUEST
   LOOPS_TEMPLATE_* vars. Includes inline comment: "Variables: applicant_name, business_name, documents_note".
   User is creating the Loops template and will paste the opaque transactionalId into .env.local and Vercel.
   Files changed: .env.local.example
+
+Build Log — 2026-07-22 GitHub push — needs_documents feature (commit 8d21964)
+  Committed and pushed 8d21964 to origin/master. Vercel auto-deploy triggered.
+  15 files, 1140 insertions, 71 deletions.
+
+  Files staged:
+    .env.local.example                                    (LOOPS_TEMPLATE_DOCUMENTS_REQUESTED added)
+    lib/email/loops.ts                                    (DOCUMENTS_REQUESTED template key)
+    app/actions/admin.ts                                  (requestDocuments action + 3 email discard fixes)
+    app/actions/applications.ts                           (saveDraft fix + resubmit path + 2 email discard fixes)
+    app/(app)/dashboard/apply/ApplyForm.tsx               (note banner + supporting docs uploader)
+    app/(app)/dashboard/apply/page.tsx                    (needs_documents query + documentsNote prop)
+    app/(app)/dashboard/page.tsx                          (needs_documents panel)
+    components/admin/ApplicationActions.tsx               (Request documents button + form)
+    app/(admin)/admin/applications/[id]/page.tsx          (note box + supporting doc bucket/label)
+    app/(admin)/admin/applications/page.tsx               (STATUS_LABEL, STATUS_BADGE, dropdown)
+    supabase/migrations/20260716000001_deals_write_grant_cleanup.sql  (NEW — pending apply)
+    supabase/migrations/20260716000002_deals_membership_view.sql      (NEW — pending apply)
+    supabase/migrations/20260722000001_needs_documents_enums.sql      (NEW — already applied)
+    supabase/migrations/20260722000002_needs_documents_schema.sql     (NEW — already applied)
+    build.md
+
+Build Log — 2026-07-22 needs_documents — three-layer field-lock enforcement
+  Enforces that when an application is in needs_documents status, applicants can ONLY upload
+  supporting documents — no business/funding fields can be edited.
+
+  Layer 1 — UI (ApplyForm.tsx + page.tsx):
+    - page.tsx derives isDocumentsMode = (status === "needs_documents") and passes to ApplyForm.
+    - ApplyForm receives isDocumentsMode?: boolean prop. When true, renders a completely separate
+      view: admin note banner, read-only summary (business name, contact email, funding ask),
+      supporting-document uploader (max 5 files, 10 MB cap), and "Submit updated documents" button.
+      The multi-step form, step navigation, and all editable inputs are NOT rendered.
+    - handleSupportingDocumentUpload() updated to return Promise<boolean> (true = success).
+    - New handler handleDocumentsSubmit(): uploads pending files → checks all succeeded → calls
+      submitApplication() → redirects to /dashboard?submitted=true. Aborts if any upload fails.
+    - startStep set to 4 (not detectStartStep) in documents mode — unused but keeps type consistent.
+
+  Layer 2 — Server action (applications.ts saveDraft):
+    - Before the UPDATE path runs, fetches current status from DB.
+    - If status is "needs_documents", returns error immediately without touching any row.
+    - Defence-in-depth against direct API calls that bypass the UI gate.
+
+  Layer 3 — DB trigger (supabase/migrations/20260722000003_needs_documents_field_lock_trigger.sql):
+    - BEFORE UPDATE trigger prevent_field_edits_in_needs_documents().
+    - Raises EXCEPTION if OLD.status = 'needs_documents' AND any of these columns change:
+      business_name, founder_name, contact_email, contact_phone, business_description,
+      monthly_revenue, funding_amount, funding_type.
+    - Uses IS DISTINCT FROM for null-safe comparison.
+    - Admin actions that change only status/housekeeping columns are unaffected.
+    - NOT YET APPLIED — user applies manually in Supabase SQL editor.
+
+  Build: GREEN. 34 routes, 0 TypeScript errors.
+  Files changed: app/(app)/dashboard/apply/ApplyForm.tsx (full rewrite), app/(app)/dashboard/apply/page.tsx, app/actions/applications.ts, supabase/migrations/20260722000003_needs_documents_field_lock_trigger.sql (new)
+
+Build Log — 2026-07-22 needs_documents — comprehensive read-only summary on documents-only screen
+  Expanded the read-only summary in the documents-only view to show ALL previously submitted answers,
+  grouped into two sections (Business details, Funding details), rendered as plain <p> elements —
+  no form inputs of any kind.
+  - Business details: business name, founder/primary contact, contact email, phone (if set), business description (multiline), monthly revenue (if set).
+  - Funding details: amount requested, funding structure.
+  New SummaryRow component (bottom of ApplyForm.tsx): label <p> + value <p>, supports multiline layout. No inputs — nothing for devtools to re-enable.
+  Screen order: heading → read-only summary → admin note banner → supporting-docs uploader → submit.
+  Build: GREEN. 34 routes, 0 errors.
+  Files changed: app/(app)/dashboard/apply/ApplyForm.tsx
+
+Build Log — 2026-07-22 ApplyForm — comma-formatted amount inputs + expanded supporting-doc file types
+  Amount inputs (monthly_revenue step 2, funding_amount step 3):
+    - Switched from type="number" to type="text" inputMode="numeric" + Controller (react-hook-form).
+    - On each keystroke: strips non-digits, parses as integer, formats with en-US commas, stores raw number in RHF.
+    - Display state initialised from initialData so resumed drafts show formatted values.
+    - Placeholder updated to "500,000" for funding_amount.
+  Supporting-docs file accept:
+    - Expanded from .pdf,.xlsx,.xls,.csv → .pdf,.png,.jpg,.jpeg,.doc,.docx,.xlsx,.xls,.csv in both the
+      documents-only mode uploader and the step 4 uploader.
+    - Label text updated to "PDF, Word, Excel, PNG, JPG" in both places.
+    - Financial statements and bank statements uploaders unchanged (PDF/Excel only).
+  Build: GREEN. 34 routes, 0 errors.
+  Files changed: app/(app)/dashboard/apply/ApplyForm.tsx
