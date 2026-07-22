@@ -44,6 +44,7 @@ export default function ApplicationActions({
   const [docsNote, setDocsNote] = useState("");
   const [blacklistReason, setBlacklistReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const isFinal = currentStatus === "approved" || currentStatus === "rejected";
   const isSuperAdmin = actorRole === "super_admin";
@@ -56,15 +57,19 @@ export default function ApplicationActions({
     setShowBlacklist(false);
   }
 
-  async function run(fn: () => Promise<{ error?: string }>) {
+  async function run(fn: () => Promise<{ error?: string }>, successMsg: string) {
     setError(null);
+    setToast(null);
     startTransition(async () => {
       try {
         const result = await fn();
         if (result.error) {
           setError(result.error);
         } else {
+          closeAllForms();
+          setToast(successMsg);
           router.refresh();
+          setTimeout(() => setToast(null), 5000);
         }
       } catch {
         setError("An unexpected error occurred.");
@@ -89,6 +94,56 @@ export default function ApplicationActions({
 
   return (
     <div>
+      {/* Success toast — fixed position so it's visible regardless of scroll */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            top: 24,
+            right: 24,
+            zIndex: 9999,
+            maxWidth: 400,
+            width: "calc(100vw - 48px)",
+            backgroundColor: "var(--cream)",
+            border: "1px solid var(--hairline)",
+            borderLeft: "3px solid #16a34a",
+            padding: "14px 44px 14px 18px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "var(--in)",
+              fontSize: 15,
+              color: "var(--ink)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            {toast}
+          </p>
+          <button
+            onClick={() => setToast(null)}
+            aria-label="Dismiss"
+            style={{
+              position: "absolute",
+              top: 10,
+              right: 12,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontSize: 20,
+              color: "rgba(17,17,17,0.35)",
+              lineHeight: 1,
+              padding: 0,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {error && (
         <div
           style={{
@@ -110,7 +165,7 @@ export default function ApplicationActions({
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
           {currentStatus !== "under_review" && currentStatus !== "needs_documents" && (
             <button
-              onClick={() => run(() => setApplicationUnderReview(applicationId))}
+              onClick={() => run(() => setApplicationUnderReview(applicationId), "Application marked as under review.")}
               disabled={isPending}
               style={{
                 ...btnBase,
@@ -124,7 +179,7 @@ export default function ApplicationActions({
 
           {currentStatus === "needs_documents" && (
             <button
-              onClick={() => run(() => setApplicationUnderReview(applicationId))}
+              onClick={() => run(() => setApplicationUnderReview(applicationId), "Application marked as under review.")}
               disabled={isPending}
               style={{
                 ...btnBase,
@@ -138,7 +193,7 @@ export default function ApplicationActions({
 
           {isSuperAdmin && (
             <button
-              onClick={() => run(() => approveApplication(applicationId))}
+              onClick={() => run(() => approveApplication(applicationId), "Application approved for funding. The applicant has been notified.")}
               disabled={isPending}
               style={{
                 ...btnBase,
@@ -216,7 +271,7 @@ export default function ApplicationActions({
           <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
             <button
               onClick={() =>
-                run(() => rejectApplication(applicationId, rejectionReason))
+                run(() => rejectApplication(applicationId, rejectionReason), "Application rejected. The applicant has been notified.")
               }
               disabled={isPending || !rejectionReason.trim()}
               style={{
@@ -273,7 +328,7 @@ export default function ApplicationActions({
           <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
             <button
               onClick={() =>
-                run(() => requestDocuments(applicationId, docsNote))
+                run(() => requestDocuments(applicationId, docsNote), "Document request sent. The applicant has been notified by email.")
               }
               disabled={isPending || !docsNote.trim()}
               style={{
@@ -334,7 +389,7 @@ export default function ApplicationActions({
               This applicant is currently blacklisted.
             </p>
             <button
-              onClick={() => run(() => unblacklistUser(userId))}
+              onClick={() => run(() => unblacklistUser(userId), "Blacklist removed. The applicant can now submit applications.")}
               disabled={isPending}
               style={{
                 ...btnBase,
@@ -392,7 +447,7 @@ export default function ApplicationActions({
                 <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
                   <button
                     onClick={() =>
-                      run(() => blacklistUser(userId, blacklistReason))
+                      run(() => blacklistUser(userId, blacklistReason), "Applicant has been blacklisted.")
                     }
                     disabled={isPending || !blacklistReason.trim()}
                     style={{
