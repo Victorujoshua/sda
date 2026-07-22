@@ -6,11 +6,12 @@ import {
   setApplicationUnderReview,
   approveApplication,
   rejectApplication,
+  requestDocuments,
   blacklistUser,
   unblacklistUser,
 } from "@/app/actions/admin";
 
-type Status = "draft" | "pending" | "under_review" | "approved" | "rejected";
+type Status = "draft" | "pending" | "under_review" | "approved" | "rejected" | "needs_documents";
 
 const btnBase: React.CSSProperties = {
   fontFamily: "var(--in)",
@@ -37,13 +38,23 @@ export default function ApplicationActions({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showReject, setShowReject] = useState(false);
+  const [showRequestDocs, setShowRequestDocs] = useState(false);
   const [showBlacklist, setShowBlacklist] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [docsNote, setDocsNote] = useState("");
   const [blacklistReason, setBlacklistReason] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const isFinal = currentStatus === "approved" || currentStatus === "rejected";
   const isSuperAdmin = actorRole === "super_admin";
+  // "Request documents" available when there is something to review but not already in that state
+  const canRequestDocs = !isFinal && currentStatus !== "draft" && currentStatus !== "needs_documents";
+
+  function closeAllForms() {
+    setShowReject(false);
+    setShowRequestDocs(false);
+    setShowBlacklist(false);
+  }
 
   async function run(fn: () => Promise<{ error?: string }>) {
     setError(null);
@@ -97,7 +108,21 @@ export default function ApplicationActions({
       {/* Status actions */}
       {!isFinal && (
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
-          {currentStatus !== "under_review" && (
+          {currentStatus !== "under_review" && currentStatus !== "needs_documents" && (
+            <button
+              onClick={() => run(() => setApplicationUnderReview(applicationId))}
+              disabled={isPending}
+              style={{
+                ...btnBase,
+                backgroundColor: "rgba(17,17,17,0.04)",
+                color: "var(--ink)",
+              }}
+            >
+              Mark under review
+            </button>
+          )}
+
+          {currentStatus === "needs_documents" && (
             <button
               onClick={() => run(() => setApplicationUnderReview(applicationId))}
               disabled={isPending}
@@ -128,7 +153,7 @@ export default function ApplicationActions({
 
           <button
             onClick={() => {
-              setShowBlacklist(false);
+              closeAllForms();
               setShowReject((v) => !v);
             }}
             disabled={isPending}
@@ -141,6 +166,23 @@ export default function ApplicationActions({
           >
             Reject
           </button>
+
+          {canRequestDocs && (
+            <button
+              onClick={() => {
+                closeAllForms();
+                setShowRequestDocs((v) => !v);
+              }}
+              disabled={isPending}
+              style={{
+                ...btnBase,
+                backgroundColor: "var(--cream)",
+                color: "var(--ink)",
+              }}
+            >
+              Request documents
+            </button>
+          )}
         </div>
       )}
 
@@ -189,6 +231,63 @@ export default function ApplicationActions({
             </button>
             <button
               onClick={() => setShowReject(false)}
+              style={{
+                ...btnBase,
+                background: "none",
+                color: "var(--ink)",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Request documents form */}
+      {showRequestDocs && (
+        <div
+          style={{
+            border: "1px solid var(--hairline)",
+            padding: "20px",
+            marginBottom: 16,
+          }}
+        >
+          <label
+            style={{
+              fontFamily: "var(--in)",
+              fontSize: 13,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              color: "var(--muted)",
+            }}
+          >
+            What documents are needed? (required — visible to applicant)
+          </label>
+          <textarea
+            value={docsNote}
+            onChange={(e) => setDocsNote(e.target.value)}
+            rows={4}
+            placeholder="e.g. Please upload your last 6 months of bank statements and a signed director's ID…"
+            style={textareaStyle}
+          />
+          <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+            <button
+              onClick={() =>
+                run(() => requestDocuments(applicationId, docsNote))
+              }
+              disabled={isPending || !docsNote.trim()}
+              style={{
+                ...btnBase,
+                backgroundColor: "var(--ink)",
+                color: "var(--cream)",
+                border: "none",
+                opacity: !docsNote.trim() ? 0.5 : 1,
+              }}
+            >
+              {isPending ? "Sending…" : "Send request"}
+            </button>
+            <button
+              onClick={() => setShowRequestDocs(false)}
               style={{
                 ...btnBase,
                 background: "none",
@@ -250,7 +349,7 @@ export default function ApplicationActions({
           <div>
             <button
               onClick={() => {
-                setShowReject(false);
+                closeAllForms();
                 setShowBlacklist((v) => !v);
               }}
               disabled={isPending}

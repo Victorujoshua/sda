@@ -5,12 +5,13 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: Admin portal — incremental improvements applied (icons, active state, crimson hero card, bigger logo). Changes not yet committed or deployed. Rebrand complete (Phases 1–3, 5–6 done; Phase 4 email templates deferred). Phase 5 manual infra steps still pending.
-Last completed: Admin portal — added lucide icons to sidebar nav items; active menu item now darker (ink/600) vs inactive (42% opacity/400); Total Applications stat card filled crimson with cream text; Imani logo height increased 32→44px. Build GREEN (2026-07-19).
-Next: Commit and push admin changes to trigger Vercel deploy. Then: set all 6 LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL=https://imaniventures.org in Vercel, execute Phase 5 Manual Infra Steps, apply 20260703000001_imani_rebrand.sql in Supabase. Pending decision: "Unlock full details" button terracotta vs crimson.
+Phase: NEEDS_DOCUMENTS FEATURE — LIVE. Both migrations applied and smoke-tested by user (draft save, submit, document upload all confirmed working). All 10 code files shipped. One env var outstanding.
+Last completed: LOOPS_TEMPLATE_DOCUMENTS_REQUESTED added to .env.local.example (2026-07-22). User creating Loops template and adding ID to .env.local + Vercel.
+Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template with variables: applicant_name, business_name, documents_note. Until done, "request documents" email is silent (status change + audit log still work). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
-  - ACTION REQUIRED: All 6 LOOPS_TEMPLATE_* env vars must be set in Vercel Production to match .env.local values. Until done, all transactional emails will fail silently in production.
+  - ACTION REQUIRED: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED to Vercel env vars + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). Status change + audit log work without it; email is silent until set.
+  - ACTION REQUIRED: All 7 LOOPS_TEMPLATE_* env vars (incl. DOCUMENTS_REQUESTED) must be set in Vercel Production. Until done, transactional emails fail silently in production.
   - ACTION REQUIRED: NEXT_PUBLIC_APP_URL must be set to https://imaniventures.org in Vercel (currently http://localhost:3000 in .env.local) — admin invite links will otherwise point to localhost.
   - Portfolio images (portfolio-fundora.png, portfolio-Kidcode.png, portfolio-rent and rig.png) may still be broken (<1KB each). Real image files must be placed in public/images/ with those exact names, then restart dev server to clear Next.js image cache.
   - Phase 4 DEFERRED: Loops email templates still SDA-branded. Will be re-done in Imani palette in a later phase.
@@ -28,8 +29,8 @@ Known open issues:
   - /contact route does not exist — omitted from footer nav pending decision to create page or remove permanently.
   - LOOPS_ADMIN_EMAIL=support@imaniventures.org in .env.local — verify this mailbox is live before going to production.
   - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
-Last updated: 2026-07-19.
-GitHub: commit 7c9ca3e is HEAD on master and the live Vercel deploy. Current session changes (admin sidebar icons + active state + hero card + logo) are local only — not yet committed or pushed.
+Last updated: 2026-07-22 (.env.local.example updated with DOCUMENTS_REQUESTED key).
+GitHub: commit 0bbd6e9 pushed to master (github.com/Victorujoshua/sda). Vercel auto-deploy triggered.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -733,6 +734,11 @@ Build Log — 2026-07-16 PathCUnlockView — bullet list added to membership gat
   Not yet pushed — push pending.
   Files changed: components/investor/PathCUnlockView.tsx
 
+Build Log — 2026-07-19 GitHub push — admin portal improvements
+  Committed and pushed abe48b7 to origin/master. Vercel auto-deploy triggered.
+  Files staged: app/(admin)/admin/layout.tsx, app/(admin)/admin/page.tsx,
+    components/admin/AdminSidebar.tsx (new), build.md
+
 Build Log — 2026-07-19 Admin portal — sidebar icons, active state, crimson hero card, bigger logo
   Visual improvements to admin portal. No data, routes, or logic changed.
   Files changed:
@@ -753,7 +759,142 @@ Build Log — 2026-07-19 Admin portal — sidebar icons, active state, crimson h
         hero=false: unchanged cream bg + hairline border + ink text (existing style).
         "Total applications" card now passes hero prop — the only card with crimson fill.
   Build: NEXT_TURBO=0 npx next build — GREEN. All 33 routes, TypeScript clean.
-  Not yet committed or pushed — local only.
+  Committed abe48b7, pushed to origin/master. Vercel auto-deploy triggered. (2026-07-19)
+
+Build Log — 2026-07-22 needs_documents feature — Phase 1 audit + Phase 2 plan (no code change)
+  Phase 1 audit findings:
+
+  application_status is a Postgres enum (not CHECK constraint, not free text).
+  Current values: draft, pending, under_review, approved, rejected.
+  Adding needs_documents requires: ALTER TYPE application_status ADD VALUE 'needs_documents'.
+
+  document_type is also a Postgres enum: financials, bank_statement.
+  Supporting docs require: ALTER TYPE document_type ADD VALUE 'supporting'.
+  Naming convention: ${userId}/${applicationId}/${type}/${Date.now()}.${ext}
+  Financials bucket: financial-records. Bank bucket: bank-statements.
+  Supporting: new private bucket supporting-documents, same naming pattern.
+
+  Blacklisted is NOT a status. It is is_blacklisted boolean on profiles, enforced by
+  a BEFORE INSERT trigger (check_blacklist_before_application).
+
+  Edit lock is UI-only:
+    - ApplyPage queries .eq("status", "draft") — non-draft apps render empty form
+    - saveDraft sets status: "draft" on every update — would overwrite needs_documents
+    - RLS applications_own_update: USING (user_id = auth.uid()) — no status filter
+    - RLS app_docs_own_insert: EXISTS check on user_id only — no status filter
+    Both RLS policies need tightening in the migration.
+
+  Phase 2 implementation plan (awaiting user go-ahead):
+
+  Migration SQL (20260722000001_needs_documents_status.sql) — for user to apply manually:
+    ALTER TYPE application_status ADD VALUE 'needs_documents';
+    ALTER TYPE document_type ADD VALUE 'supporting';
+    ALTER TABLE applications ADD COLUMN documents_requested_note text;
+    DROP INDEX applications_one_active_per_user;
+    CREATE UNIQUE INDEX applications_one_active_per_user ON applications (user_id)
+      WHERE status IN ('pending', 'under_review', 'needs_documents');
+    DROP POLICY "applications_own_update" ON applications;
+    CREATE POLICY "applications_own_update" ON applications FOR UPDATE TO authenticated
+      USING (user_id = auth.uid() AND status IN ('draft', 'needs_documents'))
+      WITH CHECK (user_id = auth.uid());
+    DROP POLICY "app_docs_own_insert" ON application_documents;
+    CREATE POLICY "app_docs_own_insert" ON application_documents FOR INSERT TO authenticated
+      WITH CHECK (EXISTS (SELECT 1 FROM applications a
+        WHERE a.id = application_documents.application_id
+          AND a.user_id = auth.uid()
+          AND a.status IN ('draft', 'needs_documents')));
+
+  Code files to change (10 files):
+    lib/email/loops.ts — add DOCUMENTS_REQUESTED template + LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var
+    app/actions/admin.ts — add requestDocuments() action; fix 3 email discards; add audit type
+    app/actions/applications.ts — fix saveDraft (remove status from update payload); fix submitApplication
+      (allow needs_documents as starting state; send admin email on re-submit; fix 2 email discards)
+    app/(app)/dashboard/apply/page.tsx — fetch needs_documents apps; pass note to form
+    app/(app)/dashboard/apply/ApplyForm.tsx — banner for documents_note; supporting docs uploader (max 5)
+    app/(app)/dashboard/page.tsx — needs_documents panel case with re-open CTA
+    components/admin/ApplicationActions.tsx — Request documents button + note textarea
+    app/(admin)/admin/applications/[id]/page.tsx — show documents_requested_note + supporting docs
+
+  Supporting doc constraints: PDF/Excel/CSV, max 10MB per file, max 5 files.
+  Email for documents request: LOOPS_TEMPLATE_DOCUMENTS_REQUESTED
+    variables: applicant_name, business_name, documents_note
+  Re-submit sends NEW_APPLICATION_ADMIN to admin only (not APPLICATION_SUBMITTED again).
+
+  No code written this session.
+
+Build Log — 2026-07-22 Email audit — silent discard bug in all 5 application-status sends (no code change)
+  Audit request: verify that all 5 application-status email transitions actually send and that
+  sendEmail() errors are not silently discarded (same inviteAdmin pattern).
+
+  Findings:
+    sendEmail() in lib/email/loops.ts: never throws. Returns { error?: string }. Already guards
+    against missing API key and missing template ID with console.error. inviteAdmin was previously
+    fixed to capture the return value. None of the 5 application-status calls were updated.
+
+    All 5 send call sites discard the return value:
+      applications.ts:136  APPLICATION_SUBMITTED to applicant     — discard
+      applications.ts:154  NEW_APPLICATION_ADMIN to admin team    — discard
+      admin.ts:108         APPLICATION_UNDER_REVIEW to applicant  — discard
+      admin.ts:149         APPLICATION_APPROVED to applicant      — discard
+      admin.ts:197         APPLICATION_REJECTED to applicant      — discard
+
+    Rejection reason (APPLICATION_REJECTED template requires applicant_name, business_name,
+    rejection_reason): ALL THREE are correctly populated.
+      - UI (ApplicationActions.tsx:167): textarea shown on Reject click; confirm button disabled
+        while empty (line 179 !rejectionReason.trim())
+      - Server (admin.ts:169): guard `if (!rejectionReason.trim()) return { error: ... }`
+      - Template call (admin.ts:200–203): rejection_reason: rejectionReason.trim() ✓
+
+    Secondary issue: NEW_APPLICATION_ADMIN send is guarded by `if (adminEmail)` where
+    adminEmail = process.env.LOOPS_ADMIN_EMAIL. If env var is absent, block is silently skipped
+    with no log.
+
+  Proposed fix (not yet applied — awaiting approval):
+    All 5 call sites: const r = await sendEmail(...); if (r.error) { console.error("[fn] email FAILED:", r.error); }
+    Email failure should NOT roll back the status change — DB write succeeded, email is non-fatal.
+    Add console.warn for missing LOOPS_ADMIN_EMAIL so the skip is visible in logs.
+
+  No code changed this session.
+
+Build Log — 2026-07-20 CRITICAL: Payment verify silent-failure fix
+  Root cause: verify/route.ts and webhooks/paystack/route.ts used fire-and-forget DB writes
+  (same pattern as inviteAdmin bug). profiles.update({ has_paid_membership: true }) could fail
+  silently while verify still returned { success: true }. Frontend redirected to /opportunities;
+  middleware saw has_paid_membership=false and bounced investor back to /membership immediately.
+
+  Files changed:
+    - app/api/payments/verify/route.ts (COMPLETE REWRITE)
+        membership_payments.update now uses .select() — detects 0-rows-matched → 500.
+        profiles.update checks error → 500 on failure.
+        Audit log is best-effort (logs error, does not fail response).
+        console.log at reference receipt, Paystack API response, and successful activation.
+        console.error with detail on every failure path.
+    - app/api/webhooks/paystack/route.ts (COMPLETE REWRITE)
+        Same error-surfacing pattern. Returns 500 on DB write failures so Paystack retries.
+        Idempotency check retained: if payment.status === "success", returns 200 immediately.
+        Verbose logging throughout.
+    - components/investor/MembershipModal.tsx (MODIFIED)
+        onSuccess handler now distinguishes error cases:
+          402 → "Payment could not be confirmed. If you were charged, contact support."
+          5xx → "Payment received but confirmation failed. Contact support — access activated shortly."
+          Network error → "Network error during confirmation. If you were charged, contact support."
+        Previously all failure cases said "No money was taken. Try again." (false for 5xx cases).
+
+  Webhook URL to register in Paystack dashboard: https://imaniventures.org/api/webhooks/paystack
+
+  MANUAL ACTIONS REQUIRED (not done in code):
+    1. Confirm PAYSTACK_SECRET_KEY in Vercel Production is the LIVE secret key (not test key).
+       If test key is set, Paystack verify API returns non-success for live transactions → 402.
+    2. Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard.
+    3. Run reconciliation SQL to find and fix affected investors:
+         SELECT p.id, p.full_name, mp.paystack_reference, mp.amount_kobo, mp.paid_at
+         FROM membership_payments mp
+         JOIN profiles p ON p.id = mp.user_id
+         WHERE mp.status = 'success' AND p.has_paid_membership = false;
+       For each confirmed investor: UPDATE profiles SET has_paid_membership = true WHERE id = '<uuid>';
+
+  Build: NEXT_TURBO=0 npx next build — GREEN. All 33 routes, TypeScript clean.
+  Committed 0bbd6e9, pushed to origin/master. Vercel auto-deploy triggered. (2026-07-20)
 
 Build Log — 2026-07-09 FAQ bullet style — crimson circles
   Updated ul() helper in faq/page.tsx: replaced default browser disc bullets with custom 7px crimson filled circles.
@@ -4427,6 +4568,79 @@ Session 64 — 2026-06-26 — Signup page copy tweak
 ```
 Session 63 — 2026-06-26 — Hero image update
 
+Build Log — 2026-07-22 needs_documents feature — Phase 2 implementation (10 files)
+  Implements the full needs_documents applicant-document-request flow.
+
+  Migration files (for user to apply manually — NOT run by Claude):
+    supabase/migrations/20260722000001_needs_documents_enums.sql (Pass 1 — enums only)
+      ALTER TYPE application_status ADD VALUE 'needs_documents';
+      ALTER TYPE document_type ADD VALUE 'supporting';
+    supabase/migrations/20260722000002_needs_documents_schema.sql (Pass 2 — everything else)
+      ALTER TABLE applications ADD COLUMN documents_requested_note text;
+      Rebuilds applications_one_active_per_user index (adds needs_documents to WHERE clause).
+      Tightens applications_own_update RLS: USING (user_id = auth.uid() AND status IN ('draft', 'needs_documents')).
+      Tightens app_docs_own_insert RLS: EXISTS check now requires a.status IN ('draft', 'needs_documents').
+      Creates supporting-documents storage bucket (public=false).
+      Creates supporting_docs_own_upload storage policy (foldername[1] = auth.uid()).
+
+  Code changes (10 files):
+    lib/email/loops.ts
+      Added DOCUMENTS_REQUESTED template key (reads LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var).
+    app/actions/admin.ts
+      Added requestDocuments(applicationId, note) action.
+        Guards: empty note → error; approved/rejected → error.
+        Updates status → needs_documents, sets documents_requested_note, reviewed_by, reviewed_at.
+        Writes audit log (action: "application.documents_requested").
+        Sends DOCUMENTS_REQUESTED email (applicant_name, business_name, documents_note).
+      Fixed 3 email silent-discards: setApplicationUnderReview, approveApplication, rejectApplication.
+      Added "application.documents_requested" to AuditAction type.
+    app/actions/applications.ts
+      saveDraft: separated INSERT (status: "draft") from UPDATE (no status field) — prevents
+        overwriting needs_documents status on autosave.
+      submitApplication: accepts both "draft" and "needs_documents" as starting status.
+        isReopen = status was needs_documents → sets status to under_review (not pending).
+        Always sets documents_requested_note: null on submit to clear the request banner.
+        Sends APPLICATION_SUBMITTED only on first submit (not resubmit).
+        Sends NEW_APPLICATION_ADMIN on both first submit and resubmit.
+        Fixed 2 email silent-discards.
+      saveDocumentRecord: document_type now accepts "financials" | "bank_statement" | "supporting".
+      Duplicate-check .in() includes needs_documents.
+    app/(app)/dashboard/apply/page.tsx
+      Queries .in("status", ["draft", "needs_documents"]).
+      Selects documents_requested_note; passes documentsNote prop to ApplyForm.
+    app/(app)/dashboard/apply/ApplyForm.tsx
+      New prop: documentsNote?: string | null.
+      Documents-requested banner shown on all steps when note is present.
+      Step 4: third section "Supporting documents" — up to 5 files, 10MB each, PDF/Excel/CSV.
+      handleSupportingDocumentUpload: uploads to supporting-documents bucket, calls saveDocumentRecord.
+    app/(app)/dashboard/page.tsx
+      needs_documents case: 2px crimson border, "Action required" eyebrow, documents_requested_note box,
+        "Update application" CTA → /dashboard/apply?resume=<id>.
+    components/admin/ApplicationActions.tsx
+      New state: showRequestDocs, docsNote.
+      "Request documents" button shown when canRequestDocs (not final, not draft, not already needs_documents).
+      Inline form: 4-row textarea, "Send request" button (disabled when empty).
+      "Mark under review" shown for needs_documents status too.
+      closeAllForms() helper closes all three inline forms.
+    app/(admin)/admin/applications/[id]/page.tsx
+      needs_documents added to STATUS_LABEL.
+      documents_requested_note box shown when status is needs_documents.
+      docBucket() / docLabel() handle supporting type → supporting-documents bucket.
+      currentStatus cast on ApplicationActions includes | "needs_documents".
+      app object cast to include new fields (Supabase types lag migration).
+    app/(admin)/admin/applications/page.tsx
+      needs_documents added to STATUS_LABEL, STATUS_BADGE (maroon tint), status dropdown.
+
+  TypeScript cast strategy: Supabase generated types don't include new enum values or columns
+  until types are regenerated after migration. All new values cast with `as never` (update payloads),
+  `as never[]` (.in() arrays), and `as unknown as ExplicitType` (fetched row objects).
+  Regenerate types after migrations are applied to remove casts.
+
+  Email: new LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var required. Create Loops template with
+  variables: applicant_name, business_name, documents_note.
+
+  Build: NEXT_TURBO=0 npx next build — GREEN. 34 routes, 0 TypeScript errors. (2026-07-22)
+
   Changed:
   - components/marketing/Hero.tsx: backgroundImage updated from '/images/hero_bg.jpg'
     to '/images/hero.png' (Nigerian fashion designer with sketch board — client-provided photo)
@@ -4952,3 +5166,69 @@ Build Log — 2026-07-06 Mobile responsiveness pass
   - app/(app)/dashboard/page.tsx: imani-inner-pad
 
   Build: NEXT_TURBO=0 npx next build -> GREEN. 33 routes, zero errors (2026-07-06).
+
+Build Log — 2026-07-22 Pass 2 migration — security hardening
+  Corrected supabase/migrations/20260722000002_needs_documents_schema.sql.
+  No app code changed. Migration SQL only.
+
+  Fix 1 — applications_own_update WITH CHECK privilege-escalation hole:
+    Original: WITH CHECK (user_id = auth.uid())
+    Problem:  no status constraint on the new row — an applicant could send PATCH /applications/{id}
+              with status="approved" or status="rejected" via a direct REST call and RLS would pass.
+    Fixed:    WITH CHECK (user_id = auth.uid() AND status IN ('draft', 'needs_documents', 'pending', 'under_review'))
+    Rationale: these are the only four statuses that legitimate server actions write via the
+              authenticated client:
+                draft/needs_documents  — saveDraft (no status in payload; row retains current value)
+                pending                — submitApplication first submit (draft → pending)
+                under_review           — submitApplication resubmit (needs_documents → under_review)
+              approved and rejected are excluded. Only admin server actions (service role, bypasses RLS)
+              may write those values.
+
+  Fix 2 — supporting-documents bucket file_size_limit:
+    Added file_size_limit = 10485760 (10 MB) to the bucket INSERT.
+    Changed ON CONFLICT DO NOTHING → DO UPDATE SET public=false, file_size_limit=10485760
+    so the limit is applied even if the bucket was created without it in a prior attempt.
+
+  Fix 3 — supporting-documents storage SELECT policy (new):
+    "supporting_docs_own_select" — FOR SELECT TO authenticated.
+    USING: bucket_id = 'supporting-documents' AND foldername[1] = auth.uid().
+    No status restriction — read access is useful at review step after submission.
+
+  Fix 4 — supporting-documents storage DELETE policy (new):
+    "supporting_docs_own_delete" — FOR DELETE TO authenticated.
+    USING: bucket_id + foldername[1] = auth.uid() + EXISTS check on applications table
+    requiring a.id = foldername[2]::uuid AND a.status IN ('draft', 'needs_documents').
+    Applicant can remove a wrongly-uploaded file only while the application is editable.
+
+  Fix 5 — DROP POLICY IF EXISTS on all three storage policies (idempotency):
+    Prevents "policy already exists" errors if migration is run twice.
+
+  Files changed: supabase/migrations/20260722000002_needs_documents_schema.sql
+  Build: no build run needed (SQL-only change; code build was already GREEN from prior session).
+
+Build Log — 2026-07-22 needs_documents feature — migrations applied, feature confirmed live
+  No code written this session. Verification only.
+
+  User applied both migration passes in Supabase SQL editor and smoke-tested:
+    - Draft save: confirmed status not overwritten (saveDraft fix working)
+    - Submit: confirmed draft → pending flow
+    - Document upload: confirmed financial-records, bank-statements, supporting-documents buckets
+      all accepting uploads via signed paths
+
+  Code audit confirmed all 10 files already in place from prior session:
+    lib/email/loops.ts, app/actions/admin.ts, app/actions/applications.ts,
+    app/(app)/dashboard/apply/page.tsx, app/(app)/dashboard/apply/ApplyForm.tsx,
+    app/(app)/dashboard/page.tsx, components/admin/ApplicationActions.tsx,
+    app/(admin)/admin/applications/[id]/page.tsx, app/(admin)/admin/applications/page.tsx,
+    supabase/migrations/20260722000001_needs_documents_enums.sql (Pass 1 — applied),
+    supabase/migrations/20260722000002_needs_documents_schema.sql (Pass 2 — applied).
+
+  Outstanding: LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var not yet set — "request documents"
+  email will be silent until added. All other functionality (status change, note storage,
+  admin audit log, applicant banner, resubmit flow) is live.
+
+Build Log — 2026-07-22 .env.local.example — LOOPS_TEMPLATE_DOCUMENTS_REQUESTED added
+  Added LOOPS_TEMPLATE_DOCUMENTS_REQUESTED= to .env.local.example, grouped with the other
+  LOOPS_TEMPLATE_* vars. Includes inline comment: "Variables: applicant_name, business_name, documents_note".
+  User is creating the Loops template and will paste the opaque transactionalId into .env.local and Vercel.
+  Files changed: .env.local.example

@@ -11,6 +11,7 @@ const STATUS_LABEL: Record<string, string> = {
   under_review: "Under review",
   approved: "Approved",
   rejected: "Rejected",
+  needs_documents: "Documents requested",
 };
 
 function fmt(n: number | null) {
@@ -66,6 +67,18 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+function docBucket(type: string): string {
+  if (type === "financials") return "financial-records";
+  if (type === "bank_statement") return "bank-statements";
+  return "supporting-documents";
+}
+
+function docLabel(type: string): string {
+  if (type === "financials") return "Financial statements";
+  if (type === "bank_statement") return "Bank statements";
+  return "Supporting document";
+}
+
 export default async function ApplicationDetailPage({
   params,
 }: {
@@ -82,7 +95,7 @@ export default async function ApplicationDetailPage({
     : { data: null };
   const actorRole = actorProfile?.role ?? "admin";
 
-  const [{ data: app }, { data: docs }, ] = await Promise.all([
+  const [{ data: rawApp }, { data: docs }] = await Promise.all([
     db
       .from("applications")
       .select("*")
@@ -94,7 +107,28 @@ export default async function ApplicationDetailPage({
       .eq("application_id", id),
   ]);
 
-  if (!app) notFound();
+  if (!rawApp) notFound();
+
+  // Supabase generated types lag behind applied migrations — use unknown cast
+  // to include new enum value (needs_documents) and new column added in
+  // migrations 20260722000001/20260722000002.
+  const app = rawApp as unknown as {
+    id: string;
+    user_id: string;
+    status: "draft" | "pending" | "under_review" | "approved" | "rejected" | "needs_documents";
+    business_name: string;
+    founder_name: string;
+    contact_email: string;
+    contact_phone: string | null;
+    business_description: string;
+    monthly_revenue: number | null;
+    funding_amount: number | null;
+    funding_type: string | null;
+    submitted_at: string | null;
+    admin_notes: string | null;
+    rejection_reason: string | null;
+    documents_requested_note: string | null;
+  };
 
   // Fetch profile separately
   const { data: profile } = await db
@@ -106,8 +140,7 @@ export default async function ApplicationDetailPage({
   // Generate signed URLs for documents (10 minutes = 600s)
   const docsWithUrls = await Promise.all(
     (docs ?? []).map(async (doc) => {
-      const bucket =
-        doc.document_type === "financials" ? "financial-records" : "bank-statements";
+      const bucket = docBucket(doc.document_type);
       const { data: signed } = await db.storage
         .from(bucket)
         .createSignedUrl(doc.file_path, 600);
@@ -317,9 +350,7 @@ export default async function ApplicationDetailPage({
                         textTransform: "capitalize",
                       }}
                     >
-                      {doc.document_type === "financials"
-                        ? "Financial statements"
-                        : "Bank statements"}
+                      {docLabel(doc.document_type)}
                     </p>
                     <p
                       style={{
@@ -369,6 +400,42 @@ export default async function ApplicationDetailPage({
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Documents-requested note (shown when status is needs_documents) */}
+          {app.status === "needs_documents" && app.documents_requested_note && (
+            <div
+              style={{
+                border: "1px solid rgba(17,17,17,0.15)",
+                backgroundColor: "rgba(17,17,17,0.03)",
+                padding: "16px 20px",
+                marginTop: 32,
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 13,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "var(--muted)",
+                  margin: "0 0 8px",
+                }}
+              >
+                Documents requested — note sent to applicant
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 16,
+                  color: "var(--ink)",
+                  lineHeight: 1.6,
+                  margin: 0,
+                }}
+              >
+                {app.documents_requested_note}
+              </p>
             </div>
           )}
 
@@ -486,6 +553,7 @@ export default async function ApplicationDetailPage({
                   | "under_review"
                   | "approved"
                   | "rejected"
+                  | "needs_documents"
               }
               isBlacklisted={profile?.is_blacklisted ?? false}
               actorRole={actorRole}

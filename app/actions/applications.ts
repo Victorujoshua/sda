@@ -25,9 +25,8 @@ export async function saveDraft(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const payload = {
+  const fields = {
     user_id: user.id,
-    status: "draft" as const,
     business_name: formData.business_name ?? "",
     founder_name: formData.founder_name ?? "",
     contact_email: formData.contact_email ?? "",
@@ -39,9 +38,10 @@ export async function saveDraft(
   };
 
   if (applicationId) {
+    // UPDATE — do not overwrite status; it may be 'needs_documents'
     const { data, error } = await supabase
       .from("applications")
-      .update(payload)
+      .update(fields)
       .eq("id", applicationId)
       .eq("user_id", user.id)
       .select("id")
@@ -50,9 +50,10 @@ export async function saveDraft(
     return { id: data.id };
   }
 
+  // INSERT — status defaults to 'draft' in DB schema
   const { data, error } = await supabase
     .from("applications")
-    .insert(payload)
+    .insert({ ...fields, status: "draft" as const })
     .select("id")
     .single();
   if (error) return { error: error.message };
@@ -75,6 +76,15 @@ export async function submitApplication(
     .eq("user_id", user.id)
     .single();
   if (fetchError || !app) return { error: "Application not found." };
+
+  // Server-side edit-state guard (RLS is the enforcement layer; this is defence-in-depth)
+  // Cast to string — "needs_documents" isn't in generated types until migration types are regenerated.
+  const appStatus = app.status as string;
+  if (appStatus !== "draft" && appStatus !== "needs_documents") {
+    return { error: "This application cannot be submitted in its current state." };
+  }
+
+  const isReopen = appStatus === "needs_documents";
 
   const parsed = fullApplicationSchema.safeParse({
     business_name: app.business_name,
@@ -103,11 +113,12 @@ export async function submitApplication(
     };
   }
 
+  // Check for OTHER active applications (unique index enforces this at DB level too)
   const { data: existing } = await supabase
     .from("applications")
     .select("id")
     .eq("user_id", user.id)
-    .in("status", ["pending", "under_review"])
+    .in("status", ["pending", "under_review", "needs_documents"] as never[])
     .neq("id", applicationId)
     .maybeSingle();
   if (existing) {
@@ -119,9 +130,15 @@ export async function submitApplication(
 
   const submittedAt = new Date().toISOString();
 
+  // Resubmission: status → under_review, clear request note
+  // First submit: status → pending
   const { error: updateError } = await supabase
     .from("applications")
-    .update({ status: "pending", submitted_at: submittedAt })
+    .update({
+      status: isReopen ? "under_review" : "pending",
+      submitted_at: submittedAt,
+      documents_requested_note: null as never,
+    })
     .eq("id", applicationId)
     .eq("user_id", user.id);
   if (updateError) return { error: updateError.message };
@@ -132,26 +149,33 @@ export async function submitApplication(
     year: "numeric",
   });
 
-  // Confirmation email to applicant
-  await sendEmail(
-    TEMPLATES.APPLICATION_SUBMITTED,
-    app.contact_email,
-    {
-      applicant_name: profile?.full_name ?? app.founder_name,
-      business_name: app.business_name,
-      submitted_date: submittedDate,
+  if (!isReopen) {
+    // First submission only: send confirmation to applicant
+    const r1 = await sendEmail(
+      TEMPLATES.APPLICATION_SUBMITTED,
+      app.contact_email,
+      {
+        applicant_name: profile?.full_name ?? app.founder_name,
+        business_name: app.business_name,
+        submitted_date: submittedDate,
+      }
+    );
+    if (r1.error) {
+      console.error("[submitApplication] APPLICATION_SUBMITTED failed:", r1.error);
     }
-  );
+  }
 
-  // New application alert to admin
+  // Notify admin for both first submit and resubmission
   const adminEmail = process.env.LOOPS_ADMIN_EMAIL;
-  if (adminEmail) {
+  if (!adminEmail) {
+    console.warn("[submitApplication] LOOPS_ADMIN_EMAIL not set — admin notification skipped");
+  } else {
     const fundingAmount = app.funding_amount
       ? `₦${Number(app.funding_amount).toLocaleString("en-NG")}`
       : "Not specified";
     const adminLink = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/admin/applications/${applicationId}`;
 
-    await sendEmail(
+    const r2 = await sendEmail(
       TEMPLATES.NEW_APPLICATION_ADMIN,
       adminEmail,
       {
@@ -162,6 +186,9 @@ export async function submitApplication(
         admin_link: adminLink,
       }
     );
+    if (r2.error) {
+      console.error("[submitApplication] NEW_APPLICATION_ADMIN failed:", r2.error);
+    }
   }
 
   return {};
@@ -170,7 +197,7 @@ export async function submitApplication(
 export async function saveDocumentRecord(
   applicationId: string,
   filePath: string,
-  documentType: "financials" | "bank_statement"
+  documentType: "financials" | "bank_statement" | "supporting"
 ): Promise<{ error?: string }> {
   const supabase = await createClient();
   const {
@@ -188,7 +215,7 @@ export async function saveDocumentRecord(
 
   const { error } = await supabase.from("application_documents").insert({
     application_id: applicationId,
-    document_type: documentType,
+    document_type: documentType as never,
     file_path: filePath,
   });
   if (error) return { error: error.message };

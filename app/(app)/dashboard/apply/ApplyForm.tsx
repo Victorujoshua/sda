@@ -17,6 +17,9 @@ import {
 import SignupProgress from "@/components/auth/SignupProgress";
 import MobileStepIndicator from "@/components/auth/MobileStepIndicator";
 
+const MAX_SUPPORTING_FILES = 5;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
 type InitialData = {
   id: string;
   business_name: string;
@@ -34,6 +37,7 @@ type Props = {
   initialApplicationId: string | undefined;
   startStep: number;
   userId: string;
+  documentsNote?: string | null;
 };
 
 // Maps apply form step (1-5) to milestone step (3-6)
@@ -56,7 +60,7 @@ const STEP_SUBS = [
   "Tell us about your business and primary contact.",
   "Describe what you do and your current revenue.",
   "How much are you raising and on what terms?",
-  "Financial records and bank statements. Both optional.",
+  "Financial records, bank statements, and supporting documents.",
   "Check everything before you submit.",
 ];
 
@@ -103,6 +107,7 @@ export default function ApplyForm({
   initialApplicationId,
   startStep,
   userId,
+  documentsNote,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(startStep);
@@ -114,6 +119,9 @@ export default function ApplyForm({
   const [docUploaded, setDocUploaded] = useState<{ financials?: string; bank_statement?: string }>({});
   const [financialFile, setFinancialFile] = useState<File | null>(null);
   const [bankFile, setBankFile] = useState<File | null>(null);
+  const [supportingFiles, setSupportingFiles] = useState<File[]>([]);
+  const [supportingUploaded, setSupportingUploaded] = useState<string[]>([]);
+  const [supportingDocError, setSupportingDocError] = useState<string | null>(null);
 
   const {
     register,
@@ -218,12 +226,42 @@ export default function ApplyForm({
     setDocErrors((e) => ({ ...e, [type]: undefined }));
   }
 
+  async function handleSupportingDocumentUpload(file: File) {
+    if (!applicationId) return;
+    const ext = file.name.split(".").pop();
+    const path = `${userId}/${applicationId}/supporting/${Date.now()}.${ext}`;
+
+    const supabase = createClient();
+    const { error: uploadError } = await supabase.storage
+      .from("supporting-documents")
+      .upload(path, file);
+
+    if (uploadError) {
+      setSupportingDocError(
+        uploadError.message.includes("Bucket not found") || uploadError.message.includes("not found")
+          ? "Supporting documents storage not yet configured. Skip for now."
+          : `Upload failed: ${uploadError.message}`
+      );
+      return;
+    }
+
+    const recordResult = await saveDocumentRecord(applicationId, path, "supporting");
+    if (recordResult.error) {
+      setSupportingDocError(`Failed to record document: ${recordResult.error}`);
+      return;
+    }
+    setSupportingUploaded((prev) => [...prev, file.name]);
+  }
+
   async function handleDocumentsNext() {
     setServerError(null);
     setDocUploading(true);
     const uploads: Promise<void>[] = [];
     if (financialFile) uploads.push(handleDocumentUpload(financialFile, "financials"));
     if (bankFile) uploads.push(handleDocumentUpload(bankFile, "bank_statement"));
+    for (const file of supportingFiles) {
+      uploads.push(handleSupportingDocumentUpload(file));
+    }
     await Promise.all(uploads);
     setDocUploading(false);
     setStep(5);
@@ -275,6 +313,43 @@ export default function ApplyForm({
           <div className="imani-mobile-steps">
             <MobileStepIndicator currentStep={milestoneStep} totalSteps={6} />
           </div>
+
+          {/* Documents-requested banner — shown on all steps when re-opening */}
+          {documentsNote && (
+            <div
+              style={{
+                border: "1px solid rgba(178,35,41,0.35)",
+                backgroundColor: "rgba(178,35,41,0.06)",
+                padding: "16px 20px",
+                marginBottom: 32,
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "var(--maroon)",
+                  margin: "0 0 8px",
+                  fontWeight: 500,
+                }}
+              >
+                Action required — documents requested
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 15,
+                  color: "var(--ink)",
+                  lineHeight: 1.65,
+                  margin: 0,
+                }}
+              >
+                {documentsNote}
+              </p>
+            </div>
+          )}
 
           {/* Step heading */}
           <h1 style={{ fontFamily: "var(--sr)", fontSize: "32px", fontWeight: 300, letterSpacing: "-0.02em", color: "var(--ink)", margin: "0 0 8px" }}>
@@ -379,10 +454,11 @@ export default function ApplyForm({
           {/* ── Step 4: Documents ── */}
           {step === 4 && (
             <div>
+              {/* Financial statements */}
               <div style={fieldStyle}>
                 <label style={labelStyle}>
                   Financial statements{" "}
-                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF or Excel, max 10MB)</span>
+                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF or Excel, max 10 MB)</span>
                 </label>
                 {docUploaded.financials ? (
                   <div style={{ padding: "12px 16px", border: "1px solid var(--hairline)", fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }}>
@@ -394,10 +470,11 @@ export default function ApplyForm({
                 {docErrors.financials && <p style={errorStyle}>{docErrors.financials}</p>}
               </div>
 
+              {/* Bank statements */}
               <div style={fieldStyle}>
                 <label style={labelStyle}>
                   Bank statements{" "}
-                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF, last 6 months, max 10MB)</span>
+                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>(PDF, last 6 months, max 10 MB)</span>
                 </label>
                 {docUploaded.bank_statement ? (
                   <div style={{ padding: "12px 16px", border: "1px solid var(--hairline)", fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }}>
@@ -407,6 +484,85 @@ export default function ApplyForm({
                   <input type="file" accept=".pdf" onChange={(e) => setBankFile(e.target.files?.[0] ?? null)} style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }} />
                 )}
                 {docErrors.bank_statement && <p style={errorStyle}>{docErrors.bank_statement}</p>}
+              </div>
+
+              {/* Supporting documents — repeatable, max 5 */}
+              <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: 24, marginTop: 8 }}>
+                <label style={labelStyle}>
+                  Supporting documents{" "}
+                  <span style={{ color: "rgba(17,17,17,0.4)", fontWeight: 400, fontSize: "14px" }}>
+                    (optional — up to {MAX_SUPPORTING_FILES} files, PDF or Excel, max 10 MB each)
+                  </span>
+                </label>
+
+                {/* Selected file list */}
+                {supportingFiles.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+                    {supportingFiles.map((file, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "10px 14px",
+                          border: "1px solid var(--hairline)",
+                          backgroundColor: supportingUploaded.includes(file.name) ? "rgba(17,17,17,0.03)" : "transparent",
+                        }}
+                      >
+                        <span style={{ fontFamily: "var(--in)", fontSize: 15, color: "var(--ink)" }}>
+                          {supportingUploaded.includes(file.name) ? "✓ " : ""}{file.name}
+                        </span>
+                        {!supportingUploaded.includes(file.name) && (
+                          <button
+                            type="button"
+                            onClick={() => setSupportingFiles((prev) => prev.filter((_, j) => j !== i))}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "rgba(17,17,17,0.4)",
+                              cursor: "pointer",
+                              fontSize: 20,
+                              lineHeight: 1,
+                              padding: "0 4px",
+                              flexShrink: 0,
+                            }}
+                            aria-label="Remove file"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add file input */}
+                {supportingFiles.length < MAX_SUPPORTING_FILES ? (
+                  <input
+                    type="file"
+                    accept=".pdf,.xlsx,.xls,.csv"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > MAX_FILE_SIZE) {
+                        setSupportingDocError(`"${file.name}" exceeds the 10 MB limit.`);
+                        e.target.value = "";
+                        return;
+                      }
+                      setSupportingDocError(null);
+                      setSupportingFiles((prev) => [...prev, file]);
+                      e.target.value = "";
+                    }}
+                    style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)" }}
+                  />
+                ) : (
+                  <p style={{ fontFamily: "var(--in)", fontSize: 14, color: "var(--muted)", margin: 0 }}>
+                    Maximum {MAX_SUPPORTING_FILES} files reached.
+                  </p>
+                )}
+
+                {supportingDocError && <p style={errorStyle}>{supportingDocError}</p>}
               </div>
             </div>
           )}
@@ -425,11 +581,14 @@ export default function ApplyForm({
               <ReviewRow label="Funding requested" value={watchedValues.funding_amount ? `₦${Number(watchedValues.funding_amount).toLocaleString()}` : "—"} />
               <ReviewRow label="Funding structure" value={watchedValues.funding_type ? FUNDING_TYPE_LABELS[watchedValues.funding_type] : "—"} />
 
-              {(docUploaded.financials || docUploaded.bank_statement) && (
+              {(docUploaded.financials || docUploaded.bank_statement || supportingUploaded.length > 0) && (
                 <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: 16, marginTop: 16 }}>
                   <p style={{ fontFamily: "var(--in)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(17,17,17,0.5)", margin: "0 0 8px" }}>Documents</p>
                   {docUploaded.financials && <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)", margin: "0 0 4px" }}>✓ Financial statements: {docUploaded.financials}</p>}
-                  {docUploaded.bank_statement && <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)", margin: 0 }}>✓ Bank statements: {docUploaded.bank_statement}</p>}
+                  {docUploaded.bank_statement && <p style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)", margin: "0 0 4px" }}>✓ Bank statements: {docUploaded.bank_statement}</p>}
+                  {supportingUploaded.map((name) => (
+                    <p key={name} style={{ fontFamily: "var(--in)", fontSize: 16, color: "var(--ink)", margin: "0 0 4px" }}>✓ Supporting: {name}</p>
+                  ))}
                 </div>
               )}
             </div>
@@ -456,7 +615,7 @@ export default function ApplyForm({
 
             {step === 4 && (
               <button type="button" onClick={handleDocumentsNext} disabled={docUploading} style={docUploading ? disabledBtnStyle : primaryBtnStyle}>
-                {docUploading ? "Uploading…" : (financialFile || bankFile) ? "Upload and continue" : "Skip for now"}
+                {docUploading ? "Uploading…" : (financialFile || bankFile || supportingFiles.length > 0) ? "Upload and continue" : "Skip for now"}
               </button>
             )}
 

@@ -10,6 +10,7 @@ type AuditAction =
   | "application.approved"
   | "application.rejected"
   | "application.under_review"
+  | "application.documents_requested"
   | "user.blacklisted"
   | "user.unblacklisted"
   | "user.deactivated"
@@ -97,7 +98,6 @@ export async function setApplicationUnderReview(
 
   await writeAudit(user.id, "application.under_review", "application", applicationId);
 
-  // Fetch application data for email
   const { data: app } = await db
     .from("applications")
     .select("contact_email, founder_name, business_name")
@@ -105,7 +105,7 @@ export async function setApplicationUnderReview(
     .single();
 
   if (app) {
-    await sendEmail(
+    const emailResult = await sendEmail(
       TEMPLATES.APPLICATION_UNDER_REVIEW,
       app.contact_email,
       {
@@ -113,6 +113,9 @@ export async function setApplicationUnderReview(
         business_name: app.business_name,
       }
     );
+    if (emailResult.error) {
+      console.error("[setApplicationUnderReview] email send FAILED:", emailResult.error);
+    }
   }
 
   revalidatePath(`/admin/applications/${applicationId}`);
@@ -138,7 +141,6 @@ export async function approveApplication(
 
   await writeAudit(user.id, "application.approved", "application", applicationId);
 
-  // Fetch application data for email
   const { data: app } = await db
     .from("applications")
     .select("contact_email, founder_name, business_name")
@@ -146,7 +148,7 @@ export async function approveApplication(
     .single();
 
   if (app) {
-    await sendEmail(
+    const emailResult = await sendEmail(
       TEMPLATES.APPLICATION_APPROVED,
       app.contact_email,
       {
@@ -154,6 +156,9 @@ export async function approveApplication(
         business_name: app.business_name,
       }
     );
+    if (emailResult.error) {
+      console.error("[approveApplication] email send FAILED:", emailResult.error);
+    }
   }
 
   revalidatePath(`/admin/applications/${applicationId}`);
@@ -186,7 +191,6 @@ export async function rejectApplication(
     rejection_reason: rejectionReason,
   });
 
-  // Fetch application data for email
   const { data: app } = await db
     .from("applications")
     .select("contact_email, founder_name, business_name")
@@ -194,7 +198,7 @@ export async function rejectApplication(
     .single();
 
   if (app) {
-    await sendEmail(
+    const emailResult = await sendEmail(
       TEMPLATES.APPLICATION_REJECTED,
       app.contact_email,
       {
@@ -203,11 +207,71 @@ export async function rejectApplication(
         rejection_reason: rejectionReason.trim(),
       }
     );
+    if (emailResult.error) {
+      console.error("[rejectApplication] email send FAILED:", emailResult.error);
+    }
   }
 
   revalidatePath(`/admin/applications/${applicationId}`);
   revalidatePath("/admin/applications");
   revalidatePath("/admin");
+  return {};
+}
+
+export async function requestDocuments(
+  applicationId: string,
+  note: string
+): Promise<{ error?: string }> {
+  if (!note.trim()) return { error: "A note explaining what is needed is required." };
+
+  const user = await getAdminUser();
+  const db = createAdminClient();
+
+  const { data: app } = await db
+    .from("applications")
+    .select("contact_email, founder_name, business_name, status")
+    .eq("id", applicationId)
+    .single();
+
+  if (!app) return { error: "Application not found." };
+  if (app.status === "approved" || app.status === "rejected") {
+    return { error: "Cannot request documents on a finalised application." };
+  }
+
+  const { error } = await db
+    .from("applications")
+    .update({
+      status: "needs_documents" as never,
+      documents_requested_note: note.trim() as never,
+      reviewed_by: user.id,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", applicationId);
+  if (error) return { error: error.message };
+
+  await writeAudit(
+    user.id,
+    "application.documents_requested",
+    "application",
+    applicationId,
+    { note: note.trim() }
+  );
+
+  const emailResult = await sendEmail(
+    TEMPLATES.DOCUMENTS_REQUESTED,
+    app.contact_email,
+    {
+      applicant_name: app.founder_name,
+      business_name: app.business_name,
+      documents_note: note.trim(),
+    }
+  );
+  if (emailResult.error) {
+    console.error("[requestDocuments] email send FAILED:", emailResult.error);
+  }
+
+  revalidatePath(`/admin/applications/${applicationId}`);
+  revalidatePath("/admin/applications");
   return {};
 }
 

@@ -4,11 +4,12 @@ import Link from "next/link";
 
 type Application = {
   id: string;
-  status: "draft" | "pending" | "under_review" | "approved" | "rejected";
+  status: "draft" | "pending" | "under_review" | "approved" | "rejected" | "needs_documents";
   business_name: string;
   created_at: string;
   submitted_at: string | null;
   rejection_reason: string | null;
+  documents_requested_note: string | null;
 };
 
 const STATUS_LABEL: Record<Application["status"], string> = {
@@ -17,6 +18,7 @@ const STATUS_LABEL: Record<Application["status"], string> = {
   under_review: "Under review",
   approved: "Approved",
   rejected: "Not approved",
+  needs_documents: "Action required",
 };
 
 export default async function DashboardPage({
@@ -48,12 +50,12 @@ export default async function DashboardPage({
 
   const { data: applications } = await supabase
     .from("applications")
-    .select("id, status, business_name, created_at, submitted_at, rejection_reason")
+    .select("id, status, business_name, created_at, submitted_at, rejection_reason, documents_requested_note")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(5);
 
-  const latestApp = (applications?.[0] as Application) ?? null;
+  const latestApp = (applications?.[0] as unknown as Application) ?? null;
   const firstName = profile?.full_name?.split(" ")[0] ?? "there";
   const justSubmitted = params.submitted === "true";
 
@@ -230,6 +232,106 @@ function ApplicantPanel({ app }: { app: Application | null }) {
     );
   }
 
+  if (app.status === "needs_documents") {
+    return (
+      <div>
+        <div
+          style={{
+            border: "2px solid rgba(178,35,41,0.35)",
+            padding: "28px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "var(--in)",
+              fontSize: 13,
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+              color: "var(--maroon)",
+              margin: "0 0 10px",
+              fontWeight: 500,
+            }}
+          >
+            {STATUS_LABEL.needs_documents}
+          </p>
+          <p
+            style={{
+              fontFamily: "var(--sr)",
+              fontSize: 22,
+              fontWeight: 300,
+              letterSpacing: "-0.01em",
+              color: "var(--ink)",
+              margin: "0 0 12px",
+            }}
+          >
+            {app.business_name}
+          </p>
+          <p
+            style={{
+              fontFamily: "var(--in)",
+              fontSize: 17,
+              color: "var(--muted)",
+              lineHeight: 1.7,
+              margin: "0 0 20px",
+            }}
+          >
+            Our team has reviewed your application and needs additional information before proceeding.
+          </p>
+          {app.documents_requested_note && (
+            <div
+              style={{
+                border: "1px solid rgba(178,35,41,0.3)",
+                backgroundColor: "rgba(178,35,41,0.06)",
+                padding: "16px 20px",
+                marginBottom: 24,
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "var(--maroon)",
+                  margin: "0 0 8px",
+                  fontWeight: 500,
+                }}
+              >
+                What&apos;s needed
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 16,
+                  color: "var(--ink)",
+                  lineHeight: 1.65,
+                  margin: 0,
+                }}
+              >
+                {app.documents_requested_note}
+              </p>
+            </div>
+          )}
+          <Link
+            href={`/dashboard/apply?resume=${app.id}`}
+            style={{
+              display: "inline-block",
+              fontFamily: "var(--in)",
+              fontSize: 14,
+              letterSpacing: "0.04em",
+              padding: "10px 22px",
+              backgroundColor: "var(--crimson)",
+              color: "var(--cream)",
+              textDecoration: "none",
+            }}
+          >
+            Update application
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (app.status === "pending" || app.status === "under_review") {
     return (
       <StatusCard
@@ -399,7 +501,7 @@ function StatusCard({
         style={{
           fontFamily: "var(--in)",
           fontSize: 17,
-          color: "var(--muted)",
+          color: highlight ? "var(--ink)" : "var(--muted)",
           lineHeight: 1.7,
           margin: 0,
         }}

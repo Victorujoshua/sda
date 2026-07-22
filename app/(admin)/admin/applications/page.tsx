@@ -7,16 +7,18 @@ const STATUS_LABEL: Record<string, string> = {
   under_review: "Under review",
   approved: "Approved",
   rejected: "Rejected",
+  needs_documents: "Docs requested",
 };
 
 type BadgeStyle = { bg: string; color: string };
 
 const STATUS_BADGE: Record<string, BadgeStyle> = {
-  draft:        { bg: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" },
-  pending:      { bg: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" },
-  under_review: { bg: "rgba(17,17,17,0.08)", color: "var(--ink)" },
-  approved:     { bg: "rgba(17,17,17,0.06)", color: "var(--ink)" },
-  rejected:     { bg: "rgba(178,35,41,0.08)", color: "var(--maroon)" },
+  draft:           { bg: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" },
+  pending:         { bg: "rgba(17,17,17,0.06)", color: "rgba(17,17,17,0.65)" },
+  under_review:    { bg: "rgba(17,17,17,0.08)", color: "var(--ink)" },
+  approved:        { bg: "rgba(17,17,17,0.06)", color: "var(--ink)" },
+  rejected:        { bg: "rgba(178,35,41,0.08)", color: "var(--maroon)" },
+  needs_documents: { bg: "rgba(178,35,41,0.08)", color: "var(--maroon)" },
 };
 
 const FUNDING_LABEL: Record<string, string> = {
@@ -165,6 +167,7 @@ export default async function ApplicationsPage({
             <option value="">All statuses</option>
             <option value="pending">Pending</option>
             <option value="under_review">Under review</option>
+            <option value="needs_documents">Docs requested</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
             <option value="draft">Draft</option>

@@ -30,21 +30,40 @@ export default async function ApplyPage({
 
   let initialData = null;
   let initialApplicationId: string | undefined = undefined;
+  let documentsNote: string | null = null;
 
   if (params.resume) {
-    const { data } = await supabase
+    // Cast to unknown first — documents_requested_note and needs_documents status
+    // aren't in generated types until migration 20260722000002 types are regenerated.
+    const { data: rawData } = await supabase
       .from("applications")
       .select(
-        "id, business_name, founder_name, contact_email, contact_phone, business_description, monthly_revenue, funding_amount, funding_type, status"
+        "id, business_name, founder_name, contact_email, contact_phone, business_description, monthly_revenue, funding_amount, funding_type, status, documents_requested_note"
       )
       .eq("id", params.resume)
       .eq("user_id", user.id)
-      .eq("status", "draft")
-      .single();
+      .in("status", ["draft", "needs_documents"] as never[])
+      .single() as unknown as {
+        data: {
+          id: string;
+          business_name: string;
+          founder_name: string;
+          contact_email: string;
+          contact_phone: string | null;
+          business_description: string;
+          monthly_revenue: number | null;
+          funding_amount: number | null;
+          funding_type: "equity" | "debt" | "asset" | "revenue_based" | null;
+          status: string;
+          documents_requested_note: string | null;
+        } | null;
+        error: unknown;
+      };
 
-    if (data) {
-      initialData = data;
-      initialApplicationId = data.id;
+    if (rawData) {
+      initialData = rawData;
+      initialApplicationId = rawData.id;
+      documentsNote = rawData.documents_requested_note ?? null;
     }
   }
 
@@ -56,6 +75,7 @@ export default async function ApplyPage({
       initialApplicationId={initialApplicationId}
       startStep={startStep}
       userId={user.id}
+      documentsNote={documentsNote}
     />
   );
 }
