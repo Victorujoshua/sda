@@ -5,9 +5,9 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: NEEDS_DOCUMENTS FEATURE — COMPLETE. Three-layer field-lock enforcement added (UI, server action, DB trigger). Build GREEN (34 routes, 0 errors). Trigger migration file ready for manual apply.
-Last completed: Three-layer needs_documents enforcement implemented (2026-07-22). ApplyForm renders documents-only view when isDocumentsMode; saveDraft blocks field updates at server level; trigger SQL in supabase/migrations/20260722000003_needs_documents_field_lock_trigger.sql (not yet applied — apply manually in Supabase SQL editor).
-Next: (1) Apply 20260722000003 in Supabase SQL editor (trigger). (2) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template with variables: applicant_name, business_name, documents_note. Until done, "request documents" email is silent (status change + audit log still work). (3) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (4) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (5) Run reconciliation SQL for investors with has_paid_membership=false. (6) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
+Phase: SOFT-DELETE FEATURE — PHASE 2 COMPLETE. Migration applied by user. Code committed. Build GREEN (34 routes, 0 errors).
+Last completed: Phase 2 soft-delete implementation (2026-07-23). Migration 20260723000001 applied (columns + index + RLS + trigger fix). softDeleteApplication action live behind getSuperAdminUser() gate. Delete button visible on application detail page for super_admin only. 13 queries patched with deleted_at IS NULL across 6 files. Audit log extended with application.deleted.
+Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
   - ACTION REQUIRED: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED to Vercel env vars + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). Status change + audit log work without it; email is silent until set.
@@ -29,9 +29,9 @@ Known open issues:
   - /contact route does not exist — omitted from footer nav pending decision to create page or remove permanently.
   - LOOPS_ADMIN_EMAIL=support@imaniventures.org in .env.local — verify this mailbox is live before going to production.
   - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
-Last updated: 2026-07-22 (commit 8d21964 pushed to master).
-GitHub: commit 0bbd6e9 pushed to master (github.com/Victorujoshua/sda). Vercel auto-deploy triggered.
-Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 33 routes, zero errors (2026-07-05).
+Last updated: 2026-07-23 (investigation session — no commit).
+GitHub: commit 915a4d6 pushed to master (github.com/Victorujoshua/sda). Vercel auto-deploy triggered.
+Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-07-22).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
   Run builds with: NEXT_TURBO=0 npx next build
@@ -5310,3 +5310,103 @@ Build Log — 2026-07-22 ApplyForm — comma-formatted amount inputs + expanded 
     - Financial statements and bank statements uploaders unchanged (PDF/Excel only).
   Build: GREEN. 34 routes, 0 errors.
   Files changed: app/(app)/dashboard/apply/ApplyForm.tsx
+
+Build Log — 2026-07-22 Admin ApplicationActions — success toast after every action (commit 915a4d6)
+  Problem: admin UI gave no feedback after approve/reject/request-documents/blacklist — page silently
+  refreshed via router.refresh() with no visible confirmation.
+  Fix: fixed-position toast (top: 24px, right: 24px, zIndex: 9999) appears immediately on success.
+  - run() signature changed to run(fn, successMsg). Sets toast state, calls closeAllForms(), calls
+    router.refresh(), then setTimeout 5000ms to clear toast.
+  - Action-specific messages:
+      Mark under review     → "Application marked as under review."
+      Approve for funding   → "Application approved for funding. The applicant has been notified."
+      Reject                → "Application rejected. The applicant has been notified."
+      Request documents     → "Document request sent. The applicant has been notified by email."
+      Blacklist             → "Applicant has been blacklisted."
+      Remove blacklist      → "Blacklist removed. The applicant can now submit applications."
+  - Toast: cream background, hairline border, 3px green (#16a34a) left accent, × dismiss button.
+    No box-shadow, no animation (both prohibited by brand guidelines).
+  - Forms (reject, request docs, blacklist) close automatically on success via closeAllForms().
+  - Errors remain inline (unchanged) — admin still sees persistent errors that need action.
+  Build: GREEN. 34 routes, 0 errors.
+  Files changed: components/admin/ApplicationActions.tsx
+
+Build Log — 2026-07-23 Soft-delete investigation — Phase 1 report (no code)
+  Task: add super-admin-only soft-delete of applications. Phase 1 investigation only — no code written.
+
+  Findings:
+  1. Super-admin gate: getSuperAdminUser() in app/actions/admin.ts:47. Already used by approveApplication.
+     Same helper will be used for softDeleteApplication. No new pattern needed.
+
+  2. All application reads requiring deleted_at IS NULL (9 required, 4 low-risk):
+     Required:
+       app/(admin)/admin/page.tsx — 6 count/metric queries (lines 85,87,91,95,99,108)
+       app/(admin)/admin/applications/page.tsx — list query (line 58)
+       app/(admin)/admin/applications/[id]/page.tsx — detail fetch (line 100) → must notFound()
+       app/(admin)/admin/applications/[id]/promote/page.tsx — promote fetch (line 15)
+       app/(app)/dashboard/page.tsx — applicant dashboard list (line 51)
+       app/(app)/dashboard/apply/page.tsx — resume fetch (line 39)
+       app/actions/applications.ts:44 — saveDraft status guard
+       app/actions/applications.ts:83 — submitApplication fetch
+       app/actions/applications.ts:128 — submitApplication duplicate check
+     Low-risk (admin post-mutation reads in admin.ts):
+       setApplicationUnderReview:102, approveApplication:144, rejectApplication:194, requestDocuments:230
+
+  3. Audit log: columns actor_id, action, target_type, target_id, metadata, created_at.
+     New vocab entry needed: "application.deleted". AuditAction type must be extended.
+     Metadata: { business_name, contact_email, status_at_deletion, reason, linked_deal_id? }
+
+  4. RLS: applications_own_select and applications_own_update (USING) need AND deleted_at IS NULL.
+     Admin reads bypass RLS (service role) so only code-level filters matter for admin queries.
+
+  5. Unique index: applications_one_active_per_user must add AND deleted_at IS NULL — otherwise a
+     soft-deleted pending application blocks the user from resubmitting.
+
+  6. Deals FK: deals.source_application_id ON DELETE SET NULL. Soft delete leaves FK intact.
+     Server action must check for linked deal and return { linkedDealId } so UI can warn.
+
+  Phase 2 scope (awaiting user approval):
+    - Migration: deleted_at + deleted_by columns, rebuild unique index, update 2 RLS policies.
+    - Server action: softDeleteApplication(applicationId, reason).
+    - Patch 9 required reads with .is("deleted_at", null).
+    - UI: delete button super-admin only, confirmation dialog (reason + linked-deal warning), maroon.
+  No files changed. No commit.
+
+Build Log — 2026-07-23 Soft-delete Phase 2 — full implementation
+  Migration: supabase/migrations/20260723000001_soft_delete_applications.sql (written for manual apply).
+    Applied by user in Supabase SQL editor (confirmed: columns, index, RLS, trigger fix all live).
+    Trigger: replaced column-by-column check with JSONB diff (_exempt list includes deleted_at + deleted_by).
+
+  Server action — app/actions/admin.ts:
+    + AuditAction: added "application.deleted" to locked vocabulary.
+    + softDeleteApplication(applicationId, reason) — getSuperAdminUser() gate (returns { error? } on auth fail,
+      does not throw). Checks existing row, fetches linked active deal, writes deleted_at + deleted_by,
+      writes audit log with business_name / contact_email / status_at_deletion / reason / linked_deal_id.
+      revalidatePath for detail + list + admin dashboard.
+    + 4 low-risk post-mutation reads (setApplicationUnderReview, approveApplication, rejectApplication,
+      requestDocuments pre-check) patched with .is("deleted_at" as never, null).
+    + saveAdminNotes UPDATE patched with .is("deleted_at" as never, null).
+
+  Query patches — 13 total:
+    app/(admin)/admin/page.tsx             — 6 metric queries (total, pending, under_review, approved, rejected, funding sum)
+    app/(admin)/admin/applications/page.tsx — list query
+    app/(admin)/admin/applications/[id]/page.tsx — detail fetch; + linked deal check; pass linkedDealId prop
+    app/(admin)/admin/applications/[id]/promote/page.tsx — promote fetch
+    app/(app)/dashboard/page.tsx           — applicant dashboard list
+    app/(app)/dashboard/apply/page.tsx     — resume fetch
+    app/actions/applications.ts            — saveDraft guard, submitApplication fetch, duplicate check
+
+  UI — components/admin/ApplicationActions.tsx:
+    + softDeleteApplication imported.
+    + linkedDealId?: string prop added; passed from detail page.
+    + showDelete + deleteReason state vars added.
+    + closeAllForms() updated to also setShowDelete(false).
+    + run() extended with optional redirectTo?: string — deletion calls router.push("/admin/applications").
+    + "Delete application" button rendered for isSuperAdmin only (below applicant account section).
+    + Confirmation panel: warning text, maroon linked-deal warning when linkedDealId present,
+      reason textarea (required), "Confirm deletion" button (maroon), Cancel button.
+
+  Migration 20260722000003 (needs_documents trigger) — CONFIRMED APPLIED AND TESTED by user.
+    build.md previously marked this as pending — corrected in Current State block.
+
+  Build: NEXT_TURBO=0 npx next build — GREEN. 34 routes, zero errors (2026-07-23).

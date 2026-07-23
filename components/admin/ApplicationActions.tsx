@@ -9,6 +9,7 @@ import {
   requestDocuments,
   blacklistUser,
   unblacklistUser,
+  softDeleteApplication,
 } from "@/app/actions/admin";
 
 type Status = "draft" | "pending" | "under_review" | "approved" | "rejected" | "needs_documents";
@@ -28,21 +29,25 @@ export default function ApplicationActions({
   currentStatus,
   isBlacklisted,
   actorRole,
+  linkedDealId,
 }: {
   applicationId: string;
   userId: string;
   currentStatus: Status;
   isBlacklisted: boolean;
   actorRole: string;
+  linkedDealId?: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showReject, setShowReject] = useState(false);
   const [showRequestDocs, setShowRequestDocs] = useState(false);
   const [showBlacklist, setShowBlacklist] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [docsNote, setDocsNote] = useState("");
   const [blacklistReason, setBlacklistReason] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -55,9 +60,14 @@ export default function ApplicationActions({
     setShowReject(false);
     setShowRequestDocs(false);
     setShowBlacklist(false);
+    setShowDelete(false);
   }
 
-  async function run(fn: () => Promise<{ error?: string }>, successMsg: string) {
+  async function run(
+    fn: () => Promise<{ error?: string }>,
+    successMsg: string,
+    redirectTo?: string
+  ) {
     setError(null);
     setToast(null);
     startTransition(async () => {
@@ -67,9 +77,13 @@ export default function ApplicationActions({
           setError(result.error);
         } else {
           closeAllForms();
-          setToast(successMsg);
-          router.refresh();
-          setTimeout(() => setToast(null), 5000);
+          if (redirectTo) {
+            router.push(redirectTo);
+          } else {
+            setToast(successMsg);
+            router.refresh();
+            setTimeout(() => setToast(null), 5000);
+          }
         }
       } catch {
         setError("An unexpected error occurred.");
@@ -375,6 +389,112 @@ export default function ApplicationActions({
         >
           Applicant account
         </p>
+
+        {isSuperAdmin && (
+          <button
+            onClick={() => {
+              closeAllForms();
+              setShowDelete((v) => !v);
+            }}
+            disabled={isPending}
+            style={{
+              ...btnBase,
+              backgroundColor: "var(--cream)",
+              color: "var(--maroon)",
+              border: "1px solid var(--maroon)",
+              marginBottom: 20,
+            }}
+          >
+            Delete application
+          </button>
+        )}
+
+        {showDelete && (
+          <div
+            style={{
+              border: "1px solid rgba(109,22,38,0.3)",
+              backgroundColor: "rgba(109,22,38,0.04)",
+              padding: "20px",
+              marginBottom: 20,
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "var(--in)",
+                fontSize: 15,
+                color: "var(--ink)",
+                margin: "0 0 10px",
+                lineHeight: 1.6,
+              }}
+            >
+              This hides the application from all views immediately. The record
+              remains in the database and can be recovered via SQL.
+            </p>
+            {linkedDealId && (
+              <p
+                style={{
+                  fontFamily: "var(--in)",
+                  fontSize: 14,
+                  color: "var(--maroon)",
+                  margin: "0 0 14px",
+                  lineHeight: 1.5,
+                }}
+              >
+                Warning: this application has an active deal. Deleting it will
+                not remove the deal — it will remain live and visible to investors.
+              </p>
+            )}
+            <label
+              style={{
+                fontFamily: "var(--in)",
+                fontSize: 13,
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                color: "var(--muted)",
+              }}
+            >
+              Reason (required, internal only)
+            </label>
+            <textarea
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              rows={3}
+              placeholder="Reason for deleting this application…"
+              style={textareaStyle}
+            />
+            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              <button
+                onClick={() =>
+                  run(
+                    () => softDeleteApplication(applicationId, deleteReason),
+                    "Application deleted.",
+                    "/admin/applications"
+                  )
+                }
+                disabled={isPending || !deleteReason.trim()}
+                style={{
+                  ...btnBase,
+                  backgroundColor: "var(--maroon)",
+                  color: "var(--cream)",
+                  border: "none",
+                  opacity: !deleteReason.trim() ? 0.5 : 1,
+                }}
+              >
+                {isPending ? "Deleting…" : "Confirm deletion"}
+              </button>
+              <button
+                onClick={() => setShowDelete(false)}
+                style={{
+                  ...btnBase,
+                  background: "none",
+                  color: "var(--ink)",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {isBlacklisted ? (
           <div>

@@ -45,6 +45,7 @@ export async function saveDraft(
       .select("status")
       .eq("id", applicationId)
       .eq("user_id", user.id)
+      .is("deleted_at" as never, null)
       .single();
     if ((current?.status as string) === "needs_documents") {
       return { error: "Application fields cannot be edited when additional documents have been requested. Upload documents and resubmit." };
@@ -85,6 +86,7 @@ export async function submitApplication(
     .select("*")
     .eq("id", applicationId)
     .eq("user_id", user.id)
+    .is("deleted_at" as never, null)
     .single();
   if (fetchError || !app) return { error: "Application not found." };
 
@@ -131,6 +133,7 @@ export async function submitApplication(
     .eq("user_id", user.id)
     .in("status", ["pending", "under_review", "needs_documents"] as never[])
     .neq("id", applicationId)
+    .is("deleted_at" as never, null)
     .maybeSingle();
   if (existing) {
     return {

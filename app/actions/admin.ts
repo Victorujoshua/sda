@@ -11,6 +11,7 @@ type AuditAction =
   | "application.rejected"
   | "application.under_review"
   | "application.documents_requested"
+  | "application.deleted"
   | "user.blacklisted"
   | "user.unblacklisted"
   | "user.deactivated"
@@ -102,6 +103,7 @@ export async function setApplicationUnderReview(
     .from("applications")
     .select("contact_email, founder_name, business_name")
     .eq("id", applicationId)
+    .is("deleted_at" as never, null)
     .single();
 
   if (app) {
@@ -145,6 +147,7 @@ export async function approveApplication(
     .from("applications")
     .select("contact_email, founder_name, business_name")
     .eq("id", applicationId)
+    .is("deleted_at" as never, null)
     .single();
 
   if (app) {
@@ -195,6 +198,7 @@ export async function rejectApplication(
     .from("applications")
     .select("contact_email, founder_name, business_name")
     .eq("id", applicationId)
+    .is("deleted_at" as never, null)
     .single();
 
   if (app) {
@@ -231,6 +235,7 @@ export async function requestDocuments(
     .from("applications")
     .select("contact_email, founder_name, business_name, status")
     .eq("id", applicationId)
+    .is("deleted_at" as never, null)
     .single();
 
   if (!app) return { error: "Application not found." };
@@ -285,10 +290,65 @@ export async function saveAdminNotes(
   const { error } = await db
     .from("applications")
     .update({ admin_notes: notes })
-    .eq("id", applicationId);
+    .eq("id", applicationId)
+    .is("deleted_at" as never, null);
   if (error) return { error: error.message };
 
   revalidatePath(`/admin/applications/${applicationId}`);
+  return {};
+}
+
+export async function softDeleteApplication(
+  applicationId: string,
+  reason: string
+): Promise<{ error?: string }> {
+  if (!reason.trim()) return { error: "A reason is required." };
+
+  let user: Awaited<ReturnType<typeof getSuperAdminUser>>;
+  try {
+    user = await getSuperAdminUser();
+  } catch {
+    return { error: "Not authorized. Super admin access required." };
+  }
+
+  const db = createAdminClient();
+
+  const { data: existing } = await db
+    .from("applications")
+    .select("business_name, contact_email, status")
+    .eq("id", applicationId)
+    .is("deleted_at" as never, null)
+    .single();
+  if (!existing) return { error: "Application not found or already deleted." };
+
+  const { data: linkedDeal } = await db
+    .from("deals")
+    .select("id")
+    .eq("source_application_id", applicationId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  const { error: deleteError } = await db
+    .from("applications")
+    .update({
+      deleted_at: new Date().toISOString(),
+      deleted_by: user.id,
+    } as never)
+    .eq("id", applicationId)
+    .is("deleted_at" as never, null);
+  if (deleteError) return { error: deleteError.message };
+
+  await writeAudit(user.id, "application.deleted", "application", applicationId, {
+    business_name: existing.business_name,
+    contact_email: existing.contact_email,
+    status_at_deletion: existing.status,
+    reason: reason.trim(),
+    ...(linkedDeal ? { linked_deal_id: linkedDeal.id } : {}),
+  });
+
+  revalidatePath(`/admin/applications/${applicationId}`);
+  revalidatePath("/admin/applications");
+  revalidatePath("/admin");
   return {};
 }
 

@@ -52,6 +52,7 @@ export default async function DashboardPage({
     .from("applications")
     .select("id, status, business_name, created_at, submitted_at, rejection_reason, documents_requested_note")
     .eq("user_id", user.id)
+    .is("deleted_at" as never, null)
     .order("created_at", { ascending: false })
     .limit(5);
 

@@ -43,6 +43,7 @@ export default async function ApplyPage({
       .eq("id", params.resume)
       .eq("user_id", user.id)
       .in("status", ["draft", "needs_documents"] as never[])
+      .is("deleted_at" as never, null)
       .single() as unknown as {
         data: {
           id: string;

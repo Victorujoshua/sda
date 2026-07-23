@@ -100,6 +100,7 @@ export default async function ApplicationDetailPage({
       .from("applications")
       .select("*")
       .eq("id", id)
+      .is("deleted_at" as never, null)
       .single(),
     db
       .from("application_documents")
@@ -108,6 +109,14 @@ export default async function ApplicationDetailPage({
   ]);
 
   if (!rawApp) notFound();
+
+  const { data: linkedDeal } = await db
+    .from("deals")
+    .select("id")
+    .eq("source_application_id", id)
+    .eq("is_active", true)
+    .maybeSingle();
+  const linkedDealId = linkedDeal?.id ?? undefined;
 
   // Supabase generated types lag behind applied migrations — use unknown cast
   // to include new enum value (needs_documents) and new column added in
@@ -557,6 +566,7 @@ export default async function ApplicationDetailPage({
               }
               isBlacklisted={profile?.is_blacklisted ?? false}
               actorRole={actorRole}
+              linkedDealId={linkedDealId}
             />
           </div>
 

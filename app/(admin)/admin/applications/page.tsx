@@ -59,6 +59,7 @@ export default async function ApplicationsPage({
     .select(
       "id, business_name, founder_name, contact_email, funding_amount, funding_type, status, submitted_at, created_at, user_id"
     )
+    .is("deleted_at" as never, null)
     .order("created_at", { ascending: false })
     .limit(200);
 

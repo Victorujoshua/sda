@@ -82,23 +82,27 @@ export default async function AdminOverviewPage() {
     { count: totalUsers },
     { data: approvedFunding },
   ] = await Promise.all([
-    db.from("applications").select("*", { count: "exact", head: true }),
+    db.from("applications").select("*", { count: "exact", head: true }).is("deleted_at" as never, null),
     db
       .from("applications")
       .select("*", { count: "exact", head: true })
-      .eq("status", "pending"),
+      .eq("status", "pending")
+      .is("deleted_at" as never, null),
     db
       .from("applications")
       .select("*", { count: "exact", head: true })
-      .eq("status", "under_review"),
+      .eq("status", "under_review")
+      .is("deleted_at" as never, null),
     db
       .from("applications")
       .select("*", { count: "exact", head: true })
-      .eq("status", "approved"),
+      .eq("status", "approved")
+      .is("deleted_at" as never, null),
     db
       .from("applications")
       .select("*", { count: "exact", head: true })
-      .eq("status", "rejected"),
+      .eq("status", "rejected")
+      .is("deleted_at" as never, null),
     db
       .from("deals")
       .select("*", { count: "exact", head: true })
@@ -107,7 +111,8 @@ export default async function AdminOverviewPage() {
     db
       .from("applications")
       .select("funding_amount")
-      .eq("status", "approved"),
+      .eq("status", "approved")
+      .is("deleted_at" as never, null),
   ]);
 
   const totalFunding =

@@ -17,6 +17,7 @@ export default async function PromotePage({
       "id, business_name, status, funding_amount, business_description, funding_type"
     )
     .eq("id", id)
+    .is("deleted_at" as never, null)
     .single();
 
   if (!app || app.status !== "approved") notFound();
