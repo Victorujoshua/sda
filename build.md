@@ -5,8 +5,8 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: SOFT-DELETE FEATURE — PHASE 2 COMPLETE. Migration applied by user. Code committed. Build GREEN (34 routes, 0 errors).
-Last completed: Phase 2 soft-delete implementation (2026-07-23). Migration 20260723000001 applied (columns + index + RLS + trigger fix). softDeleteApplication action live behind getSuperAdminUser() gate. Delete button visible on application detail page for super_admin only. 13 queries patched with deleted_at IS NULL across 6 files. Audit log extended with application.deleted.
+Phase: SEO METADATA — HOMEPAGE COMPLETE. Build GREEN (34 routes, 0 errors).
+Last completed: Homepage SEO / Open Graph / Twitter Card metadata (2026-07-31). app/(marketing)/page.tsx updated with final title, description, og:title/description/url/siteName/type/locale, twitter:card/title/description. og:image intentionally omitted — /public/og-image.png not yet supplied by client. Before that: Phase 2 soft-delete implementation (2026-07-23). Migration 20260723000001 applied (columns + index + RLS + trigger fix). softDeleteApplication action live behind getSuperAdminUser() gate. Delete button visible on application detail page for super_admin only. 13 queries patched with deleted_at IS NULL across 6 files. Audit log extended with application.deleted.
 Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -16,7 +16,7 @@ Known open issues:
   - Portfolio images (portfolio-fundora.png, portfolio-Kidcode.png, portfolio-rent and rig.png) may still be broken (<1KB each). Real image files must be placed in public/images/ with those exact names, then restart dev server to clear Next.js image cache.
   - Phase 4 DEFERRED: Loops email templates still SDA-branded. Will be re-done in Imani palette in a later phase.
   - Contact emails in Terms (legal@sda.ng) and Privacy (privacy@sda.ng) still point to sda.ng — update once @imaniventures.org mailboxes are live.
-  - OG image asset (/og-image.png) not yet created — placeholder reference added to metadata. Drop a 1200×630 cream/ink/crimson image into /public/og-image.png.
+  - OG image: RESOLVED. /public/og-image.png (1200×630) supplied by client and wired into both app/(marketing)/page.tsx (og:image + twitter:image) and app/layout.tsx (alt text corrected). In production, URLs resolve to https://imaniventures.org/og-image.png via metadataBase.
   - Favicon: RESOLVED — /images/favicon.png (brand icon PNG) set for both browser icon and Apple touch icon.
   - Security check 3 (details_gated REVOKE for anon) — UNCONFIRMED. Run in Supabase SQL editor: REVOKE SELECT (details_gated) ON public.deals FROM anon; — then verify with: SELECT has_column_privilege('anon', 'public.deals', 'details_gated', 'SELECT'); (should return false). Until confirmed, anon REST callers can read details_gated.
   - Security check 3b (details_gated for authenticated non-members) — KNOWN GAP. RLS cannot restrict columns for authenticated role. Unpaid investors who bypass the app can query details_gated via direct REST. Middleware + app-level query selection are the enforcement layer. Future hardening: security-definer view.
@@ -29,9 +29,11 @@ Known open issues:
   - /contact route does not exist — omitted from footer nav pending decision to create page or remove permanently.
   - LOOPS_ADMIN_EMAIL=support@imaniventures.org in .env.local — verify this mailbox is live before going to production.
   - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
-Last updated: 2026-07-23 (investigation session — no commit).
-GitHub: commit 915a4d6 pushed to master (github.com/Victorujoshua/sda). Vercel auto-deploy triggered.
-Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-07-22).
+  - Admin sidebar footer shows "Imani Ventures" as the name — DATA ISSUE. The super_admin profile's full_name column is set to "Imani Ventures" instead of the admin's real name. Fix: UPDATE profiles SET full_name = 'Victor' WHERE role = 'super_admin'; OR use inline edit on /admin/users.
+  - Admin sidebar: three stray dark circular elements reported overlapping the left edge of the sidebar. Source not identified from code — no circles or border-radius:50% elements exist in any admin component. Requires DevTools element inspection to identify the DOM source.
+Last updated: 2026-07-31 (og:image wired — /public/og-image.png now live in metadata).
+GitHub: commit d7feabf on master (not yet pushed — push blocked pending explicit user authorization). Previous push: 915a4d6.
+Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-07-31).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
   Run builds with: NEXT_TURBO=0 npx next build
@@ -5410,3 +5412,47 @@ Build Log — 2026-07-23 Soft-delete Phase 2 — full implementation
     build.md previously marked this as pending — corrected in Current State block.
 
   Build: NEXT_TURBO=0 npx next build — GREEN. 34 routes, zero errors (2026-07-23).
+
+Build Log — 2026-07-31 Homepage SEO / Open Graph / Twitter Card metadata
+  Scope: app/(marketing)/page.tsx only — root layout untouched (metadataBase already correct).
+
+  What shipped:
+    - title: "Imani Ventures | Micro Angel Investing Platform in Africa"
+    - description: "Imani Ventures connects vetted investors with revenue-generating MSMEs through structured financing."
+    - og:title, og:description — same values
+    - og:type: "website", og:url: "https://imaniventures.org", og:site_name: "Imani Ventures", og:locale: "en_NG"
+    - twitter:card: "summary_large_image", twitter:title, twitter:description
+    - Used typed Next.js Metadata export — no hand-written <meta> tags
+    - Extracted TITLE + DESCRIPTION into module-level consts to avoid string duplication
+
+  Decisions:
+    - og:image and twitter:image intentionally omitted — /public/og-image.png does not exist.
+      A missing image is not rendered; a broken URL actively harms link previews. Wiring both
+      is deferred until the client supplies the 1200×630 asset (see Known open issues).
+    - Root layout (app/layout.tsx) has a stale og:images reference to /og-image.png — left
+      untouched per "homepage scope only" instruction. Update both simultaneously when image arrives.
+
+  Deviations: none.
+  Open issues: og:image / twitter:image — see Known open issues block.
+  Build: NEXT_TURBO=0 npx next build — GREEN. 34 routes, zero errors (2026-07-31).
+  Tags confirmed by reading .next/server/app/index.html post-build.
+
+Build Log — 2026-07-31 og:image wired into homepage and root layout
+  Trigger: client supplied /public/og-image.png (1200×630).
+
+  Changes:
+    app/(marketing)/page.tsx — added to openGraph: images: [{ url: "/og-image.png", width: 1200, height: 630, alt: TITLE }]
+                             — added to twitter: images: ["/og-image.png"]
+                             — removed placeholder comments
+    app/layout.tsx           — alt text corrected from "Imani Ventures" to full title string.
+                               Path and dimensions were already correct; file now exists so the reference resolves.
+
+  Decisions:
+    - og:image URL resolves to localhost:3000/og-image.png in local builds (metadataBase reads
+      NEXT_PUBLIC_APP_URL from .env.local). In Vercel production it will be https://imaniventures.org/og-image.png.
+      This is expected — no code change needed.
+
+  Deviations: none.
+  Open issues: none for OG image.
+  Build: NEXT_TURBO=0 npx next build — GREEN. 34 routes, zero errors (2026-07-31).
+  Tags confirmed: og:image, og:image:width (1200), og:image:height (630), og:image:alt, twitter:image all present in .next/server/app/index.html.

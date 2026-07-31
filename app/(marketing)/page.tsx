@@ -12,23 +12,27 @@ import PortfolioFeature from "@/components/marketing/PortfolioFeature";
 import HomeFAQ from "@/components/marketing/HomeFAQ";
 import EmailSignup from "@/components/marketing/EmailSignup";
 
+const TITLE = "Imani Ventures | Micro Angel Investing Platform in Africa";
+const DESCRIPTION =
+  "Imani Ventures connects vetted investors with revenue-generating MSMEs through structured financing.";
+
 export const metadata: Metadata = {
-  title: "Imani Ventures — Micro Angel Investing in Nigeria",
-  description:
-    "Imani Ventures backs early-stage Nigerian businesses with traction. Equity, debt, asset financing, and revenue-based funding for founders who are already doing the work.",
+  title: TITLE,
+  description: DESCRIPTION,
   openGraph: {
-    title: "Imani Ventures — Micro Angel Investing in Nigeria",
-    description:
-      "Imani Ventures backs early-stage Nigerian businesses with traction. Apply for funding or explore our portfolio.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: "https://imaniventures.org",
     siteName: "Imani Ventures",
     type: "website",
+    locale: "en_NG",
+    images: [{ url: "/images/og-image.png", width: 1200, height: 630, alt: TITLE }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Imani Ventures — Micro Angel Investing in Nigeria",
-    description:
-      "Imani Ventures backs early-stage Nigerian businesses with traction.",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/images/og-image.png"],
   },
 };
 

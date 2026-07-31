@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Imani Ventures",
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Imani Ventures" }],
+    images: [{ url: "/images/og-image.png", width: 1200, height: 630, alt: "Imani Ventures | Micro Angel Investing Platform in Africa" }],
   },
   twitter: {
     card: "summary_large_image",
