@@ -5,8 +5,8 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: SEO METADATA — HOMEPAGE COMPLETE. Build GREEN (34 routes, 0 errors).
-Last completed: Homepage SEO / Open Graph / Twitter Card metadata (2026-07-31). app/(marketing)/page.tsx updated with final title, description, og:title/description/url/siteName/type/locale, twitter:card/title/description. og:image intentionally omitted — /public/og-image.png not yet supplied by client. Before that: Phase 2 soft-delete implementation (2026-07-23). Migration 20260723000001 applied (columns + index + RLS + trigger fix). softDeleteApplication action live behind getSuperAdminUser() gate. Delete button visible on application detail page for super_admin only. 13 queries patched with deleted_at IS NULL across 6 files. Audit log extended with application.deleted.
+Phase: SEO METADATA — COMPLETE. Pushed to production. Build GREEN (34 routes, 0 errors).
+Last completed: SEO metadata + OG/Twitter cards + og-image asset fully wired and pushed (2026-07-31). Commit 21ef8d3. Title, description, og:*, twitter:* set on homepage via typed Metadata export. og-image at /images/og-image.png (1200×630) — path corrected from /og-image.png (file was in public/images/, not public/ root). Both app/(marketing)/page.tsx and app/layout.tsx updated. Deployed to Vercel via git push.
 Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -16,7 +16,7 @@ Known open issues:
   - Portfolio images (portfolio-fundora.png, portfolio-Kidcode.png, portfolio-rent and rig.png) may still be broken (<1KB each). Real image files must be placed in public/images/ with those exact names, then restart dev server to clear Next.js image cache.
   - Phase 4 DEFERRED: Loops email templates still SDA-branded. Will be re-done in Imani palette in a later phase.
   - Contact emails in Terms (legal@sda.ng) and Privacy (privacy@sda.ng) still point to sda.ng — update once @imaniventures.org mailboxes are live.
-  - OG image: RESOLVED. /public/og-image.png (1200×630) supplied by client and wired into both app/(marketing)/page.tsx (og:image + twitter:image) and app/layout.tsx (alt text corrected). In production, URLs resolve to https://imaniventures.org/og-image.png via metadataBase.
+  - OG image: RESOLVED. public/images/og-image.png (1200×630) wired into app/(marketing)/page.tsx and app/layout.tsx as /images/og-image.png. In production resolves to https://imaniventures.org/images/og-image.png via metadataBase. Pushed in commit 21ef8d3.
   - Favicon: RESOLVED — /images/favicon.png (brand icon PNG) set for both browser icon and Apple touch icon.
   - Security check 3 (details_gated REVOKE for anon) — UNCONFIRMED. Run in Supabase SQL editor: REVOKE SELECT (details_gated) ON public.deals FROM anon; — then verify with: SELECT has_column_privilege('anon', 'public.deals', 'details_gated', 'SELECT'); (should return false). Until confirmed, anon REST callers can read details_gated.
   - Security check 3b (details_gated for authenticated non-members) — KNOWN GAP. RLS cannot restrict columns for authenticated role. Unpaid investors who bypass the app can query details_gated via direct REST. Middleware + app-level query selection are the enforcement layer. Future hardening: security-definer view.
@@ -31,8 +31,9 @@ Known open issues:
   - Next.js 16.2.9 deprecation warning: middleware.ts convention renamed to proxy.ts. Non-breaking for now; rename in a future session.
   - Admin sidebar footer shows "Imani Ventures" as the name — DATA ISSUE. The super_admin profile's full_name column is set to "Imani Ventures" instead of the admin's real name. Fix: UPDATE profiles SET full_name = 'Victor' WHERE role = 'super_admin'; OR use inline edit on /admin/users.
   - Admin sidebar: three stray dark circular elements reported overlapping the left edge of the sidebar. Source not identified from code — no circles or border-radius:50% elements exist in any admin component. Requires DevTools element inspection to identify the DOM source.
-Last updated: 2026-07-31 (og:image wired — /public/og-image.png now live in metadata).
-GitHub: commit d7feabf on master (not yet pushed — push blocked pending explicit user authorization). Previous push: 915a4d6.
+  - TECH DEBT (non-blocking): No legacy financial_statements_url / bank_statements_url columns exist in this schema — confirmed by searching all migrations, database.types.ts, and source. application_documents has been the single source of truth since migration 1. The anticipated "dual-write consolidation" is moot; this note is left for future auditors. If a future feature ever writes document paths to a separate column, consolidate both sources in the admin query at that time.
+Last updated: 2026-08-18 (Supporting-doc admin view bug fixed — build GREEN 34 routes).
+GitHub: commit 21ef8d3 pushed to origin/master. Previous: d7feabf.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-07-31).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -5456,3 +5457,67 @@ Build Log — 2026-07-31 og:image wired into homepage and root layout
   Open issues: none for OG image.
   Build: NEXT_TURBO=0 npx next build — GREEN. 34 routes, zero errors (2026-07-31).
   Tags confirmed: og:image, og:image:width (1200), og:image:height (630), og:image:alt, twitter:image all present in .next/server/app/index.html.
+
+Build Log — 2026-07-31 Push to production — SEO metadata + og-image (commit 21ef8d3)
+  Path correction discovered pre-push: file landed at public/images/og-image.png (served at /images/og-image.png),
+  not public/og-image.png as originally stated. Metadata URLs corrected in both files before committing.
+
+  Changes vs previous log entry:
+    app/(marketing)/page.tsx — og:image and twitter:image paths updated /og-image.png → /images/og-image.png
+    app/layout.tsx           — same path correction; alt text already updated in prior entry
+    public/images/og-image.png — new file (1200×630, supplied by client)
+    build.md                 — Current State + previous log entries updated
+
+  Decisions:
+    - Corrected the path rather than moving the file — less churn, file was already in public/images/ alongside
+      other image assets.
+    - In production: og:image resolves to https://imaniventures.org/images/og-image.png via metadataBase
+      (NEXT_PUBLIC_APP_URL=https://imaniventures.org in Vercel).
+
+  Deviations: path was /og-image.png in prior session's planning; corrected to /images/og-image.png on push.
+  Open issues: none for og-image.
+  Commit: 21ef8d3 — pushed to origin/master. Vercel auto-deploy triggered.
+  Build: NEXT_TURBO=0 npx next build — GREEN. 34 routes, zero errors (2026-07-31).
+
+Build Log -- 2026-08-18 Supporting-document admin view bug fix
+  Root causes fixed:
+    (1) PRIMARY -- submitApplication (app/actions/applications.ts) never called revalidatePath.
+        Next.js 14 caches Supabase GET/SELECT results in the Data Cache. When an applicant
+        uploaded documents and resubmitted, new application_documents rows were inserted but
+        the admin page Data Cache was never purged. Admin saw the pre-upload document list.
+        Fix: added revalidatePath for /admin/applications/[id], /admin/applications, /admin
+        at the end of submitApplication -- matching what every existing admin action already does.
+    (2) SECONDARY -- handleSupportingDocumentUpload used Date.now() for the storage path.
+        Promise.all computes all path strings synchronously before any await fires, so
+        parallel uploads of same-extension files got identical timestamps -> identical paths
+        -> Supabase storage rejected the second upload ("resource already exists").
+        Fix: replaced Date.now() with crypto.randomUUID() -- guaranteed unique regardless
+        of concurrency. crypto.randomUUID() is available in all modern browsers (secure context).
+
+  Admin display improvements (same session):
+    - Documents now grouped by type (Financial statements / Bank statements / Supporting documents).
+      Empty groups are hidden. Admins can now distinguish request rounds by type + upload date.
+    - Query adds .order("uploaded_at", { ascending: true }) so documents within each group
+      appear in chronological upload order across all rounds.
+    - Signed URL generation replaced with createSignedUrls batch API (one call per bucket,
+      max 3 calls total, all in parallel). Previously: N individual createSignedUrl calls
+      in Promise.all. Both are parallel; batch reduces API round-trips from N to <=3.
+      10-min (600 s) expiry unchanged.
+    - Removed verbose console.log that fired on every signed URL generation.
+    - Removed unused docLabel() helper (labels now inlined in docGroups array).
+
+  Legacy URL investigation:
+    Searched all migrations, database.types.ts, and all .ts/.tsx files for
+    financial_statements_url / bank_statements_url -- these columns do not exist.
+    application_documents is and has always been the single source of truth.
+    No merge/de-duplicate logic was needed or added.
+
+  Files changed:
+    app/actions/applications.ts              -- added revalidatePath import + 3 calls
+    app/(app)/dashboard/apply/ApplyForm.tsx  -- Date.now() -> crypto.randomUUID()
+    app/(admin)/admin/applications/[id]/page.tsx -- batch signed URLs, grouped display,
+                                                    ordered query, removed docLabel
+    build.md                                 -- Current State + Build Log + tech debt note
+
+  Deviations: none.
+  Build: NEXT_TURBO=0 npx next build -- GREEN. 34 routes, zero errors (2026-08-18).

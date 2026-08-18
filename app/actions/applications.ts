@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 import { fullApplicationSchema } from "@/lib/validations/application";
 import { sendEmail, TEMPLATES } from "@/lib/email/loops";
 
@@ -204,6 +205,12 @@ export async function submitApplication(
       console.error("[submitApplication] NEW_APPLICATION_ADMIN failed:", r2.error);
     }
   }
+
+  // Invalidate the Next.js Data Cache for admin pages so the admin sees the
+  // newly uploaded documents immediately on their next page load.
+  revalidatePath(`/admin/applications/${applicationId}`);
+  revalidatePath("/admin/applications");
+  revalidatePath("/admin");
 
   return {};
 }

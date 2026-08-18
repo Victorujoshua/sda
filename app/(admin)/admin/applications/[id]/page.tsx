@@ -73,11 +73,6 @@ function docBucket(type: string): string {
   return "supporting-documents";
 }
 
-function docLabel(type: string): string {
-  if (type === "financials") return "Financial statements";
-  if (type === "bank_statement") return "Bank statements";
-  return "Supporting document";
-}
 
 export default async function ApplicationDetailPage({
   params,
@@ -105,7 +100,8 @@ export default async function ApplicationDetailPage({
     db
       .from("application_documents")
       .select("*")
-      .eq("application_id", id),
+      .eq("application_id", id)
+      .order("uploaded_at", { ascending: true }),
   ]);
 
   if (!rawApp) notFound();
@@ -146,17 +142,29 @@ export default async function ApplicationDetailPage({
     .eq("id", app.user_id)
     .single();
 
-  // Generate signed URLs for documents (10 minutes = 600s)
-  const docsWithUrls = await Promise.all(
-    (docs ?? []).map(async (doc) => {
-      const bucket = docBucket(doc.document_type);
-      const { data: signed } = await db.storage
-        .from(bucket)
-        .createSignedUrl(doc.file_path, 600);
-      console.log(`[Admin] Signed URL generated for doc ${doc.id}, expires 600s`);
-      return { ...doc, signedUrl: signed?.signedUrl ?? null };
+  // Generate signed URLs — one createSignedUrls call per bucket (max 3 buckets),
+  // all three requests in parallel. 10-minute (600 s) expiry matches site convention.
+  const bucketPaths = new Map<string, string[]>();
+  for (const doc of (docs ?? [])) {
+    const bucket = docBucket(doc.document_type);
+    if (!bucketPaths.has(bucket)) bucketPaths.set(bucket, []);
+    bucketPaths.get(bucket)!.push(doc.file_path);
+  }
+  const signedMap = new Map<string, string | null>();
+  await Promise.all(
+    Array.from(bucketPaths.entries()).map(async ([bucket, paths]) => {
+      const { data: urls } = await db.storage.from(bucket).createSignedUrls(paths, 600);
+      if (urls) {
+        for (let i = 0; i < paths.length; i++) {
+          signedMap.set(paths[i], urls[i]?.signedUrl ?? null);
+        }
+      }
     })
   );
+  const docsWithUrls = (docs ?? []).map((doc) => ({
+    ...doc,
+    signedUrl: signedMap.get(doc.file_path) ?? null,
+  }));
 
   const FUNDING_LABELS: Record<string, string> = {
     equity: "Equity",
@@ -164,6 +172,25 @@ export default async function ApplicationDetailPage({
     asset: "Asset",
     revenue_based: "Revenue share",
   };
+
+  // Group documents by type for display — ordered by uploaded_at asc (query sorted)
+  const docGroups = [
+    {
+      key: "financials",
+      label: "Financial statements",
+      docs: docsWithUrls.filter((d) => (d.document_type as string) === "financials"),
+    },
+    {
+      key: "bank_statement",
+      label: "Bank statements",
+      docs: docsWithUrls.filter((d) => (d.document_type as string) === "bank_statement"),
+    },
+    {
+      key: "supporting",
+      label: "Supporting documents",
+      docs: docsWithUrls.filter((d) => (d.document_type as string) === "supporting"),
+    },
+  ].filter((g) => g.docs.length > 0);
 
   return (
     <div style={{ padding: "48px 40px", maxWidth: 900 }}>
@@ -336,77 +363,82 @@ export default async function ApplicationDetailPage({
               No documents uploaded.
             </p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {docsWithUrls.map((doc) => (
-                <div
-                  key={doc.id}
-                  style={{
-                    border: "1px solid var(--hairline)",
-                    padding: "12px 16px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 16,
-                  }}
-                >
-                  <div>
-                    <p
-                      style={{
-                        fontFamily: "var(--in)",
-                        fontSize: 15,
-                        color: "var(--ink)",
-                        margin: 0,
-                        textTransform: "capitalize",
-                      }}
-                    >
-                      {docLabel(doc.document_type)}
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "var(--in)",
-                        fontSize: 13,
-                        color: "var(--muted)",
-                        margin: "3px 0 0",
-                      }}
-                    >
-                      Uploaded{" "}
-                      {new Date(doc.uploaded_at).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              {docGroups.map((group) => (
+                <div key={group.key}>
+                  <p
+                    style={{
+                      fontFamily: "var(--in)",
+                      fontSize: 12,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.09em",
+                      color: "var(--muted)",
+                      margin: "0 0 8px",
+                    }}
+                  >
+                    {group.label}
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {group.docs.map((doc) => (
+                      <div
+                        key={doc.id}
+                        style={{
+                          border: "1px solid var(--hairline)",
+                          padding: "10px 16px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 16,
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontFamily: "var(--in)",
+                            fontSize: 13,
+                            color: "var(--muted)",
+                            margin: 0,
+                          }}
+                        >
+                          Uploaded{" "}
+                          {new Date(doc.uploaded_at).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                        {doc.signedUrl ? (
+                          <a
+                            href={doc.signedUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              fontFamily: "var(--in)",
+                              fontSize: 14,
+                              letterSpacing: "0.04em",
+                              padding: "7px 16px",
+                              backgroundColor: "rgba(17,17,17,0.04)",
+                              color: "var(--ink)",
+                              textDecoration: "none",
+                              border: "1px solid var(--hairline)",
+                              flexShrink: 0,
+                            }}
+                          >
+                            View (10 min)
+                          </a>
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: "var(--in)",
+                              fontSize: 14,
+                              color: "var(--muted)",
+                            }}
+                          >
+                            Unavailable
+                          </span>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  {doc.signedUrl ? (
-                    <a
-                      href={doc.signedUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        fontFamily: "var(--in)",
-                        fontSize: 14,
-                        letterSpacing: "0.04em",
-                        padding: "7px 16px",
-                        backgroundColor: "rgba(17,17,17,0.04)",
-                        color: "var(--ink)",
-                        textDecoration: "none",
-                        border: "1px solid var(--hairline)",
-                        flexShrink: 0,
-                      }}
-                    >
-                      View (10 min)
-                    </a>
-                  ) : (
-                    <span
-                      style={{
-                        fontFamily: "var(--in)",
-                        fontSize: 14,
-                        color: "var(--muted)",
-                      }}
-                    >
-                      Unavailable
-                    </span>
-                  )}
                 </div>
               ))}
             </div>

@@ -244,7 +244,7 @@ export default function ApplyForm({
   async function handleSupportingDocumentUpload(file: File): Promise<boolean> {
     if (!applicationId) return false;
     const ext = file.name.split(".").pop();
-    const path = `${userId}/${applicationId}/supporting/${Date.now()}.${ext}`;
+    const path = `${userId}/${applicationId}/supporting/${crypto.randomUUID()}.${ext}`;
 
     const supabase = createClient();
     const { error: uploadError } = await supabase.storage
