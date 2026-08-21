@@ -5,8 +5,8 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: ADMIN UX — Application detail view redesigned + document visibility fixed. Build GREEN (34 routes, 0 errors).
-Last completed: Admin application detail page redesigned (2026-08-21, commit 43b1462). Confirmed commit 6a0c9df never existed — fix was not previously committed. Document query (all application_documents rows) was already correct from 3027d3f. New this session: filename shown per document; image files (jpg/png/gif/webp) detected by extension and rendered as inline thumbnail via signed URL; PDF/other files show extension badge; decision strip (Funding Ask / Monthly Revenue / Structure / Document count) at top of page; documents card moved above description; description bounded to max-height 220px scrollable; status badge colour-coded; blacklist badge in header; all existing actions/data preserved.
+Phase: ADMIN UX — Draft applications hidden from admin views by default. Build GREEN (34 routes, 0 errors).
+Last completed: Draft-hiding display filter (2026-08-21, commit 75ffb73). Admin dashboard "Total applications" and Approval Rate now exclude drafts (.neq("status","draft") added to the total count). Applications list default view hides drafts; "All submitted" is the new default label; "Drafts hidden. Show drafts" hint links to ?status=draft; selecting "Draft" in the dropdown still works. Applicant-facing dashboard and apply flow untouched. No data changes.
 Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -33,8 +33,8 @@ Known open issues:
   - Admin sidebar: three stray dark circular elements reported overlapping the left edge of the sidebar. Source not identified from code — no circles or border-radius:50% elements exist in any admin component. Requires DevTools element inspection to identify the DOM source.
   - TECH DEBT (non-blocking): No legacy financial_statements_url / bank_statements_url columns exist in this schema — confirmed by searching all migrations, database.types.ts, and source. application_documents has been the single source of truth since migration 1. The anticipated "dual-write consolidation" is moot; this note is left for future auditors. If a future feature ever writes document paths to a separate column, consolidate both sources in the admin query at that time.
   - hero.png (22.81 MB original) preserved in public/images/ — can be deleted once hero.webp is confirmed good in production to reclaim repo space.
-Last updated: 2026-08-21 (build.md pushed — all session changes live. Commits this session: bad4010 hero LCP, 43b1462 admin detail redesign, 941dcbe build.md log).
-GitHub: commit 941dcbe pushed to origin/master. Previous: 43b1462 (admin detail), bad4010 (hero LCP).
+Last updated: 2026-08-21 (draft-hiding filter shipped — commit 75ffb73 pushed to production).
+GitHub: commit 75ffb73 pushed to origin/master. Previous: 847cce5 (build.md), 43b1462 (admin detail redesign).
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-08-21).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -5593,3 +5593,46 @@ Build Log -- 2026-08-18 Supporting-document admin view bug fix
 
   Build: NEXT_TURBO=0 npx next build -- GREEN, 34 routes, 0 errors.
   Commit: 43b1462 pushed to origin/master.
+
+[2026-08-21] Admin draft-hiding display filter
+
+  Problem: unsubmitted draft applications were visible on two admin surfaces,
+  inflating Total Applications, distorting the Approval Rate, and cluttering
+  the Applications list with rows that need no admin action.
+
+  Surfaces investigated:
+  - admin/page.tsx (dashboard): total count had no status filter -- included drafts.
+    pending/under_review/approved/rejected/approvedFunding counts each had explicit
+    .eq("status",...) -- never included drafts. Only total was affected.
+  - admin/applications/page.tsx (list): no filter when params.status is empty --
+    drafts showed in the default "All" view.
+  - admin/applications/[id]/page.tsx: single-record fetch, not a listing. No change.
+  - admin/applications/[id]/promote/page.tsx: requires status=approved. No change.
+  - app/(app)/dashboard/page.tsx: uses createClient() + user_id RLS -- completely
+    separate code path. Applicant still sees and edits their own draft. Untouched.
+  - app/(app)/dashboard/apply/page.tsx: uses createClient(), .in("status",["draft",
+    "needs_documents"]). Untouched.
+
+  Files changed:
+  - app/(admin)/admin/page.tsx
+      total count query: added .neq("status","draft") before .is("deleted_at",null).
+      Effect: Total Applications excludes drafts. Approval Rate denominator (approved/total)
+      now reflects submitted applications only -- rate is meaningful.
+
+  - app/(admin)/admin/applications/page.tsx
+      Default query (params.status empty): added .neq("status","draft") branch.
+      When params.status is set: existing .eq("status",...) unchanged -- selecting
+      "Draft" from the dropdown still shows only drafts.
+      "All statuses" option renamed to "All submitted".
+      Added "Drafts hidden. Show drafts" hint (links to ?status=draft) shown when
+      no status filter is active, so admins know drafts exist and can reach them.
+
+  Decisions:
+  - Display filter only -- no data changes, no DB migration, no RLS change.
+  - Toggle is the existing status dropdown (select "Draft") + the hint link.
+    No new UI element needed; the hint is the discovery mechanism.
+  - Soft-delete filter (.is("deleted_at",null)) preserved on both surfaces --
+    draft exclusion is a second .neq layered on top of it, not a replacement.
+
+  Build: NEXT_TURBO=0 npx next build -- GREEN, 34 routes, 0 errors.
+  Commit: 75ffb73 pushed to origin/master.
