@@ -5,8 +5,8 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: SEO METADATA — COMPLETE. Pushed to production. Build GREEN (34 routes, 0 errors).
-Last completed: SEO metadata + OG/Twitter cards + og-image asset fully wired and pushed (2026-07-31). Commit 21ef8d3. Title, description, og:*, twitter:* set on homepage via typed Metadata export. og-image at /images/og-image.png (1200×630) — path corrected from /og-image.png (file was in public/images/, not public/ root). Both app/(marketing)/page.tsx and app/layout.tsx updated. Deployed to Vercel via git push.
+Phase: PERFORMANCE — Hero image LCP fix applied. Build GREEN (34 routes, 0 errors).
+Last completed: Hero image optimised (2026-08-21). hero.png (22.81 MB, 7958×4179px) compressed to hero.webp (78 KB, 1920×1008px — 99.7% size reduction). Hero component converted from CSS background-image to next/image with fill + priority + sizes="100vw". Build verified clean: NEXT_TURBO=0 npx next build — 34 routes, 0 errors.
 Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -32,9 +32,10 @@ Known open issues:
   - Admin sidebar footer shows "Imani Ventures" as the name — DATA ISSUE. The super_admin profile's full_name column is set to "Imani Ventures" instead of the admin's real name. Fix: UPDATE profiles SET full_name = 'Victor' WHERE role = 'super_admin'; OR use inline edit on /admin/users.
   - Admin sidebar: three stray dark circular elements reported overlapping the left edge of the sidebar. Source not identified from code — no circles or border-radius:50% elements exist in any admin component. Requires DevTools element inspection to identify the DOM source.
   - TECH DEBT (non-blocking): No legacy financial_statements_url / bank_statements_url columns exist in this schema — confirmed by searching all migrations, database.types.ts, and source. application_documents has been the single source of truth since migration 1. The anticipated "dual-write consolidation" is moot; this note is left for future auditors. If a future feature ever writes document paths to a separate column, consolidate both sources in the admin query at that time.
-Last updated: 2026-08-18 (Supporting-doc admin view bug fixed — build GREEN 34 routes).
-GitHub: commit 21ef8d3 pushed to origin/master. Previous: d7feabf.
-Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-07-31).
+  - hero.png (22.81 MB original) preserved in public/images/ — can be deleted once hero.webp is confirmed good in production to reclaim repo space.
+Last updated: 2026-08-21 (Hero image LCP fix — hero.png → hero.webp + next/image with priority).
+GitHub: commit 3027d3f pushed to origin/master (last push). Uncommitted: hero.webp added, Hero.tsx updated.
+Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-08-21).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
   Run builds with: NEXT_TURBO=0 npx next build
@@ -5521,3 +5522,30 @@ Build Log -- 2026-08-18 Supporting-document admin view bug fix
 
   Deviations: none.
   Build: NEXT_TURBO=0 npx next build -- GREEN. 34 routes, zero errors (2026-08-18).
+
+[2026-08-21] Performance — Hero image LCP fix
+  Problem: hero.png was 22.81 MB at 7958×4179px, loaded as a plain CSS background-image on the
+  homepage hero section (components/marketing/Hero.tsx). Three compounding issues:
+    1. Source file massively oversized — raw export, never compressed for web.
+    2. CSS background-image bypasses Next.js image optimisation entirely (no WebP, no srcset).
+    3. No priority signal — browser discovers image only after CSS parse, delaying LCP.
+
+  Files changed:
+  - public/images/hero.webp — NEW. Created with sharp (resize 1920px wide, WebP quality 82).
+      22.81 MB → 78 KB (99.7% reduction). Dimensions: 1920×1008.
+  - components/marketing/Hero.tsx — Removed backgroundImage CSS property from section.
+      Added <Image src="/images/hero.webp" fill priority sizes="100vw"
+        style={{ objectFit:"cover", objectPosition:"center" }} />.
+      Imported from "next/image".
+
+  Result: next/image now handles automatic WebP/AVIF serving, responsive srcset generation,
+  and injects <link rel="preload"> in <head> for immediate LCP element loading.
+  Mobile devices receive a proportionally smaller variant rather than the full 78KB desktop file.
+
+  Decisions:
+  - hero.png kept on disk — delete after production confirmation.
+  - alt="" (empty) intentional — decorative background image, no meaningful content for screen readers.
+  - quality 82 chosen for WebP: visually lossless at display sizes, 99.7% smaller than source.
+
+  Build: NEXT_TURBO=0 npx next build — GREEN, 34 routes, 0 errors.
+  Open issues: None new. hero.png cleanup pending production confirmation.

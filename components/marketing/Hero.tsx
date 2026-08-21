@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+﻿import Image from "next/image";
+import Link from "next/link";
 import HeroTicker from "@/components/marketing/HeroTicker";
 
 export default function Hero() {
@@ -8,14 +9,18 @@ export default function Hero() {
       width: "100%",
       minHeight: "100vh",
       marginTop: "-80px",
-      backgroundImage: "url('/images/hero.png')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
       display: "flex",
       flexDirection: "column",
       justifyContent: "flex-end",
     }}>
+      <Image
+        src="/images/hero.webp"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        style={{ objectFit: "cover", objectPosition: "center" }}
+      />
       {/* Gradient overlay */}
       <div style={{
         position: "absolute",
