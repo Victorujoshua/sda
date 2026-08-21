@@ -63,7 +63,13 @@ export default async function ApplicationsPage({
     .order("created_at", { ascending: false })
     .limit(200);
 
-  if (params.status) query = query.eq("status", params.status as never);
+  if (params.status) {
+    query = query.eq("status", params.status as never);
+  } else {
+    // Default: hide drafts — unsubmitted applications need no admin action.
+    // Admins can opt in by selecting "Draft" from the status filter.
+    query = query.neq("status", "draft" as never);
+  }
   if (params.funding_type) query = query.eq("funding_type", params.funding_type as never);
   if (params.search) {
     const s = params.search.trim();
@@ -165,7 +171,7 @@ export default async function ApplicationsPage({
             defaultValue={params.status ?? ""}
             style={{ ...inputStyle, width: 160 }}
           >
-            <option value="">All statuses</option>
+            <option value="">All submitted</option>
             <option value="pending">Pending</option>
             <option value="under_review">Under review</option>
             <option value="needs_documents">Docs requested</option>
@@ -233,6 +239,26 @@ export default async function ApplicationsPage({
           </Link>
         )}
       </form>
+
+      {/* Draft hint — shown only on the default (no status filter) view */}
+      {!params.status && (
+        <p
+          style={{
+            fontFamily: "var(--in)",
+            fontSize: 14,
+            color: "var(--muted)",
+            margin: "0 0 16px",
+          }}
+        >
+          Drafts hidden.{" "}
+          <Link
+            href="/admin/applications?status=draft"
+            style={{ color: "var(--crimson)", textDecoration: "none" }}
+          >
+            Show drafts →
+          </Link>
+        </p>
+      )}
 
       {/* Count */}
       <p

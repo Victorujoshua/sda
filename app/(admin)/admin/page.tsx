@@ -82,7 +82,7 @@ export default async function AdminOverviewPage() {
     { count: totalUsers },
     { data: approvedFunding },
   ] = await Promise.all([
-    db.from("applications").select("*", { count: "exact", head: true }).is("deleted_at" as never, null),
+    db.from("applications").select("*", { count: "exact", head: true }).neq("status", "draft" as never).is("deleted_at" as never, null),
     db
       .from("applications")
       .select("*", { count: "exact", head: true })
