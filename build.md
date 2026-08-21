@@ -5,8 +5,8 @@ Imani Ventures Platform — build.md
 > If build.md and CLAUDE.md ever conflict, stop and ask before proceeding.
 ---
 Current State
-Phase: PERFORMANCE — Hero image LCP fix applied. Build GREEN (34 routes, 0 errors).
-Last completed: Hero image optimised (2026-08-21). hero.png (22.81 MB, 7958×4179px) compressed to hero.webp (78 KB, 1920×1008px — 99.7% size reduction). Hero component converted from CSS background-image to next/image with fill + priority + sizes="100vw". Build verified clean: NEXT_TURBO=0 npx next build — 34 routes, 0 errors.
+Phase: ADMIN UX — Application detail view redesigned + document visibility fixed. Build GREEN (34 routes, 0 errors).
+Last completed: Admin application detail page redesigned (2026-08-21, commit 43b1462). Confirmed commit 6a0c9df never existed — fix was not previously committed. Document query (all application_documents rows) was already correct from 3027d3f. New this session: filename shown per document; image files (jpg/png/gif/webp) detected by extension and rendered as inline thumbnail via signed URL; PDF/other files show extension badge; decision strip (Funding Ask / Monthly Revenue / Structure / Document count) at top of page; documents card moved above description; description bounded to max-height 220px scrollable; status badge colour-coded; blacklist badge in header; all existing actions/data preserved.
 Next: (1) USER ACTION: Add LOOPS_TEMPLATE_DOCUMENTS_REQUESTED env var in Vercel + .env.local. Create Loops template (variables: applicant_name, business_name, documents_note). (2) CRITICAL — confirm PAYSTACK_SECRET_KEY in Vercel is the LIVE secret key. (3) Register webhook URL https://imaniventures.org/api/webhooks/paystack in Paystack dashboard. (4) Run reconciliation SQL for investors with has_paid_membership=false. (5) Set all LOOPS_TEMPLATE_* env vars + NEXT_PUBLIC_APP_URL in Vercel.
 Live URL: https://imaniventures.org (domain purchased; Vercel routing + DNS pending manual steps).
 Known open issues:
@@ -33,8 +33,8 @@ Known open issues:
   - Admin sidebar: three stray dark circular elements reported overlapping the left edge of the sidebar. Source not identified from code — no circles or border-radius:50% elements exist in any admin component. Requires DevTools element inspection to identify the DOM source.
   - TECH DEBT (non-blocking): No legacy financial_statements_url / bank_statements_url columns exist in this schema — confirmed by searching all migrations, database.types.ts, and source. application_documents has been the single source of truth since migration 1. The anticipated "dual-write consolidation" is moot; this note is left for future auditors. If a future feature ever writes document paths to a separate column, consolidate both sources in the admin query at that time.
   - hero.png (22.81 MB original) preserved in public/images/ — can be deleted once hero.webp is confirmed good in production to reclaim repo space.
-Last updated: 2026-08-21 (Hero image LCP fix — hero.png → hero.webp + next/image with priority).
-GitHub: commit 3027d3f pushed to origin/master (last push). Uncommitted: hero.webp added, Hero.tsx updated.
+Last updated: 2026-08-21 (Admin application detail redesign + document visibility — commit 43b1462 pushed to production).
+GitHub: commit 43b1462 pushed to origin/master. Previous: bad4010 (hero LCP), 3027d3f.
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-08-21).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
@@ -5549,3 +5549,47 @@ Build Log -- 2026-08-18 Supporting-document admin view bug fix
 
   Build: NEXT_TURBO=0 npx next build — GREEN, 34 routes, 0 errors.
   Open issues: None new. hero.png cleanup pending production confirmation.
+
+[2026-08-21] Admin application detail -- document visibility fix + layout redesign
+
+  Investigation findings:
+  - Commit 6a0c9df (claimed to fix supporting-doc visibility) does not exist in this repo.
+    The fix was never committed or pushed. This confirmed the client-reported bug.
+  - The document query added in commit 3027d3f WAS correct: all application_documents rows
+    for the application are fetched (financials + bank_statement + supporting). No legacy
+    URL columns exist on the applications table (build.md tech-debt note confirmed correct).
+  - Remaining document bug: image files (jpg/png) were rendered identically to PDFs -- just
+    a text link. No filename shown. No thumbnail. Admins could not distinguish or preview images.
+
+  Files changed:
+  - app/(admin)/admin/applications/[id]/page.tsx -- full rewrite of JSX layout;
+    data fetching logic and signed URL generation preserved unchanged.
+
+  Document fixes:
+  - fileName() helper extracts filename from file_path for display
+  - isImage() checks extension against IMAGE_EXTS set (jpg/jpeg/png/gif/webp/avif/heic)
+  - Image files: 64x64 thumbnail rendered via signed URL + filename + date + View button
+  - Non-image files: extension badge (e.g. "PDF") + filename + date + View button
+  - View button styled crimson (was a flat grey link, easy to miss)
+  - Document count shown in decision strip and Documents card header
+  - docGroups logic unchanged -- all 3 types (financials/bank_statement/supporting) covered
+
+  Layout redesign:
+  - Decision strip: 4 stat cards in a row immediately below the header:
+      Funding Ask | Monthly Revenue | Structure | Document count
+    These are the numbers driving approve/reject -- now visible without scrolling.
+  - Left column order changed: Documents FIRST, then Description, then Business info
+    (previously: Business info with long description -> Funding -> Documents at bottom)
+  - Business description now bounded to max-height: 220px with overflow-y: auto so a long
+    description cannot push the rest of the page off screen
+  - Status badge colour-coded by state (pending amber, under_review blue, approved green,
+    rejected/needs_documents maroon/amber)
+  - Blacklist badge shown inline next to status in header
+  - Right column: Actions -> Applicant (email + phone shown) -> Internal notes
+  - Applicant card now shows contact_email and contact_phone directly (previously only
+    shown in the left-column Field list, requiring scroll)
+  - All existing actions (approve/reject/request docs/blacklist/delete) preserved
+  - Brand tokens only: cream bg, white cards, crimson primary, maroon destructive, ink text
+
+  Build: NEXT_TURBO=0 npx next build -- GREEN, 34 routes, 0 errors.
+  Commit: 43b1462 pushed to origin/master.
