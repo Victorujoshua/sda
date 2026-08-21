@@ -33,8 +33,8 @@ Known open issues:
   - Admin sidebar: three stray dark circular elements reported overlapping the left edge of the sidebar. Source not identified from code — no circles or border-radius:50% elements exist in any admin component. Requires DevTools element inspection to identify the DOM source.
   - TECH DEBT (non-blocking): No legacy financial_statements_url / bank_statements_url columns exist in this schema — confirmed by searching all migrations, database.types.ts, and source. application_documents has been the single source of truth since migration 1. The anticipated "dual-write consolidation" is moot; this note is left for future auditors. If a future feature ever writes document paths to a separate column, consolidate both sources in the admin query at that time.
   - hero.png (22.81 MB original) preserved in public/images/ — can be deleted once hero.webp is confirmed good in production to reclaim repo space.
-Last updated: 2026-08-21 (Admin application detail redesign + document visibility — commit 43b1462 pushed to production).
-GitHub: commit 43b1462 pushed to origin/master. Previous: bad4010 (hero LCP), 3027d3f.
+Last updated: 2026-08-21 (build.md pushed — all session changes live. Commits this session: bad4010 hero LCP, 43b1462 admin detail redesign, 941dcbe build.md log).
+GitHub: commit 941dcbe pushed to origin/master. Previous: 43b1462 (admin detail), bad4010 (hero LCP).
 Build: Next.js 16.2.9 — GREEN. NEXT_TURBO=0 npx next build: 34 routes, zero errors (2026-08-21).
   Marketing pages static (○) except /opportunities and /opportunities/[id] which are ƒ (Dynamic).
   NOTE: Turbopack build fails with network-fetch fonts. Fonts now loaded via <link> CDN tags (not next/font/google) — Turbopack issue resolved at source.
